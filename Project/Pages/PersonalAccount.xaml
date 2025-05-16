@@ -1,0 +1,77 @@
+﻿<Page x:Class="Project.Pages.PersonalAccount"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Project.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="PersonalAccount">
+
+    <Grid Background="#FFE5E5E5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Background="#F5F5F5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="15"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Label Content="Личный кабинет" Grid.Row="0" 
+                   HorizontalAlignment="Center" 
+                   FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="18" 
+                   Margin="0,10"/>
+            <Grid Grid.Row="2" Margin="5,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Image Width="30" Height="30" Source="/Image/avata.jpg"/>
+                <Label Content="Фамилия Имя Отчество" Grid.Column="1" 
+                       Margin="5,0,0,0" VerticalAlignment="Center"
+                       Foreground="#FF0F0FE3" FontWeight="Bold"/>
+            </Grid>
+            <Button Content="Все сотрудники" Click="AllEmployees_Click" 
+                    Grid.Row="4" Height="30" Margin="10,0"/>
+            <Button Content="Проекты" Click="Projects_Click" 
+                    Grid.Row="6" Height="30" Margin="10,0"/>
+            <Button Content="Мои задачи" Click="MyTasks_Click" 
+                    Grid.Row="8" Height="30" Margin="10,0"/>
+        </Grid>
+        <Grid Grid.Column="1" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Image Width="100" Height="100" Source="/Image/avata.jpg"
+                   Grid.Row="0" Grid.Column="0"/>
+            <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,0">
+                <Label Content="Фамилия Имя Отчество" 
+                       FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="24"/>
+                <Label Content="xx@xx.xx" Margin="0,5,0,0"/>
+            </StackPanel>
+            <Label Content="О себе" Grid.Row="4" Grid.ColumnSpan="2"
+                   FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
+            <TextBlock Grid.Row="6" Grid.ColumnSpan="2" TextWrapping="Wrap"
+                   Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."/>
+        </Grid>
+    </Grid>
+</Page>

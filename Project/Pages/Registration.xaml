@@ -1,0 +1,74 @@
+﻿<Page x:Class="Project.Pages.Registration"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Project.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Registration">
+
+    <Grid Background="#FFE5E5E5">
+        <Grid Margin="148,90,148,90" Background="White">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="15"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label Content="Регистрация" Grid.Row="0"
+                   HorizontalAlignment="Center"
+                   FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="24"/>
+            <TextBox x:Name="FOI" Grid.Row="2" Height="30" Text="ФИО"
+                     HorizontalAlignment="Center" Width="350"/>
+            <TextBox x:Name="txtEmail" Grid.Row="4" Height="30" Text="Почта xx@xx.xx"
+                     HorizontalAlignment="Center" Width="350"/>
+            <Grid Grid.Row="6" HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="txtPassword" Grid.Column="0" 
+                         Height="30" Width="170" Text="Пароль"/>
+                <TextBox x:Name="txtConfirmPassword" Grid.Column="2"
+                         Height="30" Width="170" Text="Подтвердите пароль"/>
+            </Grid>
+            <Button Content="Зарегистрироваться" Grid.Row="10"
+                    Height="35" Background="Black" Foreground="White" 
+                    FontWeight="Bold" Click="RegisterButton_Click"
+                    HorizontalAlignment="Center" Width="308"/>
+            <TextBlock Text="Или" Grid.Row="12" FontWeight="Bold" 
+                      HorizontalAlignment="Center" FontFamily="Malgun Gothic"/>
+            <TextBlock Text="Войти в аккаунт" Grid.Row="14"
+                       HorizontalAlignment="Center" FontWeight="Bold" 
+                       TextDecorations="Underline" Foreground="#FF0F0FE3">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Foreground" Value="Blue"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="TextDecorations" Value="Underline"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+                <TextBlock.InputBindings>
+                    <MouseBinding Gesture="LeftClick" Command="{Binding LoginCommand}"/>
+                </TextBlock.InputBindings>
+            </TextBlock>
+        </Grid>
+    </Grid>
+</Page>
