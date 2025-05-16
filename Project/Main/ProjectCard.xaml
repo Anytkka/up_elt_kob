@@ -7,7 +7,7 @@
              mc:Ignorable="d"
              d:DesignHeight="180" d:DesignWidth="300">
 
-    <Border CornerRadius="5" Background="White" Padding="20"
+    <Border CornerRadius="10" Background="White" Padding="20"
             BorderThickness="1" BorderBrush="#EEEEEE">
         <Grid>
             <Grid.RowDefinitions>
@@ -27,7 +27,7 @@
                       FontFamily="Verdana" Margin="0,0,0,15"/>
             <Button Grid.Row="3" Content="К задачам проекта" 
                     Background="#FF0F0FE3" Foreground="White" 
-                    FontFamily="Verdana" Height="35" Margin="0,30,0,-1" Grid.RowSpan="2"/>
+                    FontFamily="Verdana" Height="35" Margin="0,30,0,-1" Grid.RowSpan="2" BorderBrush="#FF0F0FE3"/>
         </Grid>
     </Border>
 </UserControl>

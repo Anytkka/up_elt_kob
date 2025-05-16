@@ -75,6 +75,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\AddSubtask.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\CreateTask.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -107,6 +111,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\SubtaskDetails.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\ViewProject.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -118,6 +126,9 @@
     </Compile>
     <Compile Include="Main\ProjectCard.xaml.cs">
       <DependentUpon>ProjectCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\AddSubtask.xaml.cs">
+      <DependentUpon>AddSubtask.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\CreateTask.xaml.cs">
       <DependentUpon>CreateTask.xaml</DependentUpon>
@@ -142,6 +153,9 @@
     </Compile>
     <Compile Include="Pages\Registration.xaml.cs">
       <DependentUpon>Registration.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SubtaskDetails.xaml.cs">
+      <DependentUpon>SubtaskDetails.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\ViewProject.xaml.cs">
       <DependentUpon>ViewProject.xaml</DependentUpon>
@@ -177,6 +191,8 @@
   <ItemGroup>
     <Resource Include="Image\avata.jpg" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Image\fon.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,5 +1,4 @@
-﻿using Project.Pages;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,14 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Project
+namespace Project.Pages
 {
-    public partial class MainWindow : Window
+    /// <summary>
+    /// Логика взаимодействия для SubtaskDetails.xaml
+    /// </summary>
+    public partial class SubtaskDetails : Page
     {
-        public MainWindow()
+        public SubtaskDetails()
         {
             InitializeComponent();
-            MainFrame.Navigate(new Login());
         }
     }
 }

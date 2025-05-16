@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Project.Main"
              mc:Ignorable="d">
 
-    <Border Background="White" CornerRadius="5" Padding="20"
+    <Border Background="White" CornerRadius="10" Padding="20"
             BorderThickness="1" BorderBrush="#EEEEEE">
         <Grid>
             <Grid.RowDefinitions>
