@@ -5,9 +5,9 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Project.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="500" d:DesignWidth="800"
       Title="editProfil">
-    
+
     <Grid Background="#FFE5E5E5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
@@ -18,23 +18,19 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="15"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="5"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="5"/>
+                <RowDefinition Height="10"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="2" Margin="5,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-            </Grid>
-        </Grid><Image Width="100" Height="100" Source="/Image/avata.jpg"
-                Grid.Row="0" Grid.Column="0" Margin="38,33,62,317"/>
-        
+            <Image Width="100" Height="100" Source="/Image/avata.jpg"
+                   Grid.Row="0" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Изменить" Width="80" Margin="0,0,5,0" 
+                        Background="#FF0F0FE3" Foreground="White"/>
+                <Button Content="Удалить" Width="80" 
+                        Background="#FFFF0000" Foreground="White"/>
+            </StackPanel>
+        </Grid>
         <Grid Grid.Column="1" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -42,33 +38,29 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
             <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                <TextBlock Text="ФИО" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock Text="ФИО*" FontWeight="Bold" Margin="0,0,0,5"/>
                 <TextBox x:Name="txtFullName" Height="30" Text="Фамилия Имя Отчество"/>
             </StackPanel>
-
             <StackPanel Grid.Row="1" Margin="0,0,0,20">
-                <TextBlock Text="Email" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock Text="Email*" FontWeight="Bold" Margin="0,0,0,5"/>
                 <TextBox x:Name="txtEmail" Height="30" Text="client@example.com"/>
             </StackPanel>
-
             <StackPanel Grid.Row="2" Margin="0,0,0,20">
-                <TextBlock Text="Пароль" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock Text="Пароль*" FontWeight="Bold" Margin="0,0,0,5"/>
                 <PasswordBox x:Name="txtPassword" Height="30"/>
-                <TextBlock FontStyle="Italic" 
-                           Foreground="Gray" Margin="0,5,0,0"/>
+                <TextBlock Text="Оставьте пустым, чтобы не изменять" 
+                           FontStyle="Italic" Foreground="Gray" Margin="0,5,0,0"/>
             </StackPanel>
-
             <StackPanel Grid.Row="3" Margin="0,0,0,20">
                 <TextBlock Text="О себе" FontWeight="Bold" Margin="0,0,0,5"/>
                 <TextBox x:Name="txtBio" Height="150" TextWrapping="Wrap" AcceptsReturn="True"
                          Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit..."/>
             </StackPanel>
+            <Button Grid.Row="5" Content="Сохранить" Height="35" HorizontalAlignment="Right"
+                    Width="120" Margin="0,0,0,20" Foreground="White" Background="#FF0F0FE3"/>
         </Grid>
-        <Button Content="Сохранить" Height="30" Margin="10,391,10,29" Foreground="#FFD4D4D4" Background="#FF0F0FE3"/>
     </Grid>
-    
-    
 </Page>

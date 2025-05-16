@@ -75,6 +75,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\CreateTask.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\creatProject.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\editProfil.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -99,6 +107,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\ViewProject.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main\DeleteAccount.xaml.cs">
@@ -106,6 +118,12 @@
     </Compile>
     <Compile Include="Main\ProjectCard.xaml.cs">
       <DependentUpon>ProjectCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\CreateTask.xaml.cs">
+      <DependentUpon>CreateTask.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\creatProject.xaml.cs">
+      <DependentUpon>creatProject.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\editProfil.xaml.cs">
       <DependentUpon>editProfil.xaml</DependentUpon>
@@ -124,6 +142,9 @@
     </Compile>
     <Compile Include="Pages\Registration.xaml.cs">
       <DependentUpon>Registration.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ViewProject.xaml.cs">
+      <DependentUpon>ViewProject.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

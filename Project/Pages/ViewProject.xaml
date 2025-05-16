@@ -1,0 +1,105 @@
+﻿<Page x:Class="Project.Pages.ViewProjectPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Project.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="800"
+      Title="ViewProject">
+
+    <Grid Background="#FFE5E5E5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="1" Margin="20,20,20,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0">
+                <Label Content="Name_project" 
+                       FontFamily="Malgun Gothic" 
+                       FontSize="18" 
+                       FontWeight="Bold"/>
+                <Label Content="Создатель: Вы" 
+                       FontFamily="Malgun Gothic" 
+                       FontStyle="Italic"/>
+                <Label Content="Описание проекта" 
+                       FontFamily="Malgun Gothic" 
+                       Margin="0,10,0,0"/>
+            </StackPanel>
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Label Content="Данные проекта" 
+                       FontFamily="Malgun Gothic" 
+                       FontWeight="Bold"/>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Наименование" 
+                           FontFamily="Malgun Gothic"/>
+                    <Label Grid.Column="1" 
+                           Content="Name_project" 
+                           FontFamily="Malgun Gothic"/>
+                </Grid>
+
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Публичность" 
+                           FontFamily="Malgun Gothic"/>
+                    <Label Grid.Column="1" 
+                           Content="Закрытый" 
+                           FontFamily="Malgun Gothic"/>
+                </Grid>
+            </Grid>
+            <StackPanel Grid.Row="4">
+                <Label Content="Участники проекта" 
+                       FontFamily="Malgun Gothic" 
+                       FontWeight="Bold"/>
+
+                <ListView Margin="0,10,0,0">
+                    <ListViewItem>
+                        <Label Content="Фамилия Имя Отчество (Создатель)" 
+                               FontFamily="Malgun Gothic"/>
+                    </ListViewItem>
+                    <ListViewItem>
+                        <Label Content="Фамилия Имя Отчество (Администратор)" 
+                               FontFamily="Malgun Gothic"/>
+                    </ListViewItem>
+                    <ListViewItem>
+                        <Label Content="Фамилия Имя Отчество (Пользователь)" 
+                               FontFamily="Malgun Gothic"/>
+                    </ListViewItem>
+                </ListView>
+                <StackPanel Orientation="Horizontal" 
+                            HorizontalAlignment="Right" 
+                            Margin="0,20,0,0">
+                    <Button Content="Закрыть" 
+                            Width="150" 
+                            Margin="0,0,10,0"
+                            FontFamily="Malgun Gothic"
+                            Background="#FF0F0FE3" 
+                            Foreground="White"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>
