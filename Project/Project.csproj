@@ -67,7 +67,19 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Main\DeleteAccount.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Main\ProjectCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\editProfil.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Kanban.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -89,8 +101,17 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Main\DeleteAccount.xaml.cs">
+      <DependentUpon>DeleteAccount.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Main\ProjectCard.xaml.cs">
+      <DependentUpon>ProjectCard.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\editProfil.xaml.cs">
       <DependentUpon>editProfil.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Kanban.xaml.cs">
+      <DependentUpon>Kanban.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
@@ -135,5 +156,6 @@
   <ItemGroup>
     <Resource Include="Image\avata.jpg" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
