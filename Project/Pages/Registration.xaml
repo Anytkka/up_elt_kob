@@ -9,7 +9,7 @@
       Title="Registration">
 
     <Grid Background="#FFE5E5E5">
-        <Border Grid.Row="1" Background="White" Margin="150,100,150,100" CornerRadius="10">
+        <Border Background="White" Margin="150,100,150,79" CornerRadius="10">
             <Grid Margin="0,10,0,10" Background="White">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

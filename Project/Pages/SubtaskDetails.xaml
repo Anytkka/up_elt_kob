@@ -36,7 +36,7 @@
                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Description}" Margin="10,0,10,0" VerticalAlignment="Center" Height="62"/>
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Ответственный" Margin="10,0,10,0" VerticalAlignment="Center" Height="15" FontFamily="Verdana"/>
                 <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ResponsiblePerson}" Margin="10,0,10,0" VerticalAlignment="Center" Height="15"/>
-                <Button Grid.Row="5" Grid.Column="1" Content="Закрыть" Margin="306,27,0,10" Padding="10,5" HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Close" Width="120" Height="30" BorderBrush="#FF0F0FE3" FontFamily="Verdana"/>
+                <Button Grid.Row="5" Grid.Column="1" Content="Закрыть" Margin="306,27,0,10" Padding="10,5" HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt_Close" Width="120" Height="30" BorderBrush="#FF0F0FE3" FontFamily="Verdana"/>
             </Grid>
         </Border>
     </Grid>

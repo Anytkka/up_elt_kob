@@ -24,5 +24,15 @@ namespace Project.Pages
         {
             InitializeComponent();
         }
+
+        private void Bt_Cancel(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt_AddS(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
