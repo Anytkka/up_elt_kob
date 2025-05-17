@@ -17,7 +17,7 @@ namespace Project.Class
 
         public Task(int id, string name, string description, DateTime dueDate, int status, int projectId)
         {
-            this.Id = id;
+            this.Id = id; 
             this.Name = name;
             this.Description = description;
             this.DueDate = dueDate;
