@@ -11,10 +11,24 @@ namespace Project.Pages
             InitializeComponent(); // ← этот вызов остаётся
         }
 
-        // Ваши обработчики (должны соответствовать XAML)
-        private void Bt_Projects(object sender, RoutedEventArgs e) {}
-        private void Bt_MyTasks(object sender, RoutedEventArgs e) {}
-        private void Bt_EditProfile(object sender, RoutedEventArgs e) {}
-        private void Bt_Exit(object sender, RoutedEventArgs e) {}
+        private void Bt_Projects(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt_MyTasks(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt_EditProfile(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt_Exit(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
