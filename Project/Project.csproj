@@ -194,5 +194,8 @@
   <ItemGroup>
     <Resource Include="Image\fon.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Classes\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
