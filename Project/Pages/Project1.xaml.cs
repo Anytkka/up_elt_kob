@@ -16,13 +16,28 @@ using System.Windows.Shapes;
 namespace Project.Pages
 {
     /// <summary>
-    /// Логика взаимодействия для project.xaml
+    /// Логика взаимодействия для Project1.xaml
     /// </summary>
-    public partial class project : Page
+    public partial class Project1 : Page
     {
-        public project()
+        public Project1()
         {
             InitializeComponent();
+        }
+
+        private void Bt1_Projects(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt1_MyTasks(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt_CreateProject(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
