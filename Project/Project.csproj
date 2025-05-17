@@ -118,6 +118,7 @@
     <Compile Include="Classes\Common\Connection.cs" />
     <Compile Include="Classes\KanbanColumnContext.cs" />
     <Compile Include="Classes\ProjectContext.cs" />
+    <Compile Include="Classes\TaskUserContext.cs" />
     <Compile Include="Classes\UserContext.cs.cs" />
     <Compile Include="Modell\KanbanColumn.cs" />
     <Compile Include="Modell\Project.cs" />
