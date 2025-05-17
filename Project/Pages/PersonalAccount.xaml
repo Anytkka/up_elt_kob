@@ -14,6 +14,8 @@
             <ColumnDefinition Width="7*"/>
             <ColumnDefinition Width="143*"/>
         </Grid.ColumnDefinitions>
+
+        <!-- Левая панель навигации -->
         <Grid Grid.Column="0" Background="#F5F5F5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -27,10 +29,14 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
             <Label Content="Личный кабинет" Grid.Row="0"
                    HorizontalAlignment="Center"
-                   FontFamily="Verdana" FontWeight="Bold" FontSize="18"
+                   FontFamily="Verdana" 
+                   FontWeight="Bold" 
+                   FontSize="18"
                    Margin="0,10"/>
+
             <Grid Grid.Row="2" Margin="5,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -38,16 +44,33 @@
                 </Grid.ColumnDefinitions>
                 <Image Width="30" Height="30" Source="/Image/avata.jpg"/>
                 <Label Content="Фамилия Имя Отчество" Grid.Column="1"
-                       Margin="5,0,0,0" VerticalAlignment="Center"
-                       Foreground="#FF0F0FE3" FontWeight="Bold" FontFamily="Verdana"/>
+                       Margin="5,0,0,0" 
+                       VerticalAlignment="Center"
+                       Foreground="#FF0F0FE3" 
+                       FontWeight="Bold" 
+                       FontFamily="Verdana"/>
             </Grid>
-            <Button x:Name="AllEmployees" Content="Все сотрудники" Click="AllEmployees"
-                    Grid.Row="4" Height="30" Margin="10,0" FontFamily="Verdana" BorderBrush="#FFDDDDDD"/>
-            <Button x:Name="Projects" Content="Проекты" Click="Projects"
-                    Grid.Row="6" Height="30" Margin="10,0" FontFamily="Verdana" BorderBrush="#FFDDDDDD"/>
-            <Button x:Name="MyTasks" Content="Мои задачи" Click="MyTasks"
-                    Grid.Row="8" Height="30" Margin="10,0" FontFamily="Verdana" BorderBrush="#FFC3C3C3"/>
+
+            <Button x:Name="Projects" 
+                    Content="Проекты" 
+                    Click="Bt_Projects"
+                    Grid.Row="6" 
+                    Height="30" 
+                    Margin="10,0" 
+                    FontFamily="Verdana" 
+                    BorderBrush="#FFDDDDDD"/>
+
+            <Button x:Name="MyTasks" 
+                    Content="Мои задачи" 
+                    Click="Bt_MyTasks"
+                    Grid.Row="8" 
+                    Height="30" 
+                    Margin="10,0" 
+                    FontFamily="Verdana" 
+                    BorderBrush="#FFC3C3C3"/>
         </Grid>
+
+        <!-- Основное содержимое -->
         <Grid Grid.Column="1" Margin="20,20,20,20" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -62,19 +85,55 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Image Width="100" Height="100" Source="/Image/avata.jpg"
+
+            <Image Width="100" Height="100" 
+                   Source="/Image/avata.jpg"
                    Grid.Row="0" Grid.Column="0"/>
+
             <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,0">
                 <Label Content="Фамилия Имя Отчество"
-                       FontFamily="Verdana" FontWeight="Bold" FontSize="24"/>
-                <Label Content="xx@xx.xx" Margin="0,5,0,0" FontFamily="Verdana"/>
+                       FontFamily="Verdana" 
+                       FontWeight="Bold" 
+                       FontSize="24"/>
+                <Label Content="xx@xx.xx" 
+                       Margin="0,5,0,0" 
+                       FontFamily="Verdana"/>
             </StackPanel>
-            <Button x:Name="EditProfile" Content="Редактировать профиль" Click="EditProfile" Height="30" Margin="166,65,100,5" Grid.Column="1" Background="#FF0F0FE3" Foreground="White" FontFamily="Verdana" BorderBrush="#FF0F0FE3"/>
-            <Button x:Name="Exit" Content="Выйти" Click="Exit" Height="30" Margin="370,65,10,5" Grid.Column="1" Background="#FF0F0FE3" Foreground="White" FontFamily="Verdana" BorderBrush="#FF0F0FE3"/>
-            <Label Content="О себе" Grid.Row="4" Grid.ColumnSpan="2"
-                   FontFamily="Verdana" FontWeight="Bold" FontSize="14"/>
-            <TextBlock Grid.Row="6" Grid.ColumnSpan="2" TextWrapping="Wrap"
-                   Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." FontFamily="Verdana"/>
+
+            <Button x:Name="EditProfile" 
+                    Content="Редактировать профиль" 
+                    Click="Bt_EditProfile"
+                    Height="30" 
+                    Margin="166,65,100,5" 
+                    Grid.Column="1" 
+                    Background="#FF0F0FE3" 
+                    Foreground="White" 
+                    FontFamily="Verdana" 
+                    BorderBrush="#FF0F0FE3"/>
+
+            <Button x:Name="Exit" 
+                    Content="Выйти" 
+                    Click="Bt_Exit"
+                    Height="30" 
+                    Margin="370,65,10,5" 
+                    Grid.Column="1" 
+                    Background="#FF0F0FE3" 
+                    Foreground="White" 
+                    FontFamily="Verdana" 
+                    BorderBrush="#FF0F0FE3"/>
+
+            <Label Content="О себе" 
+                   Grid.Row="4" 
+                   Grid.ColumnSpan="2"
+                   FontFamily="Verdana" 
+                   FontWeight="Bold" 
+                   FontSize="14"/>
+
+            <TextBlock Grid.Row="6" 
+                       Grid.ColumnSpan="2" 
+                       TextWrapping="Wrap"
+                       Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." 
+                       FontFamily="Verdana"/>
         </Grid>
     </Grid>
 </Page>

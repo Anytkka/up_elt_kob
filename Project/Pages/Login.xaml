@@ -35,7 +35,7 @@
                      FontFamily="Verdana" HorizontalAlignment="Center" BorderBrush="#FFE6E6E6" Margin="0,5,0,22" Grid.RowSpan="2"/>
                 <Button Content="Авторизоваться" Grid.Row="5"
                     Height="34" Background="Black" Foreground="White" 
-                    FontWeight="Bold" Click="Login" 
+                    FontWeight="Bold" Click="Bt_Login" 
                     HorizontalAlignment="Center" Width="300" 
                     FontFamily="Verdana" Margin="0,40,0,18" Grid.RowSpan="5"/>
                 <TextBlock Text="Или" Grid.Row="8" FontWeight="Bold" 

@@ -1,28 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Project.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для PersonalAccount.xaml
-    /// </summary>
     public partial class PersonalAccount : Page
     {
+        // ТОЛЬКО конструктор и ваши методы
         public PersonalAccount()
         {
-            InitializeComponent();
+            InitializeComponent(); // ← этот вызов остаётся
         }
+
+        // Ваши обработчики (должны соответствовать XAML)
+        private void Bt_Projects(object sender, RoutedEventArgs e) {}
+        private void Bt_MyTasks(object sender, RoutedEventArgs e) {}
+        private void Bt_EditProfile(object sender, RoutedEventArgs e) {}
+        private void Bt_Exit(object sender, RoutedEventArgs e) {}
     }
 }

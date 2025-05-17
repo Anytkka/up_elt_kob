@@ -21,7 +21,7 @@ namespace Project
         public MainWindow()
         {
             InitializeComponent();
-            MainFrame.Navigate(new Login());
+            frame.Navigate(new Pages.Login());
         }
     }
 }
