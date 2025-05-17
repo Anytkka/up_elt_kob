@@ -4,12 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.Class
+namespace Project.Classes
 {
-    using System;
-
-    namespace Project.Class
-    {
         public class ProjUser
         {
             public int Id { get; set; } 
@@ -25,5 +21,4 @@ namespace Project.Class
                 this.Role = role;
             }
         }
-    }
 }
