@@ -327,7 +327,7 @@ namespace Project.Class
                 );
 
                 DBCconnect.CloseConnection(connection);
-                return projUser;
+                return projUser; 
             }
 
             DBCconnect.CloseConnection(connection);
