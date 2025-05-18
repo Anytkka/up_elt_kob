@@ -36,9 +36,13 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Image Width="30" Height="30" Source="/Image/avata.jpg"/>
-                <Label Content="Фамилия Имя Отчество" Grid.Column="1" 
-                   Margin="5,0,0,0" VerticalAlignment="Center"
-                   Foreground="#FF0F0FE3" FontWeight="Bold"/>
+                <Label Content="Фамилия Имя Отчество" Grid.Column="1"
+       Margin="5,0,0,0" 
+       VerticalAlignment="Center"
+       Foreground="#FF000083" 
+       FontWeight="Bold" 
+       FontFamily="Verdana" FontSize="10"
+       MouseDown="PAText_MouseDown"/>
             </Grid>
             <Button Content="Проекты" Click="Bt1_Projects" 
                 Grid.Row="6" Height="30" Margin="10,0,10,0" Grid.RowSpan="2" VerticalAlignment="Top"/>

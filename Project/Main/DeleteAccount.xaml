@@ -26,10 +26,10 @@
             <StackPanel Grid.Row="3" Orientation="Horizontal" 
                         HorizontalAlignment="Center">
                 <Button Content="Отмена" Width="195" Height="30"
-                        FontFamily="Verdana" Background="#FF0F0FE3" 
+                        FontFamily="Verdana" Background="#FF000083" 
                         Foreground="White" BorderBrush="#FF0F0FE3"/>
                 <Button Content="Удалить" Width="201" Height="30"
-                        FontFamily="Verdana" Foreground="#FFCC0000"
+                        FontFamily="Verdana" Foreground="#FFAE0101"
                         Background="White" BorderBrush="White"/>
             </StackPanel>
         </Grid>

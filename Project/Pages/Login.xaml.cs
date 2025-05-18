@@ -27,7 +27,11 @@ namespace Project.Pages
 
         private void Bt_Login(object sender, RoutedEventArgs e)
         {
-
+            NavigationService?.Navigate(new PersonalAccount());
+        }
+        private void RegisterText_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            NavigationService?.Navigate(new Registration());
         }
     }
 }

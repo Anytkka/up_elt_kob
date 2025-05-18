@@ -39,5 +39,9 @@ namespace Project.Pages
         {
 
         }
+        private void PAText_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            NavigationService?.Navigate(new PersonalAccount());
+        }
     }
 }

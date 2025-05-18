@@ -46,9 +46,10 @@
                 <Label Content="Фамилия Имя Отчество" Grid.Column="1"
                        Margin="5,0,0,0" 
                        VerticalAlignment="Center"
-                       Foreground="#FF0F0FE3" 
+                       Foreground="#FF000083" 
                        FontWeight="Bold" 
-                       FontFamily="Verdana"/>
+                       FontFamily="Verdana" FontSize="10"
+                       MouseDown="PAText_MouseDown"/>
             </Grid>
 
             <Button x:Name="Projects" 
@@ -67,7 +68,7 @@
                     Height="30" 
                     Margin="10,0" 
                     FontFamily="Verdana" 
-                    BorderBrush="#FFC3C3C3"/>
+                    BorderBrush="#FFDDDDDD"/>
         </Grid>
 
         <!-- Основное содержимое -->
@@ -83,14 +84,15 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="67*"/>
+                <ColumnDefinition Width="163*"/>
             </Grid.ColumnDefinitions>
 
             <Image Width="100" Height="100" 
                    Source="/Image/avata.jpg"
                    Grid.Row="0" Grid.Column="0"/>
 
-            <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,0">
+            <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Grid.ColumnSpan="2">
                 <Label Content="Фамилия Имя Отчество"
                        FontFamily="Verdana" 
                        FontWeight="Bold" 
@@ -104,36 +106,38 @@
                     Content="Редактировать профиль" 
                     Click="Bt_EditProfile"
                     Height="30" 
-                    Margin="166,65,100,5" 
-                    Grid.Column="1" 
-                    Background="#FF0F0FE3" 
+                    Margin="0,65,90,5" 
+                    Grid.Column="2" 
+                    Background="#FF000083" 
                     Foreground="White" 
                     FontFamily="Verdana" 
-                    BorderBrush="#FF0F0FE3"/>
+                    BorderBrush="#FF0F0FE3" HorizontalAlignment="Right" Width="190"/>
 
             <Button x:Name="Exit" 
                     Content="Выйти" 
                     Click="Bt_Exit"
                     Height="30" 
-                    Margin="370,65,10,5" 
-                    Grid.Column="1" 
-                    Background="#FF0F0FE3" 
+                    Margin="236,65,0,5" 
+                    Grid.Column="2" 
+                    Background="#FF000083" 
                     Foreground="White" 
                     FontFamily="Verdana" 
-                    BorderBrush="#FF0F0FE3"/>
+                    BorderBrush="#FF0F0FE3" 
+                    HorizontalAlignment="Right" Width="80"
+                    />
 
             <Label Content="О себе" 
                    Grid.Row="4" 
-                   Grid.ColumnSpan="2"
+                   Grid.ColumnSpan="3"
                    FontFamily="Verdana" 
                    FontWeight="Bold" 
                    FontSize="14"/>
 
-            <TextBlock Grid.Row="6" 
-                       Grid.ColumnSpan="2" 
+            <TextBlock Grid.Row="5" 
+                       Grid.ColumnSpan="3" 
                        TextWrapping="Wrap"
                        Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." 
-                       FontFamily="Verdana"/>
+                       FontFamily="Verdana" Margin="0,5,0,0" Grid.RowSpan="2"/>
         </Grid>
     </Grid>
 </Page>
