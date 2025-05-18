@@ -24,5 +24,20 @@ namespace Project.Pages
         {
             InitializeComponent();
         }
+
+        private void Bt6_Edit(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt6_Delete(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt6_SavePA(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

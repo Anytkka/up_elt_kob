@@ -24,5 +24,10 @@ namespace Project.Pages
         {
             InitializeComponent();
         }
+
+        private void Bt8_Close(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

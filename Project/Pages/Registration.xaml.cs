@@ -24,5 +24,10 @@ namespace Project.Pages
         {
             InitializeComponent();
         }
+
+        private void Bt_Register(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

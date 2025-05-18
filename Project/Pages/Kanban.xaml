@@ -1,4 +1,4 @@
-﻿<Page x:Class="Project.Pages.ProjectTasks"
+﻿<Page x:Class="Project.Pages.Kanban"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:Project.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="600"
-      Title="ProjectTasks" Width="1268">
+      Title="Kanban" Width="1268">
 
     <Grid Background="#FFE5E5E5">
         <Grid.ColumnDefinitions>
@@ -37,17 +37,14 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Image Width="30" Height="30" Source="C:\Users\anuta\Source\Repos\up_elt_kob\Project\Image\avata.jpg"/>
+                <Image Width="30" Height="30" Source="/Image/avata.jpg" />
                 <Label Content="Фамилия Имя Отчество" Grid.Column="1" 
                        Margin="5,0,0,0" VerticalAlignment="Center"
                        Foreground="#FF0F0FE3" FontWeight="Bold"/>
             </Grid>
-
-            <Button Content="Все сотрудники" Click="AllEmployees_Click" 
-                    Grid.Row="4" Height="30" Margin="10,0"/>
-            <Button Content="Проекты" Click="Projects_Click" 
+            <Button Content="Проекты" Click="Bt7_Projects" 
                     Grid.Row="6" Height="30" Margin="10,0"/>
-            <Button Content="Мои задачи" Click="MyTasks_Click" 
+            <Button Content="Мои задачи" Click="Bt7_MyTasks" 
                     Grid.Row="8" Height="30" Margin="10,0"/>
         </Grid>
         <Grid Grid.Column="1" Margin="10">
@@ -67,9 +64,9 @@
                     <Label Content="Name_project" FontWeight="Bold" Foreground="#FF0F0FE3"/>
                 </StackPanel>
 
-                <Button Content="Добавить задачу" Grid.Column="1" 
-                        Click="AddTask_Click" Background="#FF0F0FE3" 
-                        Foreground="White" Padding="10,5"/>
+                <Button Content="Добавить задачу" 
+                        Click="Bt7_AddTask" Background="#FF0F0FE3" 
+                        Foreground="White" Padding="10,5" Grid.ColumnSpan="2" Height="28" Margin="933,0,0,0" VerticalAlignment="Top"/>
             </Grid>
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <StackPanel Orientation="Horizontal" Height="500">
@@ -115,7 +112,7 @@
                         </StackPanel>
                     </Border>
 
-                   
+
                 </StackPanel>
             </ScrollViewer>
         </Grid>

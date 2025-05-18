@@ -40,7 +40,7 @@
                 </Grid>
                 <Button Content="Зарегистрироваться" Grid.Row="6"
                     Height="35" Background="Black" Foreground="White" 
-                    FontWeight="Bold" Click="RegisterButton_Click"
+                    FontWeight="Bold" Click="Bt_Register"
                     HorizontalAlignment="Center" Width="350" FontFamily="Verdana" BorderBrush="Black" Margin="0,27,0,-25"/>
                 <TextBlock Text="Или" Grid.Row="6" 
                       HorizontalAlignment="Center" FontFamily="Verdana" FontWeight="Bold" Foreground="Black" Margin="0,67,0,-52" Width="32"/>

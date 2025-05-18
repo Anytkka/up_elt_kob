@@ -58,7 +58,7 @@
                        FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
 
                 <Button Content="Добавить участника" Width="150" Margin="0,10,0,10"
-                        HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White"/>
+                        HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt5_AddUsers"/>
 
                 <ListView>
                     <ListViewItem>
@@ -70,7 +70,7 @@
                             <Label Content="Фамилия Имя Отчество"/>
                             <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
                                     BorderThickness="0" FontWeight="Bold" Margin="582,0,-609,0"
-                                    ToolTip="Удалить ответственного"/>
+                                    ToolTip="Удалить ответственного" />
                         </Grid>
                     </ListViewItem>
                     <ListViewItem>
@@ -93,7 +93,7 @@
                        FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
 
                 <Button Content="Добавить подзадачу" Width="150" Margin="0,10,0,10"
-                        HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White"/>
+                        HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt5_AddS"/>
 
                 <ListView>
                     <ListViewItem>
@@ -105,7 +105,7 @@
                             <Label Content="Наименование подзадачи"/>
                             <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
                                     BorderThickness="0" FontWeight="Bold" Margin="566,0,-593,0"
-                                    ToolTip="Удалить подзадачу"/>
+                                    ToolTip="Удалить подзадачу" Click="Bt5_DeleteS"/>
                         </Grid>
                     </ListViewItem>
                 </ListView>
@@ -113,10 +113,10 @@
 
             <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Отмена" Width="100" Height="30" Margin="0,0,10,0"
-                        Click="Cancel_Click"/>
+                        Click="Bt5_Cancel"/>
                 <Button Content="Добавить" Width="100" Height="30" 
                         Background="#FF0F0FE3" Foreground="White"
-                        Click="Create_Click"/>
+                        Click="Bt5_Create"/>
             </StackPanel>
         </Grid>
     </Grid>

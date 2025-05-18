@@ -24,5 +24,20 @@ namespace Project.Pages
         {
             InitializeComponent();
         }
+
+        private void Bt7_Projects(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt7_MyTasks(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt7_AddTask(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

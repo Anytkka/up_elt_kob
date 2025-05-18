@@ -64,7 +64,6 @@
                    FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="24"/>
             <Button Content="Создать проект" Click="Bt_CreateProject" Height="30" Width="202" Background="#FF0F0FE3" Margin="233,7,10,5" Grid.Column="1" Foreground="White"/>
 
-
         </Grid>
         <Grid Grid.Column="1" Margin="20,82,20,31" Background="White">
             <Image Height="130" Width="130" Margin="205,50,205,137" Source="/Image/project.jpg"/>

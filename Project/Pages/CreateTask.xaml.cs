@@ -24,5 +24,30 @@ namespace Project.Pages
         {
             InitializeComponent();
         }
+
+        private void Bt5_AddUsers(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt5_AddS(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt5_Cancel(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt5_Create(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Bt5_DeleteS(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

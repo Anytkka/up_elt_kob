@@ -26,9 +26,9 @@
                    Grid.Row="0" HorizontalAlignment="Center" Margin="0,20,0,0"/>
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Content="Изменить" Width="80" Margin="0,0,5,0" 
-                        Background="#FF0F0FE3" Foreground="White"/>
+                        Background="#FF0F0FE3" Foreground="White" Click="Bt6_Edit"/>
                 <Button Content="Удалить" Width="80" 
-                        Background="#FFFF0000" Foreground="White"/>
+                        Background="#FFFF0000" Foreground="White" Click="Bt6_Delete"/>
             </StackPanel>
         </Grid>
         <Grid Grid.Column="1" Margin="20">
@@ -60,7 +60,7 @@
                          Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit..."/>
             </StackPanel>
             <Button Grid.Row="5" Content="Сохранить" Height="35" HorizontalAlignment="Right"
-                    Width="120" Margin="0,0,0,20" Foreground="White" Background="#FF0F0FE3"/>
+                    Width="120" Margin="0,0,0,20" Foreground="White" Background="#FF0F0FE3" Click="Bt6_SavePA"/>
         </Grid>
     </Grid>
 </Page>

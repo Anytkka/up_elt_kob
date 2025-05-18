@@ -39,7 +39,7 @@
                 <ComboBox Text="Выбрать" Grid.Row="2" Grid.Column="1" Margin="10,3,10,0" Height="30" VerticalAlignment="Top" ItemsSource="{Binding ResponsiblePersons}" SelectedItem="{Binding SelectedResponsiblePerson}" BorderBrush="White" Background="#FFE5E5E5" FontFamily="Verdana"/>
 
                 <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Отмена" Margin="10" Padding="10,5" Background="White" Click="Bt_Cancel" Foreground="#FF0F0FE3" BorderBrush="White" Width="120" FontFamily="Verdana"/>
+                    <Button  Content="Отмена" Margin="10" Padding="10,5" Background="White" Click="Bt_Cancel" Foreground="#FF0F0FE3" BorderBrush="White" Width="120" FontFamily="Verdana"/>
                     <Button Content="Добавить" Margin="10" Padding="10,5" Background="#FF0F0FE3" Foreground="White" Click="Bt_AddS" BorderBrush="#FF0F0FE3" Width="120" Height="30" FontFamily="Verdana"/>
                 </StackPanel>
             </Grid>
