@@ -14,8 +14,6 @@
             <ColumnDefinition Width="7*"/>
             <ColumnDefinition Width="143*"/>
         </Grid.ColumnDefinitions>
-
-        <!-- Левая панель навигации -->
         <Grid Grid.Column="0" Background="#F5F5F5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -60,18 +58,8 @@
                     Margin="10,0" 
                     FontFamily="Verdana" 
                     BorderBrush="#FFDDDDDD"/>
-
-            <Button x:Name="MyTasks" 
-                    Content="Мои задачи" 
-                    Click="Bt_MyTasks"
-                    Grid.Row="8" 
-                    Height="30" 
-                    Margin="10,0" 
-                    FontFamily="Verdana" 
-                    BorderBrush="#FFDDDDDD"/>
         </Grid>
 
-        <!-- Основное содержимое -->
         <Grid Grid.Column="1" Margin="20,20,20,20" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
