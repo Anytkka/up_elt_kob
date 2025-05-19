@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Project.Main;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,6 +39,11 @@ namespace Project.Pages
         private void Bt6_SavePA(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void Bt6_DeleteProfile(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new DeleteAccount());
         }
     }
 }

@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Project.Main"
-             mc:Ignorable="d">
+             mc:Ignorable="d"
+             Width="400" Height="200">
+    <!-- Фиксированные размеры -->
 
     <Border Background="White" CornerRadius="10" Padding="20"
             BorderThickness="1" BorderBrush="#EEEEEE">
@@ -15,22 +17,29 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
+
+            <!-- Заголовок -->
             <TextBlock Grid.Row="0" Text="Вы уверены, что хотите удалить аккаунт?"
                       FontFamily="Verdana" FontWeight="Bold" FontSize="14"
-                      HorizontalAlignment="Center" Margin="0,0,0,15"
+                      HorizontalAlignment="Center" Margin="0,0,0,10"
                       TextWrapping="Wrap"/>
+
+            <!-- Описание -->
             <TextBlock Grid.Row="1" Text="Это действие нельзя отменить. Все ваши данные будут удалены."
-                      FontFamily="Verdana" Foreground="#FF4A4A4A"
+                      FontFamily="Verdana" Foreground="#FF4A4A4A" FontSize="12"
                       TextWrapping="Wrap" HorizontalAlignment="Center"
-                      Margin="0,0,0,30"/>
+                      Margin="0,0,0,20"/>
+
+            <!-- Кнопки -->
             <StackPanel Grid.Row="3" Orientation="Horizontal" 
-                        HorizontalAlignment="Center">
-                <Button Content="Отмена" Width="195" Height="30"
+                        HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                <Button Content="Отмена" Width="170" Height="30"
                         FontFamily="Verdana" Background="#FF000083" 
-                        Foreground="White" BorderBrush="#FF0F0FE3"/>
-                <Button Content="Удалить" Width="201" Height="30"
+                        Foreground="White" BorderBrush="#FF0F0FE3"
+                        Margin="0,0,10,0"/>
+                <Button Content="Удалить" Width="170" Height="30"
                         FontFamily="Verdana" Foreground="#FFAE0101"
-                        Background="White" BorderBrush="White"/>
+                        Background="White" BorderBrush="#FFEEEEEE"/>
             </StackPanel>
         </Grid>
     </Border>
