@@ -31,36 +31,44 @@
                         Background="#FFFF0000" Foreground="White" Click="Bt6_Delete"/>
             </StackPanel>
         </Grid>
-        <Grid Grid.Column="1" Margin="20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                <TextBlock Text="ФИО*" FontWeight="Bold" Margin="0,0,0,5"/>
-                <TextBox x:Name="txtFullName" Height="30" Text="Фамилия Имя Отчество"/>
-            </StackPanel>
-            <StackPanel Grid.Row="1" Margin="0,0,0,20">
-                <TextBlock Text="Email*" FontWeight="Bold" Margin="0,0,0,5"/>
-                <TextBox x:Name="txtEmail" Height="30" Text="client@example.com"/>
-            </StackPanel>
-            <StackPanel Grid.Row="2" Margin="0,0,0,20">
-                <TextBlock Text="Пароль*" FontWeight="Bold" Margin="0,0,0,5"/>
-                <PasswordBox x:Name="txtPassword" Height="30"/>
-                <TextBlock Text="Оставьте пустым, чтобы не изменять" 
-                           FontStyle="Italic" Foreground="Gray" Margin="0,5,0,0"/>
-            </StackPanel>
-            <StackPanel Grid.Row="3" Margin="0,0,0,20">
-                <TextBlock Text="О себе" FontWeight="Bold" Margin="0,0,0,5"/>
-                <TextBox x:Name="txtBio" Height="150" TextWrapping="Wrap" AcceptsReturn="True"
-                         Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit..."/>
-            </StackPanel>
-            <Button Grid.Row="5" Content="Сохранить" Height="35" HorizontalAlignment="Right"
-                    Width="120" Margin="0,0,0,20" Foreground="White" Background="#FF0F0FE3" Click="Bt6_SavePA"/>
-        </Grid>
+
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                    <TextBlock Text="ФИО*" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="txtFullName" Height="30" Text="Фамилия Имя Отчество"/>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Margin="0,0,0,20">
+                    <TextBlock Text="Email*" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="txtEmail" Height="30" Text="client@example.com"/>
+                </StackPanel>
+                <StackPanel Grid.Row="2" Margin="0,0,0,20">
+                    <TextBlock Text="Пароль*" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <PasswordBox x:Name="txtPassword" Height="30"/>
+                    <TextBlock Text="Оставьте пустым, чтобы не изменять" 
+                               FontStyle="Italic" Foreground="Gray" Margin="0,5,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Row="3" Margin="0,0,0,20">
+                    <TextBlock Text="О себе" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="txtBio" Height="150" TextWrapping="Wrap" AcceptsReturn="True"
+                             Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit..."/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,20">
+                    <Button Content="Удалить профиль" Height="35" Width="120" Margin="0,0,10,0"
+                            Foreground="White" Background="#FFFF0000" Click="Bt6_DeleteProfile"/>
+                    <Button Content="Сохранить" Height="35" Width="120"
+                            Foreground="White" Background="#FF0F0FE3" Click="Bt6_SavePA"/>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

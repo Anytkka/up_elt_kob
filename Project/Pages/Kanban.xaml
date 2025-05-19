@@ -44,8 +44,6 @@
             </Grid>
             <Button Content="Проекты" Click="Bt7_Projects" 
                     Grid.Row="6" Height="30" Margin="10,0"/>
-            <Button Content="Мои задачи" Click="Bt7_MyTasks" 
-                    Grid.Row="8" Height="30" Margin="10,0"/>
         </Grid>
         <Grid Grid.Column="1" Margin="10">
             <Grid.RowDefinitions>
