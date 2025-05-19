@@ -10,7 +10,7 @@ namespace Project.Classes
 {
     public class ProjectContext : Project
     {
-        public ProjectContext(int Id, string Name, string Description, bool IsPublic) : base(Id, Name, Description, IsPublic) {}
+        public ProjectContext(int Id, string Name, string Description, bool IsPublic) : base(Id, Name, Description, IsPublic) { }
 
         public static List<ProjectContext> Get()
         {

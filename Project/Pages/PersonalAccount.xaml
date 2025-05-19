@@ -41,7 +41,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Image Width="30" Height="30" Source="/Image/avata.jpg"/>
-                <Label Content="Фамилия Имя Отчество" Grid.Column="1"
+                <Label Content="{Binding FullName}" Grid.Column="1"
                        Margin="5,0,0,0" 
                        VerticalAlignment="Center"
                        Foreground="#FF000083" 
@@ -81,11 +81,11 @@
                    Grid.Row="0" Grid.Column="0"/>
 
             <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Grid.ColumnSpan="2">
-                <Label Content="Фамилия Имя Отчество"
+                <Label Content="{Binding FullName}"
                        FontFamily="Verdana" 
                        FontWeight="Bold" 
                        FontSize="24"/>
-                <Label Content="xx@xx.xx" 
+                <Label Content="{Binding Email}" 
                        Margin="0,5,0,0" 
                        FontFamily="Verdana"/>
             </StackPanel>
@@ -111,8 +111,7 @@
                     Foreground="White" 
                     FontFamily="Verdana" 
                     BorderBrush="#FF0F0FE3" 
-                    HorizontalAlignment="Right" Width="80"
-                    />
+                    HorizontalAlignment="Right" Width="80"/>
 
             <Label Content="О себе" 
                    Grid.Row="4" 
@@ -124,7 +123,7 @@
             <TextBlock Grid.Row="5" 
                        Grid.ColumnSpan="3" 
                        TextWrapping="Wrap"
-                       Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." 
+                       Text="{Binding Biography}"
                        FontFamily="Verdana" Margin="0,5,0,0" Grid.RowSpan="2"/>
         </Grid>
     </Grid>

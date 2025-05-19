@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using Project.Classes.Common;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -24,6 +26,43 @@ namespace Project.Classes
             this.Password = Password;
             this.FullName = FullName;
             this.Biography = Biography;
+        }
+        public static User GetUserByCredentials(string email, string password)
+        {
+            User user = null;
+            var connection = Connection.OpenConnection();
+
+            try
+            {
+                string query = "SELECT * FROM users WHERE email = @email AND password = @password";
+                var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@email", email);
+                command.Parameters.AddWithValue("@password", password);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = new User(
+                            reader.GetInt32("id"),
+                            reader.GetString("email"),
+                            reader.GetString("password"),
+                            reader.GetString("full_name"),
+                            reader.IsDBNull(reader.GetOrdinal("biography")) ? null : reader.GetString("biography")
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при авторизации: {ex.Message}");
+            }
+            finally
+            {
+                Connection.CloseConnection(connection);
+            }
+
+            return user;
         }
     }
 }
