@@ -121,8 +121,7 @@ namespace Project.Pages
                 // Добавляем участников к проекту
                 foreach (var participant in Participants)
                 {
-                    // Здесь должен быть код добавления участника в проект в БД
-                    // Например: project.AddParticipant(participant.Name, participant.Role);
+                    AddParticipantToProject(project.Id, participant.Name, participant.Role);
                 }
 
                 NavigationService?.Navigate(new Project1(project));
@@ -137,6 +136,40 @@ namespace Project.Pages
                                 "Ошибка",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Error);
+            }
+        }
+
+        private void AddParticipantToProject(int projectId, string participantName, string role)
+        {
+            MySqlConnection connection = null;
+
+            try
+            {
+                connection = Connection.OpenConnection();
+                string query = "INSERT INTO project_participants (project_id, user_name, role) VALUES (@projectId, @userName, @role)";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@projectId", projectId);
+                    command.Parameters.AddWithValue("@userName", participantName);
+                    command.Parameters.AddWithValue("@role", role);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при добавлении участника в проект: {ex.Message}",
+                                "Ошибка",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+            }
+            finally
+            {
+                if (connection != null && connection.State == System.Data.ConnectionState.Open)
+                {
+                    Connection.CloseConnection(connection);
+                }
             }
         }
     }
