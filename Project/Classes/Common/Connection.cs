@@ -1,21 +1,27 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Project.Classes.Common
 {
     public class Connection
     {
-        public static readonly string config = "server=127.0.0.1;uid=root;pwd=;database=project;";
+        // Ensure the connection string is correct
+        public static readonly string config = "server=127.0.0.1;port=3307;uid=root;pwd=;database=project;";
+
         public static MySqlConnection OpenConnection()
         {
             MySqlConnection connection = new MySqlConnection(config);
-            connection.Open();
-
-            return connection;
+            try
+            {
+                connection.Open();
+                return connection;
+            }
+            catch (MySqlException ex)
+            {
+                // Log the exception details for debugging
+                Console.WriteLine($"Error connecting to MySQL: {ex.Message}");
+                throw; // Re-throw the exception to handle it in the calling method
+            }
         }
 
         public static MySqlDataReader Query(string SQL, MySqlConnection connection)
@@ -25,8 +31,11 @@ namespace Project.Classes.Common
 
         public static void CloseConnection(MySqlConnection connection)
         {
-            connection.Close();
-            MySqlConnection.ClearPool(connection);
+            if (connection != null)
+            {
+                connection.Close();
+                MySqlConnection.ClearPool(connection);
+            }
         }
     }
 }

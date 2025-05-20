@@ -1,5 +1,4 @@
-﻿
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using Project.Classes.Common;
 using Project.Classes;
 using System.Windows;
@@ -14,6 +13,7 @@ namespace Project.Pages
         {
             InitializeComponent();
         }
+
         private void Bt_Login(object sender, RoutedEventArgs e)
         {
             string email = txtUsername.Text.Trim();
@@ -25,7 +25,7 @@ namespace Project.Pages
                 return;
             }
 
-            if (email == "" || password == "")
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
                 MessageBox.Show("Заполните все поля");
                 return;
@@ -62,15 +62,16 @@ namespace Project.Pages
                     }
                 }
             }
-            catch
+            catch (MySqlException ex)
             {
-                MessageBox.Show("Ошибка подключения");
+                // Log the exception details for debugging
+                MessageBox.Show($"Ошибка подключения: {ex.Message}");
             }
         }
+
         private void RegisterText_MouseDown(object sender, MouseButtonEventArgs e)
         {
             NavigationService?.Navigate(new Registration());
         }
     }
 }
-

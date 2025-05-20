@@ -22,21 +22,24 @@ namespace Project.Pages
 
         private void LoadParticipantsFromDatabase()
         {
-            MySqlConnection connection = null;
-            MySqlDataReader reader = null;
-
             try
             {
-                connection = Connection.OpenConnection();
-                string query = "SELECT name FROM user";
-                reader = Connection.Query(query, connection);
-
-                cmbParticipants.Items.Clear(); // Очищаем список перед загрузкой
-
-                while (reader.Read())
+                using (var connection = Connection.OpenConnection())
                 {
-                    string participantName = reader["name"].ToString();
-                    cmbParticipants.Items.Add(participantName); // Упрощенное добавление
+                    string query = "SELECT id, fullName FROM user";
+                    using (var reader = Connection.Query(query, connection))
+                    {
+                        cmbParticipants.Items.Clear();
+                        while (reader.Read())
+                        {
+                            var item = new ComboBoxItem
+                            {
+                                Content = reader["fullName"].ToString(),
+                                Tag = Convert.ToInt32(reader["id"])
+                            };
+                            cmbParticipants.Items.Add(item);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -46,34 +49,32 @@ namespace Project.Pages
                               MessageBoxButton.OK,
                               MessageBoxImage.Error);
             }
-            finally
-            {
-                reader?.Close();
-                if (connection != null && connection.State == System.Data.ConnectionState.Open)
-                {
-                    Connection.CloseConnection(connection);
-                }
-            }
         }
 
         private void Bt_AddUsers(object sender, RoutedEventArgs e)
         {
-            if (cmbParticipants.SelectedItem != null)
+            if (cmbParticipants.SelectedItem is ComboBoxItem selectedItem)
             {
-                string participantName = cmbParticipants.SelectedItem.ToString();
+                int participantId = (int)selectedItem.Tag;
+                string participantName = selectedItem.Content.ToString();
                 string role = rbAdmin.IsChecked == true ? "Администратор" : "Пользователь";
 
-                if (!Participants.Any(p => p.Name == participantName))
+                if (!Participants.Any(p => p.Id == participantId))
                 {
-                    Participants.Add(new Participant { Name = participantName, Role = role });
+                    Participants.Add(new Participant
+                    {
+                        Id = participantId,
+                        Name = participantName,
+                        Role = role
+                    });
                     UpdateParticipantsList();
                 }
                 else
                 {
                     MessageBox.Show("Этот участник уже добавлен в проект",
-                                    "Предупреждение",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Warning);
+                                  "Предупреждение",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Warning);
                 }
             }
         }
@@ -102,81 +103,109 @@ namespace Project.Pages
         {
             string projectName = txtProjectName.Text;
             string projectDescription = txtProjectDescription.Text;
-            bool isPublic = cmbPublicity.SelectedIndex == 0;
+            bool is_public = cmbPublicity.SelectedIndex == 0;
 
             if (string.IsNullOrWhiteSpace(projectName))
             {
                 MessageBox.Show("Пожалуйста, введите наименование проекта.",
-                                "Ошибка",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Warning);
+                              "Ошибка",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Warning);
                 return;
             }
 
-            try
-            {
-                var project = new ProjectContext(0, projectName, projectDescription, isPublic);
-                project.Add();
-
-                // Добавляем участников к проекту
-                foreach (var participant in Participants)
-                {
-                    AddParticipantToProject(project.Id, participant.Name, participant.Role);
-                }
-
-                NavigationService?.Navigate(new Project1(project));
-                MessageBox.Show("Проект успешно создан!",
-                              "Успех",
-                              MessageBoxButton.OK,
-                              MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при создании проекта: {ex.Message}",
-                                "Ошибка",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-            }
-        }
-
-        private void AddParticipantToProject(int projectId, string participantName, string role)
-        {
             MySqlConnection connection = null;
+            MySqlTransaction transaction = null;
 
             try
             {
                 connection = Connection.OpenConnection();
-                string query = "INSERT INTO project_participants (project_id, user_name, role) VALUES (@projectId, @userName, @role)";
+                transaction = connection.BeginTransaction();
 
-                using (MySqlCommand command = new MySqlCommand(query, connection))
+                try
+                {
+                    // Создаем проект
+                    var project = new ProjectContext(0, projectName, projectDescription, is_public);
+
+                    // Модифицируем метод Add для работы с транзакцией
+                    string insertQuery = "INSERT INTO project (name, description, is_public) VALUES (@name, @description, @is_public)";
+                    using (var cmd = new MySqlCommand(insertQuery, connection, transaction))
+                    {
+                        cmd.Parameters.AddWithValue("@name", projectName);
+                        cmd.Parameters.AddWithValue("@description", projectDescription);
+                        cmd.Parameters.AddWithValue("@is_public", is_public);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    // Получаем ID только что созданного проекта
+                    int projectId;
+                    using (var cmd = new MySqlCommand("SELECT LAST_INSERT_ID()", connection, transaction))
+                    {
+                        projectId = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+
+                    // Добавляем участников к проекту
+                    foreach (var participant in Participants)
+                    {
+                        AddParticipantToProject(connection, transaction, projectId, participant.Id, participant.Role);
+                    }
+
+                    transaction.Commit();
+
+                    // Обновляем ID проекта для навигации
+                    project.Id = projectId;
+                    NavigationService?.Navigate(new Project1(project));
+                    MessageBox.Show("Проект успешно создан!",
+                                  "Успех",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    transaction?.Rollback();
+                    MessageBox.Show($"Ошибка при создании проекта: {ex.Message}",
+                                  "Ошибка",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка подключения: {ex.Message}",
+                              "Ошибка",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Error);
+            }
+            finally
+            {
+                connection?.Close();
+            }
+        }
+
+        private void AddParticipantToProject(MySqlConnection connection, MySqlTransaction transaction, int projectId, int userId, string role)
+        {
+            try
+            {
+                string query = "INSERT INTO project_user (project, user, role) VALUES (@projectId, @userId, @role)";
+
+                using (var command = new MySqlCommand(query, connection, transaction))
                 {
                     command.Parameters.AddWithValue("@projectId", projectId);
-                    command.Parameters.AddWithValue("@userName", participantName);
+                    command.Parameters.AddWithValue("@userId", userId);
                     command.Parameters.AddWithValue("@role", role);
-
                     command.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при добавлении участника в проект: {ex.Message}",
-                                "Ошибка",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-            }
-            finally
-            {
-                if (connection != null && connection.State == System.Data.ConnectionState.Open)
-                {
-                    Connection.CloseConnection(connection);
-                }
+                throw new Exception($"Ошибка при добавлении участника: {ex.Message}");
             }
         }
-    }
-
-    public class Participant
-    {
-        public string Name { get; set; }
-        public string Role { get; set; }
+        public class Participant
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string Role { get; set; }
+        }
     }
 }

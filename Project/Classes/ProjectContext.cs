@@ -32,6 +32,7 @@ namespace Project.Classes
         }
         public void Add()
         {
+            int isPublicValue = this.IsPublic ? 1 : 0;
             string SQL = "INSERT INTO " +
                             "`project`( " +
                                 "`id`, " +
@@ -42,7 +43,7 @@ namespace Project.Classes
                             $"'{this.Id}', " +
                             $"'{this.Name}', " +
                             $"'{this.Description}', " +
-                            $"'{this.IsPublic}')";
+                            $"{isPublicValue})"; 
             MySqlConnection connection = Connection.OpenConnection();
             Connection.Query(SQL, connection);
             Connection.CloseConnection(connection);
@@ -54,7 +55,7 @@ namespace Project.Classes
                           "SET " +
                                 $"`name`='{this.Name}', " +
                                 $"`description`='{this.Description}', " +
-                                $"`is_public`='{this.IsPublic}' " +
+                                $"`is_public`='{this.IsPublic }' " +
                           "WHERE " +
                                 $"`id`='{this.Id}'";
             MySqlConnection connection = Connection.OpenConnection();
