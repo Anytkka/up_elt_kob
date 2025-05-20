@@ -18,6 +18,7 @@ namespace Project.Classes
         public string Password { get; set; }
         public string FullName { get; set; }
         public string Biography { get; set; }
+        public string ProfileImagePath { get; internal set; }
 
         public User(int Id, string Email, string Password, string FullName, string Biography)
         {

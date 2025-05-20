@@ -1,10 +1,10 @@
 ﻿<Page x:Class="Project.Pages.editProfil"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:Project.Pages"
-      mc:Ignorable="d" 
+      mc:Ignorable="d"
       d:DesignHeight="500" d:DesignWidth="800"
       Title="editProfil">
 
@@ -22,13 +22,13 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Image Width="100" Height="100" Source="/Image/avata.jpg"
-                   Grid.Row="0" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <Image x:Name="profileImage" Width="100" Height="100" Source="/Image/avata.jpg"
+                   Grid.Row="0" HorizontalAlignment="Center" Margin="50,20,50,0"/>
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="Изменить" Width="80" Margin="0,0,5,0" 
-                        Background="#FF0F0FE3" Foreground="White" Click="Bt6_Edit"/>
-                <Button Content="Удалить" Width="80" 
-                        Background="#FFFF0000" Foreground="White" Click="Bt6_Delete"/>
+                <Button Content="Изменить" Width="80" Margin="0,0,5,0"
+                        Background="#FF0F0FE3" Foreground="White" Click="Bt6_Edit_Click"/>
+                <Button Content="Удалить" Width="80"
+                        Background="#FFFF0000" Foreground="White" Click="Bt6_Delete_Click"/>
             </StackPanel>
         </Grid>
 
@@ -53,7 +53,7 @@
                 <StackPanel Grid.Row="2" Margin="0,0,0,20">
                     <TextBlock Text="Пароль*" FontWeight="Bold" Margin="0,0,0,5"/>
                     <PasswordBox x:Name="txtPassword" Height="30"/>
-                    <TextBlock Text="Оставьте пустым, чтобы не изменять" 
+                    <TextBlock Text="Оставьте пустым, чтобы не изменять"
                                FontStyle="Italic" Foreground="Gray" Margin="0,5,0,0"/>
                 </StackPanel>
                 <StackPanel Grid.Row="3" Margin="0,0,0,20">
@@ -64,9 +64,9 @@
 
                 <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,20">
                     <Button Content="Удалить профиль" Height="35" Width="120" Margin="0,0,10,0"
-                            Foreground="White" Background="#FFFF0000" Click="Bt6_DeleteProfile"/>
+                            Foreground="White" Background="#FFFF0000" Click="Bt6_DeleteProfile_Click"/>
                     <Button Content="Сохранить" Height="35" Width="120"
-                            Foreground="White" Background="#FF0F0FE3" Click="Bt6_SavePA"/>
+                            Foreground="White" Background="#FF0F0FE3" Click="Bt6_SavePA_Click"/>
                 </StackPanel>
             </Grid>
         </ScrollViewer>
