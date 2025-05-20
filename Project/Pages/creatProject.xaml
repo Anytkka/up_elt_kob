@@ -1,10 +1,10 @@
 ﻿<Page x:Class="Project.Pages.creatProject"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:Project.Pages"
-      mc:Ignorable="d" 
+      mc:Ignorable="d"
       d:DesignHeight="600" d:DesignWidth="800"
       Title="CreateProject">
 
@@ -23,7 +23,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Label Content="Создание нового проекта" 
+            <Label Content="Создание нового проекта"
                    FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="18"/>
             <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
@@ -39,7 +39,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Наименование*" VerticalAlignment="Center" Foreground="Black"/>
-                    <TextBox Grid.Column="1" Height="25" Text="Secret_project"/>
+                    <TextBox x:Name="txtProjectName" Grid.Column="1" Height="25" Text="Secret_project"/>
                 </Grid>
                 <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
@@ -47,7 +47,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Описание" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
+                    <TextBox x:Name="txtProjectDescription" Grid.Column="1" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
                              Text="Описание проекта"/>
                 </Grid>
                 <Grid Grid.Row="4">
@@ -56,20 +56,20 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Публичность*" VerticalAlignment="Center" Foreground="Black"/>
-                    <ComboBox Grid.Column="1" Height="25" SelectedIndex="1">
+                    <ComboBox x:Name="cmbPublicity" Grid.Column="1" Height="25" SelectedIndex="1">
                         <ComboBoxItem Content="Открытый"/>
                         <ComboBoxItem Content="Закрытый"/>
                     </ComboBox>
                 </Grid>
             </Grid>
             <StackPanel Grid.Row="4">
-                <Label Content="Участники проекта" 
+                <Label Content="Участники проекта"
                        FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
 
                 <Button Content="Добавить участника" Width="150" Margin="0,10,0,10"
                         HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt_AddUsers"/>
 
-                <ListView>
+                <ListView x:Name="listViewParticipants">
                     <ListViewItem>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -77,7 +77,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Label Content="Фамилия Имя Отчество"/>
-                            <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
+                            <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent"
                                     BorderThickness="0" FontWeight="Bold" Margin="582,0,-609,0"
                                     ToolTip="Удалить участника"/>
                         </Grid>
@@ -89,7 +89,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Label Content="Фамилия Имя Отчество"/>
-                            <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
+                            <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent"
                                     BorderThickness="0" FontWeight="Bold" Margin="585,0,-606,0"
                                     ToolTip="Удалить участника"/>
                         </Grid>
@@ -99,7 +99,7 @@
             <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Отмена" Width="100" Height="30" Margin="0,0,10,0"
                         Click="Bt4_Cancel"/>
-                <Button Content="Создать" Width="100" Height="30" 
+                <Button Content="Создать" Width="100" Height="30"
                         Background="#FF0F0FE3" Foreground="White"
                         Click="Bt4_Create"/>
             </StackPanel>
