@@ -15,5 +15,7 @@ namespace Project
     public partial class App : Application
     {
         public static User CurrentUser { get; set; }
+        public static ProjectContext Project { get; set; }
+
     }
 }
