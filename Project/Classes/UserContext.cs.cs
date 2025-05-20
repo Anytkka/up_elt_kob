@@ -1,11 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using Project.Classes.Common;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Markup;
 
 namespace Project.Classes
 {
@@ -35,18 +30,17 @@ namespace Project.Classes
         public void Add() 
         {
             string SQL = "INSERT INTO " +
-                            "`user " +
-                                "`(`id`, " +
-                                    "`email`, " +
-                                    "`password`, " +
-                                    "`fullName`, " +
-                                    "`biography`) " +
+                            "`user` ( " +
+                            "`email`, " +
+                            "`password`, " +
+                            "`fullName`, " +
+                            "`biography`) " +
                         "VALUES (" +
-                            $"'{this.Id}', " +
                             $"'{this.Email}', " +
                             $"'{this.Password}', " +
                             $"'{this.FullName}', " +
                             $"'{this.Biography}')";
+
             MySqlConnection connection = Connection.OpenConnection();
             Connection.Query(SQL, connection);
             Connection.CloseConnection(connection);

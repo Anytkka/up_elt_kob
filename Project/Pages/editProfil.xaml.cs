@@ -38,13 +38,13 @@ namespace Project.Pages
                 else
                 {
                     profileImage.Source = new BitmapImage(
-                        new Uri("pack://application:,,,/Images/default_profile.png"));
+                        new Uri("pack://application:,,,/Image/avata.jpg"));
                 }
             }
             catch
             {
                 profileImage.Source = new BitmapImage(
-                    new Uri("pack://application:,,,/Images/default_profile.png"));
+                    new Uri("pack://application:,,,/Image/avata.jpg"));
             }
         }
 

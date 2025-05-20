@@ -9,58 +9,93 @@
       Title="Registration">
 
     <Grid Background="#FFE5E5E5">
-        <Border Background="White" CornerRadius="10" Height="278" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
-            <Grid Margin="0,10,0,10" Background="White">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="15"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Label Content="Регистрация" Grid.Row="0"
-                   HorizontalAlignment="Center"
-                   FontFamily="Verdana" FontWeight="Bold" FontSize="24" Margin="0,10,0,35" Grid.RowSpan="2"/>
-                <TextBox x:Name="FOI" Height="30" Text="ФИО"
-                     HorizontalAlignment="Center" Width="350" FontFamily="Verdana" Foreground="#FFA6A6A6" SelectionBrush="#FF5E707E" BorderBrush="#FFE6E6E6" Margin="0,52,0,2" Grid.Row="1"/>
-                <TextBox x:Name="txtEmail" Grid.Row="1" Height="30" Text="Почта xx@xx.xx"
-                     HorizontalAlignment="Center" Width="350" FontFamily="Verdana" Foreground="#FFA6A6A6" BorderBrush="#FFE6E6E6" Margin="0,84,0,17" Grid.RowSpan="6"/>
-                <Grid Grid.Row="6" HorizontalAlignment="Center">
+        <Border Background="White" CornerRadius="10" 
+                Height="401" VerticalAlignment="Center" 
+                HorizontalAlignment="Center" Width="400">
+            <StackPanel Margin="30" VerticalAlignment="Center">
+
+                <Label Content="Регистрация"
+                       FontFamily="Verdana" FontWeight="Bold" FontSize="24" HorizontalAlignment="Center"
+                       />
+
+                <Label Content="ФИО"
+                       HorizontalAlignment="Left"
+                       FontFamily="Verdana" FontSize="12"
+                       Margin="0,0,0,5"/>
+                <TextBox x:Name="FOI" 
+                         Height="30" Text="ФИО"
+                         FontFamily="Verdana" Foreground="Gray"
+                         BorderBrush="#FFE6E6E6"
+                         Margin="0,0,0,10"/>
+
+                <Label Content="Email"
+                       HorizontalAlignment="Left"
+                       FontFamily="Verdana" FontSize="12"
+                       Margin="0,0,0,5"/>
+                <TextBox x:Name="txtEmail" 
+                         Height="30" Text="Почта xx@xx.xx"
+                         FontFamily="Verdana" Foreground="Gray"
+                         BorderBrush="#FFE6E6E6"
+                         Margin="0,0,0,10"/>
+
+                <Grid Margin="0,0,0,15">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="txtPassword" Grid.Column="0" 
-                         Height="30" Width="170" Text="Пароль" FontFamily="Verdana" Foreground="#FFA6A6A6" BorderBrush="#FFE6E6E6" Margin="0,22,0,-15"/>
-                    <TextBox x:Name="txtConfirmPassword" Grid.Column="2"
-                         Height="30" Width="170" Text="Подтвердите пароль" FontFamily="Verdana" Foreground="#FFA6A6A6" BorderBrush="#FFE6E6E6" Margin="0,22,0,-15"/>
+
+                    <StackPanel Grid.Column="0">
+                        <Label Content="Пароль"
+                               HorizontalAlignment="Left"
+                               FontFamily="Verdana" FontSize="12"
+                               Margin="0,0,0,5"/>
+                        <PasswordBox x:Name="txtPassword" 
+                                 Height="30"
+                                 FontFamily="Verdana"
+                                 BorderBrush="#FFE6E6E6"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <Label Content="Подтверждение"
+                               HorizontalAlignment="Left"
+                               FontFamily="Verdana" FontSize="12"
+                               Margin="0,0,0,5"/>
+                        <PasswordBox x:Name="txtConfirmPassword" 
+                                 Height="30"
+                                 FontFamily="Verdana"
+                                 BorderBrush="#FFE6E6E6"/>
+                    </StackPanel>
                 </Grid>
-                <Button Content="Зарегистрироваться" Grid.Row="6"
-                    Height="35" Background="Black" Foreground="White" 
-                    FontWeight="Bold" Click="Bt_Register"
-                    HorizontalAlignment="Center" Width="350" FontFamily="Verdana" BorderBrush="Black" Margin="0,55,0,-53"/>
-                <TextBlock Text="Или" Grid.Row="6" 
-                      HorizontalAlignment="Center" FontFamily="Verdana" FontWeight="Bold" Foreground="Black" Margin="0,95,0,-80" Width="32"/>
-                <TextBlock Text="Войти в аккаунт" Grid.Row="6"
-       HorizontalAlignment="Center" 
-       TextDecorations="Underline" Foreground="#FF0F0FE3" FontFamily="Verdana" Margin="0,111,0,-89"
-       MouseDown="LoginText_MouseDown" FontWeight="Bold">
+
+                <Button Content="Зарегистрироваться"
+                        Height="35" Background="Black" Foreground="White"
+                        FontWeight="Bold" Click="Bt_Register"
+                        FontFamily="Verdana" BorderBrush="Black"
+                        Margin="0,5,0,10"/>
+
+                <TextBlock Text="Или" 
+                          HorizontalAlignment="Center"
+                          FontFamily="Verdana"
+                          Margin="0,5,0,5"/>
+                <TextBlock Text="Войти в аккаунт" 
+                          FontFamily="Verdana" FontWeight="Bold"
+                          Foreground="#FF000083"
+                          MouseDown="LoginText_MouseDown" HorizontalAlignment="Center"
+                          >
                     <TextBlock.Style>
-                        <Style TargetType="TextBlock">
+                        <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="Cursor" Value="Hand"/>
-                            <Setter Property="Foreground" Value="Blue"/>
+                            <Setter Property="TextDecorations" Value="Underline"/>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="TextDecorations" Value="Underline"/>
+                                    <Setter Property="Foreground" Value="#FF0F0FE3"/>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-            </Grid>
+            </StackPanel>
         </Border>
     </Grid>
 </Page>

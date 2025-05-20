@@ -123,7 +123,6 @@
     <Compile Include="Classes\TaskContext.cs" />
     <Compile Include="Classes\TaskUserContext.cs" />
     <Compile Include="Classes\UserContext.cs.cs" />
-    <Compile Include="Controllers\TaskController.cs" />
     <Compile Include="Modell\KanbanColumn.cs" />
     <Compile Include="Modell\Project.cs" />
     <Compile Include="Modell\ProjUser.cs" />
