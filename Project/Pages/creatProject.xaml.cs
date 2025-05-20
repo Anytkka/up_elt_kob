@@ -1,9 +1,11 @@
 ﻿using Project.Classes;
+using Project.Classes.Common;
 using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using MySql.Data.MySqlClient;
+using System.Linq;
 
 namespace Project.Pages
 {
@@ -20,33 +22,59 @@ namespace Project.Pages
 
         private void LoadParticipantsFromDatabase()
         {
-            string connectionString = "Server=your_server;Database=your_db;Uid=your_username;Pwd=your_password;";
-            string query = "SELECT name FROM users";
+            MySqlConnection connection = null;
+            MySqlDataReader reader = null;
 
-            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            try
             {
-                MySqlCommand command = new MySqlCommand(query, connection);
-                connection.Open();
-                MySqlDataReader reader = command.ExecuteReader();
+                connection = Connection.OpenConnection();
+                string query = "SELECT name FROM user";
+                reader = Connection.Query(query, connection);
+
+                cmbParticipants.Items.Clear(); // Очищаем список перед загрузкой
 
                 while (reader.Read())
                 {
                     string participantName = reader["name"].ToString();
-                    cmbParticipants.Items.Add(new ComboBoxItem { Content = participantName });
+                    cmbParticipants.Items.Add(participantName); // Упрощенное добавление
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке участников: {ex.Message}",
+                              "Ошибка",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Error);
+            }
+            finally
+            {
+                reader?.Close();
+                if (connection != null && connection.State == System.Data.ConnectionState.Open)
+                {
+                    Connection.CloseConnection(connection);
                 }
             }
         }
 
-        private void Bt_AddUsers_Click(object sender, RoutedEventArgs e)
+        private void Bt_AddUsers(object sender, RoutedEventArgs e)
         {
             if (cmbParticipants.SelectedItem != null)
             {
-                string participantName = (cmbParticipants.SelectedItem as ComboBoxItem).Content.ToString();
+                string participantName = cmbParticipants.SelectedItem.ToString();
                 string role = rbAdmin.IsChecked == true ? "Администратор" : "Пользователь";
 
-                Participants.Add(new Participant { Name = participantName, Role = role });
-
-                UpdateParticipantsList();
+                if (!Participants.Any(p => p.Name == participantName))
+                {
+                    Participants.Add(new Participant { Name = participantName, Role = role });
+                    UpdateParticipantsList();
+                }
+                else
+                {
+                    MessageBox.Show("Этот участник уже добавлен в проект",
+                                    "Предупреждение",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Warning);
+                }
             }
         }
 
@@ -65,37 +93,50 @@ namespace Project.Pages
             }
         }
 
-        private void Bt4_Cancel_Click(object sender, RoutedEventArgs e)
+        private void Bt4_Cancel(object sender, RoutedEventArgs e)
         {
             NavigationService?.GoBack();
         }
 
-        private void Bt4_Create_Click(object sender, RoutedEventArgs e)
+        private void Bt4_Create(object sender, RoutedEventArgs e)
         {
             string projectName = txtProjectName.Text;
             string projectDescription = txtProjectDescription.Text;
             bool isPublic = cmbPublicity.SelectedIndex == 0;
 
-            if (string.IsNullOrEmpty(projectName))
+            if (string.IsNullOrWhiteSpace(projectName))
             {
-                MessageBox.Show("Пожалуйста, введите наименование проекта.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Пожалуйста, введите наименование проекта.",
+                                "Ошибка",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Warning);
                 return;
             }
 
-            var project = new ProjectContext(0, projectName, projectDescription, isPublic);
-
             try
             {
+                var project = new ProjectContext(0, projectName, projectDescription, isPublic);
                 project.Add();
 
-                // Переход на страницу с проектами и отображение созданного проекта
-                NavigationService?.Navigate(new Project1(project));
+                // Добавляем участников к проекту
+                foreach (var participant in Participants)
+                {
+                    // Здесь должен быть код добавления участника в проект в БД
+                    // Например: project.AddParticipant(participant.Name, participant.Role);
+                }
 
-                MessageBox.Show("Проект успешно создан!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                NavigationService?.Navigate(new Project1(project));
+                MessageBox.Show("Проект успешно создан!",
+                              "Успех",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при создании проекта: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка при создании проекта: {ex.Message}",
+                                "Ошибка",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
             }
         }
     }
