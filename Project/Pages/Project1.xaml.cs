@@ -1,47 +1,41 @@
-﻿using System;
+﻿using Project.Classes;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Project.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для Project1.xaml
-    /// </summary>
     public partial class Project1 : Page
     {
-        public Project1()
+        private List<ProjectContext> Projects { get; set; }
+
+        public Project1(ProjectContext newProject)
         {
             InitializeComponent();
+            Projects = new List<ProjectContext> { newProject };
+            DisplayProjects();
         }
 
-        private void Bt1_Projects(object sender, RoutedEventArgs e)
+        private void DisplayProjects()
         {
-
-        }
-
-        private void Bt1_MyTasks(object sender, RoutedEventArgs e)
-        {
-
+            ProjectsList.ItemsSource = Projects;
         }
 
         private void Bt_CreateProject(object sender, RoutedEventArgs e)
         {
-
+            NavigationService?.Navigate(new creatProject());
         }
-        private void PAText_MouseDown(object sender, MouseButtonEventArgs e)
+
+        private void Bt1_Projects(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new PersonalAccount());
+            // Логика для отображения списка проектов
+            ProjectsGrid.Visibility = Visibility.Visible;
+            NoProjectsGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void PAText_MouseDown(object sender, RoutedEventArgs e)
+        {
+            // Логика для обработки нажатия на текст профиля
         }
     }
 }
