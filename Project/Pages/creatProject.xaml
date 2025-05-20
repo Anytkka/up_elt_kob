@@ -105,7 +105,7 @@
                 <Button x:Name="btCreate" Content="Создать" Width="100" Height="30"
                         Background="#FF0F0FE3" Foreground="White"
                         Click="Bt4_Create"/>
-            </StackPanel>
+            </StackPanel> 
         </Grid>
     </Grid>
 </Page>
