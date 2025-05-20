@@ -14,5 +14,6 @@ namespace Project
     /// </summary>
     public partial class App : Application
     {
+        public static User CurrentUser { get; set; }
     }
 }

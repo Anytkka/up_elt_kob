@@ -1,6 +1,7 @@
-﻿using Project.Classes;
-using System;
-using System.Text.RegularExpressions;
+﻿
+using MySql.Data.MySqlClient;
+using Project.Classes.Common;
+using Project.Classes;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,81 +13,64 @@ namespace Project.Pages
         public Login()
         {
             InitializeComponent();
-
-            txtUsername.GotFocus += RemoveText;
-            txtUsername.LostFocus += AddText;
-            txtPassword.GotFocus += RemoveText;
-            txtPassword.LostFocus += AddText;
-
-            AddText(txtUsername, null);
-            AddText(txtPassword, null);
         }
-
         private void Bt_Login(object sender, RoutedEventArgs e)
         {
-            string email = txtUsername.Text;
-            string password = txtPassword.Text;
+            string email = txtUsername.Text.Trim();
+            string password = txtPassword.Password;
 
-            if (!IsValidEmail(email))
+            if (!email.Contains("@") || !email.Contains(".") || email.Length < 5)
             {
-                MessageBox.Show("Пожалуйста, введите email в формате xx@xx.xx");
+                MessageBox.Show("Email должен быть в формате xx@xx.xx");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            if (email == "" || password == "")
             {
-                MessageBox.Show("Пожалуйста, заполните все поля");
+                MessageBox.Show("Заполните все поля");
                 return;
             }
 
-            User user = User.GetUserByCredentials(email, password);
+            try
+            {
+                using (var connection = Connection.OpenConnection())
+                {
+                    var SQL = new MySqlCommand(
+                        "SELECT * FROM user WHERE email = @email AND password = @password LIMIT 1",
+                        connection);
 
-            if (user != null)
-            {
-                App.CurrentUser = user;
-                NavigationService?.Navigate(new Pages.PersonalAccount(user));
+                    SQL.Parameters.AddWithValue("@email", email);
+                    SQL.Parameters.AddWithValue("@password", password);
+
+                    using (var reader = SQL.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            App.CurrentUser = new User(
+                                reader.GetInt32(0),
+                                reader.GetString(1),
+                                reader.GetString(2),
+                                reader.GetString(3),
+                                reader.GetString(4));
+
+                            NavigationService?.Navigate(new PersonalAccount());
+                        }
+                        else
+                        {
+                            MessageBox.Show("Неверный email или пароль");
+                        }
+                    }
+                }
             }
-            else
+            catch
             {
-                MessageBox.Show("Неверный email или пароль");
+                MessageBox.Show("Ошибка подключения");
             }
         }
-
-        private bool IsValidEmail(string email)
-        {
-            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        }
-
         private void RegisterText_MouseDown(object sender, MouseButtonEventArgs e)
         {
             NavigationService?.Navigate(new Registration());
         }
-
-        public void RemoveText(object sender, EventArgs e)
-        {
-            TextBox textBox = sender as TextBox;
-            if (textBox.Text == "Почта xx@xx.xx" || textBox.Text == "Пароль")
-            {
-                textBox.Text = "";
-                textBox.Foreground = System.Windows.Media.Brushes.Black;
-            }
-        }
-
-        public void AddText(object sender, EventArgs e)
-        {
-            TextBox textBox = sender as TextBox;
-            if (string.IsNullOrWhiteSpace(textBox.Text))
-            {
-                if (textBox.Name == "txtUsername")
-                {
-                    textBox.Text = "Почта xx@xx.xx";
-                }
-                else if (textBox.Name == "txtPassword")
-                {
-                    textBox.Text = "Пароль";
-                }
-                textBox.Foreground = System.Windows.Media.Brushes.Gray;
-            }
-        }
     }
 }
+
