@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:Project.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="600" d:DesignWidth="800"
-      Title="ViewProject">
+      Title="Просмотр проекта">
 
     <Grid Background="#FFE5E5E5">
         <Grid.ColumnDefinitions>
@@ -21,18 +21,23 @@
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
+            <!-- Заголовок проекта -->
             <StackPanel Grid.Row="0">
-                <Label Content="Name_project" 
+                <Label x:Name="NameProjectLabel" 
+                       Content="{Binding Name}"
                        FontFamily="Malgun Gothic" 
                        FontSize="18" 
                        FontWeight="Bold"/>
-                <Label Content="Создатель: Вы" 
+                <Label x:Name="CreatorLabel"
                        FontFamily="Malgun Gothic" 
                        FontStyle="Italic"/>
-                <Label Content="Описание проекта" 
+                <Label x:Name="DescriptionLabel"
                        FontFamily="Malgun Gothic" 
                        Margin="0,10,0,0"/>
             </StackPanel>
+
+            <!-- Основные данные проекта -->
             <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -53,8 +58,7 @@
                     </Grid.ColumnDefinitions>
                     <Label Content="Наименование" 
                            FontFamily="Malgun Gothic"/>
-                    <Label Grid.Column="1" 
-                           Content="Name_project" 
+                    <Label x:Name="ProjectNameLabel" Grid.Column="1" 
                            FontFamily="Malgun Gothic"/>
                 </Grid>
 
@@ -65,30 +69,27 @@
                     </Grid.ColumnDefinitions>
                     <Label Content="Публичность" 
                            FontFamily="Malgun Gothic"/>
-                    <Label Grid.Column="1" 
-                           Content="Закрытый" 
+                    <Label x:Name="PublicityLabel" Grid.Column="1" 
                            FontFamily="Malgun Gothic"/>
                 </Grid>
             </Grid>
+
+            <!-- Список участников проекта -->
             <StackPanel Grid.Row="4">
                 <Label Content="Участники проекта" 
                        FontFamily="Malgun Gothic" 
                        FontWeight="Bold"/>
 
-                <ListView Margin="0,10,0,0">
-                    <ListViewItem>
-                        <Label Content="Фамилия Имя Отчество (Создатель)" 
-                               FontFamily="Malgun Gothic"/>
-                    </ListViewItem>
-                    <ListViewItem>
-                        <Label Content="Фамилия Имя Отчество (Администратор)" 
-                               FontFamily="Malgun Gothic"/>
-                    </ListViewItem>
-                    <ListViewItem>
-                        <Label Content="Фамилия Имя Отчество (Пользователь)" 
-                               FontFamily="Malgun Gothic"/>
-                    </ListViewItem>
+                <ListView x:Name="MembersListView" Margin="0,10,0,0">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="FontFamily" Value="Malgun Gothic"/>
+                            <Setter Property="Padding" Value="5"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
                 </ListView>
+
+                <!-- Кнопки управления -->
                 <StackPanel Orientation="Horizontal" 
                             HorizontalAlignment="Right" 
                             Margin="0,20,0,0">
@@ -97,8 +98,8 @@
                             Margin="0,0,10,0"
                             FontFamily="Malgun Gothic"
                             Background="#FF0F0FE3" 
-                            Foreground="White" Click="Bt8_Close"
-                            />
+                            Foreground="White" 
+                            Click="Bt8_Close"/>
                 </StackPanel>
             </StackPanel>
         </Grid>
