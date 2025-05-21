@@ -17,7 +17,7 @@ namespace Project.Pages
 
         private void Bt_Projects(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new Project1(App.Project));
+            NavigationService?.Navigate(new Project1());
         }
 
         private void Bt_EditProfile(object sender, RoutedEventArgs e)
@@ -33,6 +33,7 @@ namespace Project.Pages
 
         private void PAText_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            NavigationService?.Navigate(new PersonalAccount());
         }
     }
 }

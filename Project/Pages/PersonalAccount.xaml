@@ -14,7 +14,7 @@
             <ColumnDefinition Width="7*"/>
             <ColumnDefinition Width="143*"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Background="#F5F5F5">
+        <Grid Grid.Column="0" Background="#F5F5F5" Grid.ColumnSpan="2" Margin="0,0,19,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="15"/>
@@ -42,11 +42,11 @@
                 </Grid.ColumnDefinitions>
                 <Image Width="30" Height="30" Source="/Image/avata.jpg"/>
                 <Label Content="{Binding FullName}" Grid.Column="1"
-                       Margin="5,0,0,0" 
+                       Margin="0,0,-4,0" 
                        VerticalAlignment="Center"
                        Foreground="#FF000083" 
                        FontWeight="Bold" 
-                       FontFamily="Verdana" FontSize="10"
+                       FontFamily="Verdana" FontSize="9"
                        MouseDown="PAText_MouseDown"/>
             </Grid>
 
@@ -99,7 +99,7 @@
                     Background="#FF000083" 
                     Foreground="White" 
                     FontFamily="Verdana" 
-                    BorderBrush="#FF0F0FE3" HorizontalAlignment="Right" Width="190"/>
+                    BorderBrush="#FF000083" HorizontalAlignment="Right" Width="190"/>
 
             <Button x:Name="Exit" 
                     Content="Выйти" 
@@ -110,7 +110,7 @@
                     Background="#FF000083" 
                     Foreground="White" 
                     FontFamily="Verdana" 
-                    BorderBrush="#FF0F0FE3" 
+                    BorderBrush="#FF000083" 
                     HorizontalAlignment="Right" Width="80"/>
 
             <Label Content="О себе" 

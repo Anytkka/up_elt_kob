@@ -14,7 +14,7 @@ namespace Project.Classes
         public static List<ProjUserContext> Get()
         {
             List<ProjUserContext> allProjUsers = new List<ProjUserContext>();
-            string SQL = "SELECT * FROM `ProjUsers`;";
+            string SQL = "SELECT * FROM `project_user`;";
             MySqlConnection connection = Connection.OpenConnection();
             MySqlDataReader data = Connection.Query(SQL, connection);
 
@@ -35,7 +35,7 @@ namespace Project.Classes
         // Получает связь по ID
         public static ProjUserContext GetById(int id)
         {
-            string SQL = $"SELECT * FROM `ProjUsers` WHERE `id`='{id}'";
+            string SQL = $"SELECT * FROM `project_user` WHERE `id`='{id}'";
             MySqlConnection connection = Connection.OpenConnection();
             MySqlDataReader data = Connection.Query(SQL, connection);
 
@@ -59,7 +59,7 @@ namespace Project.Classes
         public static List<ProjUserContext> GetByProjectId(int projectId)
         {
             List<ProjUserContext> projUsers = new List<ProjUserContext>();
-            string SQL = $"SELECT * FROM `ProjUsers` WHERE `project`='{projectId}'";
+            string SQL = $"SELECT * FROM `project_user` WHERE `project`='{projectId}'";
             MySqlConnection connection = Connection.OpenConnection();
             MySqlDataReader data = Connection.Query(SQL, connection);
 
@@ -81,7 +81,7 @@ namespace Project.Classes
         public static List<ProjUserContext> GetByUserId(int userId)
         {
             List<ProjUserContext> projUsers = new List<ProjUserContext>();
-            string SQL = $"SELECT * FROM `ProjUsers` WHERE `user`='{userId}'";
+            string SQL = $"SELECT * FROM `project_user` WHERE `user`='{userId}'";
             MySqlConnection connection = Connection.OpenConnection();
             MySqlDataReader data = Connection.Query(SQL, connection);
 
@@ -102,7 +102,7 @@ namespace Project.Classes
         // Добавляет новую связь
         public void Add()
         {
-            string SQL = $"INSERT INTO `ProjUsers` (`project`, `user`, `role`) " +
+            string SQL = $"INSERT INTO `project_user` (`project`, `user`, `role`) " +
                          $"VALUES ({this.Project}, {this.User}, '{this.Role}')";
 
             MySqlConnection connection = Connection.OpenConnection();
@@ -113,7 +113,7 @@ namespace Project.Classes
         // Обновляет существующую связь
         public void Update()
         {
-            string SQL = $"UPDATE `ProjUsers` SET " +
+            string SQL = $"UPDATE `project_user` SET " +
                         $"`project`={this.Project}, " +
                         $"`user`={this.User}, " +
                         $"`role`='{this.Role}' " +
@@ -127,7 +127,7 @@ namespace Project.Classes
         // Удаляет связь из БД
         public void Delete()
         {
-            string SQL = $"DELETE FROM `ProjUsers` WHERE `id`={this.Id}";
+            string SQL = $"DELETE FROM `project_user` WHERE `id`={this.Id}";
             MySqlConnection connection = Connection.OpenConnection();
             Connection.Query(SQL, connection);
             Connection.CloseConnection(connection);

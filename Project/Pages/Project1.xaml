@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Project.Pages"
+      xmlns:main="clr-namespace:Project.Main"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Project1">
@@ -14,8 +15,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Левая панель -->
-        <Grid Grid.Column="0" Background="#F5F5F5">
+        <Grid Grid.Column="0" Background="#F5F5F5" Grid.ColumnSpan="2" Margin="0,0,580,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="15"/>
@@ -31,7 +31,7 @@
 
             <Label Content="Проекты" Grid.Row="0" 
                    HorizontalAlignment="Center" 
-                   FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="18" 
+                   FontFamily="Verdana" FontWeight="Bold" FontSize="18" 
                    Margin="0,10"/>
 
             <Grid Grid.Row="2" Margin="5,0">
@@ -40,28 +40,27 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Image Width="30" Height="30" Source="/Image/avata.jpg"/>
-                <Label Content="{Binding CurrentUser.FullName}" Grid.Column="1"
-                       Margin="5,0,0,0" 
+                <Label Content="{Binding FullName}" Grid.Column="1"
+                       Margin="0,0,-3,0" 
                        VerticalAlignment="Center"
                        Foreground="#FF000083" 
                        FontWeight="Bold" 
-                       FontFamily="Verdana" FontSize="10"
+                       FontFamily="Verdana" FontSize="9"
                        MouseDown="PAText_MouseDown"/>
             </Grid>
 
             <Button Content="Проекты" Click="Bt1_Projects" 
                     Grid.Row="6" Height="30" Margin="10,0,10,0" 
-                    Grid.RowSpan="2" VerticalAlignment="Top"/>
+                    Grid.RowSpan="2" VerticalAlignment="Top" BorderBrush="#FFDDDDDD" FontFamily="Verdana"/>
         </Grid>
 
-        <!-- Основное содержимое -->
         <Grid Grid.Column="1" Margin="20,9,20,31" Name="MainContentGrid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Заголовок и кнопка создания -->
+
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -69,39 +68,18 @@
                 </Grid.ColumnDefinitions>
 
                 <Label Content="Проекты" 
-                       FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="24"/>
+                       FontFamily="Verdana" FontWeight="Bold" FontSize="24"/>
 
                 <Button Content="Создать проект" Click="Bt_CreateProject" 
-                        Height="30" Width="202" Background="#FF0F0FE3" 
-                        Margin="0,7,10,5" Grid.Column="1" Foreground="White"/>
+                        Height="30" Width="202" Background="#FF000083" 
+                        Margin="332,6,26,6" Foreground="White" BorderBrush="#FF000083" FontFamily="Verdana"/>
             </Grid>
 
-            <!-- Список проектов -->
-            <Grid Grid.Row="1" Name="ProjectsGrid" Visibility="Collapsed">
-                <ListView Name="ProjectsList">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Название" DisplayMemberBinding="{Binding Name}" Width="200"/>
-                            <GridViewColumn Header="Описание" DisplayMemberBinding="{Binding Description}" Width="300"/>
-                            <GridViewColumn Header="Статус" Width="100">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding IsPublic, Converter={StaticResource BoolToPublicConverter}}"/>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </Grid>
+            <ScrollViewer Grid.Row="1">
+                <StackPanel x:Name="ProjectsPanel" Margin="0,10,0,0">
 
-            <Grid Grid.Row="1" Name="NoProjectsGrid" Background="White">
-                <Image Height="130" Width="130" Margin="205,50,205,137" Source="/Image/project.jpg"/>
-                <Label Content="У вас пока нет проектов" Margin="204,210,204,95" Foreground="#FF9B9B9B"/>
-                <Button Content="Создать проект" Click="Bt_CreateProject" 
-                        Height="30" Width="202" Background="#FF0F0FE3" 
-                        Margin="179,247,179,60" Foreground="White"/>
-            </Grid>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Page>

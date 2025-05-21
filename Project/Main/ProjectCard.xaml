@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Project.Main"
              mc:Ignorable="d"
-             d:DesignHeight="180" d:DesignWidth="300">
+             d:DesignHeight="180" d:DesignWidth="300"
+             x:Name="root">
 
     <Border CornerRadius="10" Background="White" Padding="20"
             BorderThickness="1" BorderBrush="#EEEEEE">
@@ -14,20 +15,29 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="№1" 
+
+            <TextBlock Grid.Row="0" Text="{Binding ProjectNumber, ElementName=root, StringFormat=№{0}}" 
                       FontFamily="Verdana" Foreground="#FF898989"
                       Margin="0,0,0,5"/>
-            <TextBlock Grid.Row="1" Text="Наименование проекта" 
+
+            <TextBlock Grid.Row="1" Text="{Binding ProjectName, ElementName=root}" 
                       FontFamily="Verdana" FontWeight="Bold" FontSize="16"
                       TextWrapping="Wrap" Margin="0,0,0,5"/>
-            <TextBlock Grid.Row="2" Text="Создатель: Фамилия Имя Отчество" 
-                      FontFamily="Verdana" Margin="0,0,0,15"/>
-            <Button Grid.Row="3" Content="К задачам проекта" 
-                    Background="#FF0F0FE3" Foreground="White" 
-                    FontFamily="Verdana" Height="35" Margin="0,30,0,-1" Grid.RowSpan="2" BorderBrush="#FF0F0FE3"/>
+
+            <TextBlock Grid.Row="2" Text="{Binding CreatorName, ElementName=root, StringFormat=Создатель: {0}}" 
+                      FontFamily="Verdana" Margin="0,0,0,5"/>
+
+            <TextBlock Grid.Row="3" Text="{Binding UserRole, ElementName=root, StringFormat=Ваша роль: {0}}" 
+                      FontFamily="Verdana" Foreground="#FF0F0FE3" Margin="0,0,0,10"/>
+
+            <Button Grid.Row="5" Content="К задачам проекта" 
+                    Background="#FF000083" Foreground="White" 
+                    FontFamily="Verdana" Height="35" Margin="0,10,0,0" 
+                    BorderBrush="#FF000083" Click="ProjectButton_Click"/>
         </Grid>
     </Border>
 </UserControl>

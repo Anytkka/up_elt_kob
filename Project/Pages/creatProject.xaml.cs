@@ -154,7 +154,7 @@ namespace Project.Pages
 
                     // Обновляем ID проекта для навигации
                     project.Id = projectId;
-                    NavigationService?.Navigate(new Project1(project));
+                    NavigationService?.Navigate(new Project1());
                     MessageBox.Show("Проект успешно создан!",
                                   "Успех",
                                   MessageBoxButton.OK,

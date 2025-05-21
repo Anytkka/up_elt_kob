@@ -1,28 +1,57 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Project.Main
 {
-    /// <summary>
-    /// Логика взаимодействия для ProjectCard.xaml
-    /// </summary>
     public partial class ProjectCard : UserControl
     {
+        public event EventHandler ProjectClicked;
+
+        public static readonly DependencyProperty ProjectNumberProperty =
+            DependencyProperty.Register("ProjectNumber", typeof(int), typeof(ProjectCard), new PropertyMetadata(0));
+
+        public static readonly DependencyProperty ProjectNameProperty =
+            DependencyProperty.Register("ProjectName", typeof(string), typeof(ProjectCard), new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty CreatorNameProperty =
+            DependencyProperty.Register("CreatorName", typeof(string), typeof(ProjectCard), new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty UserRoleProperty =
+            DependencyProperty.Register("UserRole", typeof(string), typeof(ProjectCard), new PropertyMetadata(string.Empty));
+
+        public string UserRole
+        {
+            get { return (string)GetValue(UserRoleProperty); }
+            set { SetValue(UserRoleProperty, value); }
+        }
+
+        public int ProjectNumber
+        {
+            get { return (int)GetValue(ProjectNumberProperty); }
+            set { SetValue(ProjectNumberProperty, value); }
+        }
+
+        public string ProjectName
+        {
+            get { return (string)GetValue(ProjectNameProperty); }
+            set { SetValue(ProjectNameProperty, value); }
+        }
+
+        public string CreatorName
+        {
+            get { return (string)GetValue(CreatorNameProperty); }
+            set { SetValue(CreatorNameProperty, value); }
+        }
+
         public ProjectCard()
         {
             InitializeComponent();
+        }
+
+        private void ProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            ProjectClicked?.Invoke(this, EventArgs.Empty);
         }
     }
 }
