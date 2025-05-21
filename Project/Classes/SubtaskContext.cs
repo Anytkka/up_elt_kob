@@ -7,8 +7,8 @@ namespace Project.Classes
 {
     public class SubtaskContext : Subtask
     {
-        public SubtaskContext(int id, string name, string description, DateTime dueDate, int status, int taskId)
-            : base(id, name, description, dueDate, status, taskId) { }
+        public SubtaskContext(int id, string name, string description, DateTime dueDate, int taskId, int userId)
+            : base(id, name, description, dueDate, taskId, userId) { }
 
         // Получает все подзадачи
         public static List<SubtaskContext> Get()
@@ -63,7 +63,7 @@ namespace Project.Classes
         public static List<SubtaskContext> GetByTaskId(int taskId)
         {
             List<SubtaskContext> subtasks = new List<SubtaskContext>();
-            string SQL = $"SELECT * FROM `Subtasks` WHERE `taskId`='{taskId}'";
+            string SQL = $"SELECT * FROM `Subtasks` WHERE `task`='{taskId}'";
             MySqlConnection connection = Connection.OpenConnection();
             MySqlDataReader data = Connection.Query(SQL, connection);
 
@@ -86,9 +86,9 @@ namespace Project.Classes
         // Добавляет новую подзадачу
         public void Add()
         {
-            string SQL = $"INSERT INTO `Subtasks` (`name`, `description`, `dueDate`, `status`, `taskId`) " +
+            string SQL = $"INSERT INTO `Subtasks` (`name`, `description`, `dueDate`, `task`, `user`) " +
                          $"VALUES ('{this.Name}', '{this.Description}', '{this.DueDate:yyyy-MM-dd}', " +
-                         $"{this.Status}, {this.TaskId})";
+                         $"{this.TaskId}, {this.UserId})";
 
             MySqlConnection connection = Connection.OpenConnection();
             Connection.Query(SQL, connection);
@@ -102,8 +102,8 @@ namespace Project.Classes
                         $"`name`='{this.Name}', " +
                         $"`description`='{this.Description}', " +
                         $"`dueDate`='{this.DueDate:yyyy-MM-dd}', " +
-                        $"`status`={this.Status}, " +
-                        $"`taskId`={this.TaskId} " +
+                        $"`task`={this.TaskId}, " +
+                        $"`user`={this.UserId} " +
                         $"WHERE `id`={this.Id}";
 
             MySqlConnection connection = Connection.OpenConnection();

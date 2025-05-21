@@ -11,18 +11,18 @@ namespace Project.Classes
         public int Id { get; set; } 
         public string Name { get; set; }
         public string Description { get; set; } 
-        public DateTime DueDate { get; set; } 
-        public int Status { get; set; } 
-        public int TaskId { get; set; } 
+        public DateTime DueDate { get; set; }
+        public int TaskId { get; set; }
+        public int UserId {  get; set; }
 
-        public Subtask(int id, string name, string description, DateTime dueDate, int status, int taskId)
+        public Subtask(int id, string name, string description, DateTime dueDate, int taskId, int UserId)
         {
             this.Id = id;
             this.Name = name;
             this.Description = description;
             this.DueDate = dueDate;
-            this.Status = status;
             this.TaskId = taskId;
+            this.UserId = UserId;
         }
 
     }

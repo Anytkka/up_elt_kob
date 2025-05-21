@@ -72,7 +72,7 @@
 
                 <Button Content="Создать проект" Click="Bt_CreateProject" 
                         Height="30" Width="202" Background="#FF000083" 
-                        Margin="332,6,26,6" Foreground="White" BorderBrush="#FF000083" FontFamily="Verdana"/>
+                        Margin="325,6,33,6" Foreground="White" BorderBrush="#FF000083" FontFamily="Verdana"/>
             </Grid>
 
             <ScrollViewer Grid.Row="1">
