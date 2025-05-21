@@ -19,7 +19,7 @@ namespace Project.Main
 
         public static readonly DependencyProperty UserRoleProperty =
             DependencyProperty.Register("UserRole", typeof(string), typeof(ProjectCard), new PropertyMetadata(string.Empty));
-        
+
         public static readonly DependencyProperty IsPublicProperty =
             DependencyProperty.Register("IsPublic", typeof(bool), typeof(ProjectCard), new PropertyMetadata(false));
 
@@ -28,40 +28,27 @@ namespace Project.Main
             get { return (bool)GetValue(IsPublicProperty); }
             set { SetValue(IsPublicProperty, value); }
         }
-
-
         public string UserRole
         {
             get { return (string)GetValue(UserRoleProperty); }
             set { SetValue(UserRoleProperty, value); }
         }
-
         public int ProjectNumber
         {
             get { return (int)GetValue(ProjectNumberProperty); }
             set { SetValue(ProjectNumberProperty, value); }
         }
-
         public string ProjectName
         {
             get { return (string)GetValue(ProjectNameProperty); }
             set { SetValue(ProjectNameProperty, value); }
         }
-
         public string CreatorName
         {
             get { return (string)GetValue(CreatorNameProperty); }
             set { SetValue(CreatorNameProperty, value); }
         }
-
-        public ProjectCard()
-        {
-            InitializeComponent();
-        }
-
-        private void ProjectButton_Click(object sender, RoutedEventArgs e)
-        {
-            ProjectClicked?.Invoke(this, EventArgs.Empty);
-        }
+        public ProjectCard() {InitializeComponent();}
+        private void ProjectButton_Click(object sender, RoutedEventArgs e) {}  
     }
 }

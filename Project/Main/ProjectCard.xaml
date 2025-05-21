@@ -4,11 +4,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             d:DesignHeight="180" d:DesignWidth="300"
+             d:DesignHeight="200" d:DesignWidth="300"
              x:Name="root">
 
     <Border CornerRadius="10" Background="White" Padding="20"
-            BorderThickness="1" BorderBrush="#EEEEEE" Margin="0,0,0,-17">
+            BorderThickness="1" BorderBrush="#EEEEEE" Margin="0,10,0,10">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -71,10 +71,10 @@
                 </TextBlock>
             </StackPanel>
 
-            <Button Grid.Row="6" Content="К задачам проекта" 
+            <Button Grid.Row="4" Content="К задачам проекта" 
                     Background="#FF0F0FE3" Foreground="White" 
-                    FontFamily="Verdana" Height="35" Margin="0,10,0,0" 
-                    BorderBrush="#FF0F0FE3" Click="ProjectButton_Click"/>
+                    FontFamily="Verdana" Height="35" Margin="0,23,0,-3" 
+                    BorderBrush="#FF0F0FE3" Click="ProjectButton_Click"  Command="{Binding NavigateToKanbanCommand}" Grid.RowSpan="3"/>
         </Grid>
     </Border>
 </UserControl>

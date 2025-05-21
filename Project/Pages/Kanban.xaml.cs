@@ -20,9 +20,11 @@ namespace Project.Pages
     /// </summary>
     public partial class Kanban : Page
     {
-        public Kanban()
+        private string projectInf;
+        public Kanban(string projectInf)
         {
             InitializeComponent();
+            this.projectInf = projectInf;
         }
 
         private void Bt7_Projects(object sender, RoutedEventArgs e)
