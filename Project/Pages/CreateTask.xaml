@@ -40,7 +40,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Наименование*" VerticalAlignment="Center" Foreground="Black"/>
-                    <TextBox Grid.Column="1" Height="25" Text="Name_task"/>
+                    <TextBox x:Name="txtTaskName" Grid.Column="1" Height="25" Text="Name_task"/>
                 </Grid>
                 <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
@@ -48,7 +48,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Описание" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
+                    <TextBox x:Name="txtTaskDescription" Grid.Column="1" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
                              Text="Описание задачи"/>
                 </Grid>
             </Grid>
@@ -57,34 +57,25 @@
                 <Label Content="Ответственный за задачу" 
                        FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
 
-                <Button Content="Добавить участника" Width="150" Margin="0,10,0,10"
+                <Button x:Name="btAddResponsible" Content="Добавить участника" Width="150" Margin="0,10,0,10"
                         HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt5_AddUsers"/>
 
-                <ListView>
-                    <ListViewItem>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content="Фамилия Имя Отчество"/>
-                            <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
-                                    BorderThickness="0" FontWeight="Bold" Margin="582,0,-609,0"
-                                    ToolTip="Удалить ответственного" />
-                        </Grid>
-                    </ListViewItem>
-                    <ListViewItem>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content="Фамилия Имя Отчество"/>
-                            <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
-                                    BorderThickness="0" FontWeight="Bold" Margin="585,0,-606,0"
-                                    ToolTip="Удалить ответственного"/>
-                        </Grid>
-                    </ListViewItem>
+                <ListView x:Name="listViewResponsible">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="{Binding Name}"/>
+                                <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
+                                        BorderThickness="0" FontWeight="Bold"
+                                        ToolTip="Удалить ответственного"
+                                        Click="RemoveResponsible_Click"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
                 </ListView>
             </StackPanel>
 
@@ -92,29 +83,32 @@
                 <Label Content="Подзадачи" 
                        FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
 
-                <Button Content="Добавить подзадачу" Width="150" Margin="0,10,0,10"
+                <Button x:Name="btAddSubtask" Content="Добавить подзадачу" Width="150" Margin="0,10,0,10"
                         HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt5_AddS"/>
 
-                <ListView>
-                    <ListViewItem>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content="Наименование подзадачи"/>
-                            <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
-                                    BorderThickness="0" FontWeight="Bold" Margin="566,0,-593,0"
-                                    ToolTip="Удалить подзадачу" Click="Bt5_DeleteS"/>
-                        </Grid>
-                    </ListViewItem>
+                <ListView x:Name="listViewSubtasks">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="{Binding Name}"/>
+                                <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
+                                        BorderThickness="0" FontWeight="Bold"
+                                        ToolTip="Удалить подзадачу"
+                                        Click="Bt5_DeleteS"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
                 </ListView>
             </StackPanel>
 
             <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Отмена" Width="100" Height="30" Margin="0,0,10,0"
+                <Button x:Name="btCancel" Content="Отмена" Width="100" Height="30" Margin="0,0,10,0"
                         Click="Bt5_Cancel"/>
-                <Button Content="Добавить" Width="100" Height="30" 
+                <Button x:Name="btCreate" Content="Добавить" Width="100" Height="30" 
                         Background="#FF0F0FE3" Foreground="White"
                         Click="Bt5_Create"/>
             </StackPanel>
