@@ -84,7 +84,7 @@ namespace Project.Classes
         }
 
         // Добавляет новую подзадачу
-        public void Add(MySqlConnection connection)
+        public void Add()
         {
             string SQL = $"INSERT INTO `Subtasks` (`name`, `description`, `dueDate`, `task`, `user`) " +
                          $"VALUES ('{this.Name}', '{this.Description}', '{this.DueDate:yyyy-MM-dd}', " +

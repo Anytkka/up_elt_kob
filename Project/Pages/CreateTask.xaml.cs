@@ -148,7 +148,7 @@ namespace Project.Pages
                     foreach (var subtask in Subtasks)
                     {
                         subtask.TaskId = taskId;
-                        subtask.Add(connection);
+                        subtask.Add();
                     }
 
                     transaction.Commit();
