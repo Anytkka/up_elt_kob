@@ -1,17 +1,17 @@
 ﻿<UserControl x:Class="Project.Main.ProjectCard"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Project.Main"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DesignHeight="180" d:DesignWidth="300"
              x:Name="root">
 
     <Border CornerRadius="10" Background="White" Padding="20"
-            BorderThickness="1" BorderBrush="#EEEEEE">
+            BorderThickness="1" BorderBrush="#EEEEEE" Margin="0,0,0,-17">
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -32,12 +32,49 @@
                       FontFamily="Verdana" Margin="0,0,0,5"/>
 
             <TextBlock Grid.Row="3" Text="{Binding UserRole, ElementName=root, StringFormat=Ваша роль: {0}}" 
-                      FontFamily="Verdana" Foreground="#FF0F0FE3" Margin="0,0,0,10"/>
+                      FontFamily="Verdana" Foreground="#FF0F0FE3" Margin="0,0,0,5"/>
 
-            <Button Grid.Row="5" Content="К задачам проекта" 
-                    Background="#FF000083" Foreground="White" 
+            <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,10">
+                <Path x:Name="PublicityIcon" Stretch="Uniform" Width="16" Height="16" Margin="0,0,5,0">
+                    <Path.Style>
+                        <Style TargetType="Path">
+                            <Setter Property="Data" Value="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,10.5A1.5,1.5 0 0,1 13.5,12A1.5,1.5 0 0,1 12,13.5A1.5,1.5 0 0,1 10.5,12A1.5,1.5 0 0,1 12,10.5M7.5,10.5A1.5,1.5 0 0,1 9,12A1.5,1.5 0 0,1 7.5,13.5A1.5,1.5 0 0,1 6,12A1.5,1.5 0 0,1 7.5,10.5M16.5,10.5A1.5,1.5 0 0,1 18,12A1.5,1.5 0 0,1 16.5,13.5A1.5,1.5 0 0,1 15,12A1.5,1.5 0 0,1 16.5,10.5Z"/>
+                            <Setter Property="Fill" Value="Black"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsPublic, ElementName=root}" Value="True">
+                                    <Setter Property="Fill" Value="Green"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsPublic, ElementName=root}" Value="False">
+                                    <Setter Property="Fill" Value="Red"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Path.Style>
+                </Path>
+                <TextBlock x:Name="PublicityText" FontFamily="Verdana">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="Неизвестный тип проекта"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsPublic, ElementName=root}" Value="True">
+                                    <Setter Property="Text" Value="Открытый проект"/>
+                                    <Setter Property="Foreground" Value="Green"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsPublic, ElementName=root}" Value="False">
+                                    <Setter Property="Text" Value="Закрытый проект"/>
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+
+            <Button Grid.Row="6" Content="К задачам проекта" 
+                    Background="#FF0F0FE3" Foreground="White" 
                     FontFamily="Verdana" Height="35" Margin="0,10,0,0" 
-                    BorderBrush="#FF000083" Click="ProjectButton_Click"/>
+                    BorderBrush="#FF0F0FE3" Click="ProjectButton_Click"/>
         </Grid>
     </Border>
 </UserControl>

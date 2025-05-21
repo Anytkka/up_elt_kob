@@ -19,6 +19,16 @@ namespace Project.Main
 
         public static readonly DependencyProperty UserRoleProperty =
             DependencyProperty.Register("UserRole", typeof(string), typeof(ProjectCard), new PropertyMetadata(string.Empty));
+        
+        public static readonly DependencyProperty IsPublicProperty =
+            DependencyProperty.Register("IsPublic", typeof(bool), typeof(ProjectCard), new PropertyMetadata(false));
+
+        public bool IsPublic
+        {
+            get { return (bool)GetValue(IsPublicProperty); }
+            set { SetValue(IsPublicProperty, value); }
+        }
+
 
         public string UserRole
         {

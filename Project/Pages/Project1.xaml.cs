@@ -17,20 +17,33 @@ namespace Project.Pages
 
         private void LoadProjects()
         {
+            // Очищаем панель проектов
             ProjectsPanel.Children.Clear();
 
+            // Получаем текущего пользователя
             var currentUser = App.CurrentUser;
             if (currentUser == null) return;
 
-            var userProjects = ProjUserContext.GetByUserId(currentUser.Id)
-                .Where(pu => pu.Role == "Создатель" || pu.Role == "Администратор" || pu.Role == "Пользователь")
+            // Получаем все проекты из базы
+            var allProjects = ProjectContext.Get();
+
+            // Получаем все связи пользователя с проектами
+            var userProjectRelations = ProjUserContext.GetByUserId(currentUser.Id);
+
+            // Фильтруем проекты:
+            // 1. Все открытые проекты (IsPublic = true)
+            // 2. Закрытые проекты, где пользователь добавлен (любая роль)
+            var visibleProjects = allProjects
+                .Where(p => p.IsPublic ||
+                           userProjectRelations.Any(upr => upr.Project == p.Id))
                 .ToList();
 
-            if (userProjects.Count == 0)
+            if (visibleProjects.Count == 0)
             {
+                // Если нет проектов, показываем сообщение
                 var noProjectsText = new TextBlock
                 {
-                    Text = "У вас пока нет проектов",
+                    Text = "У вас пока нет доступных проектов",
                     Foreground = System.Windows.Media.Brushes.Gray,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,
@@ -39,11 +52,11 @@ namespace Project.Pages
                 ProjectsPanel.Children.Add(noProjectsText);
                 return;
             }
-            foreach (var projUser in userProjects)
-            {
-                var project = ProjectContext.Get().FirstOrDefault(p => p.Id == projUser.Project);
-                if (project == null) continue;
 
+            // Для каждого видимого проекта создаем карточку
+            foreach (var project in visibleProjects)
+            {
+                // Получаем создателя проекта
                 var creatorRelation = ProjUserContext.GetByProjectId(project.Id)
                     .FirstOrDefault(pu => pu.Role == "Создатель");
 
@@ -52,19 +65,28 @@ namespace Project.Pages
                 var creator = UserContext.Get().FirstOrDefault(u => u.Id == creatorRelation.User);
                 if (creator == null) continue;
 
+                // Получаем роль текущего пользователя в проекте (если есть)
+                var userRole = userProjectRelations
+                    .FirstOrDefault(upr => upr.Project == project.Id)?.Role ?? "Не участвует";
+
+                // Создаем карточку проекта
                 var projectCard = new Main.ProjectCard
                 {
                     ProjectNumber = project.Id,
                     ProjectName = project.Name,
                     CreatorName = creator.FullName,
-                    UserRole = projUser.Role
+                    UserRole = userRole,
+                    IsPublic = project.IsPublic
                 };
 
+                // Добавляем обработчик клика
                 projectCard.ProjectClicked += (sender, e) =>
                 {
-                    
+                    // Здесь можно добавить логику перехода к задачам проекта
+                    MessageBox.Show($"Переход к проекту {project.Name}. Ваша роль: {userRole}");
                 };
 
+                // Добавляем карточку в панель
                 ProjectsPanel.Children.Add(projectCard);
             }
         }
