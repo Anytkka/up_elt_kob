@@ -152,6 +152,19 @@ namespace Project.Pages
                         projectId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
+                    // Создаем стандартные столбцы для канбан-доски
+                    string[] defaultColumns = { "Новые", "В процессе", "Можно проверять", "Готово" };
+                    foreach (var columnTitle in defaultColumns)
+                    {
+                        string insertColumnQuery = "INSERT INTO kanbanColumn (title_status, project) VALUES (@title_status, @projectId)";
+                        using (var cmd = new MySqlCommand(insertColumnQuery, connection, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@title_status", columnTitle);
+                            cmd.Parameters.AddWithValue("@projectId", projectId);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+
                     // Добавляем текущего пользователя как Создателя
                     AddParticipantToProject(connection, transaction, projectId, App.CurrentUser.Id, "Создатель");
 
