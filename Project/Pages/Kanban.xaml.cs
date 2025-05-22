@@ -16,12 +16,14 @@ namespace Project.Pages
         private List<TaskUserContext> _taskUsers;
         private List<UserContext> _users;
 
+
         public Kanban(int projectId)
         {
             InitializeComponent();
             _currentProjectId = projectId;
             LoadData();
             InitializeKanbanBoard();
+            this.DataContext = App.CurrentUser;
         }
 
         private void LoadData()
