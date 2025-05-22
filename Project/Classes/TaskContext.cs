@@ -117,23 +117,45 @@ namespace Project.Classes
 
         public void Update()
         {
+            if (Id <= 0)
+            {
+                throw new ArgumentException("ID задачи должен быть положительным числом.");
+            }
+
             string SQL = "UPDATE `task` SET " +
-                        "name = @name, " +
-                        "description = @description, " +
-                        "dueDate = @dueDate, " +
-                        "status = @status " +
-                        "WHERE id = @id";
+                         "name = @name, " +
+                         "description = @description, " +
+                         "dueDate = @dueDate, " +
+                         "status = @status " +
+                         "WHERE id = @id";
 
             using (MySqlConnection connection = Connection.OpenConnection())
             {
+                if (connection == null)
+                {
+                    throw new InvalidOperationException("Не удалось установить соединение с базой данных.");
+                }
+
                 using (MySqlCommand command = new MySqlCommand(SQL, connection))
                 {
-                    command.Parameters.AddWithValue("@name", this.Name);
-                    command.Parameters.AddWithValue("@description", this.Description);
-                    command.Parameters.AddWithValue("@dueDate", this.DueDate);
-                    command.Parameters.AddWithValue("@status", this.Status);
-                    command.Parameters.AddWithValue("@id", this.Id);
-                    command.ExecuteNonQuery();
+                    try
+                    {
+                        command.Parameters.AddWithValue("@name", this.Name ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@description", this.Description ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@dueDate", this.DueDate != DateTime.MinValue ? this.DueDate : (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@status", this.Status);
+                        command.Parameters.AddWithValue("@id", this.Id);
+
+                        int rowsAffected = command.ExecuteNonQuery();
+                        if (rowsAffected == 0)
+                        {
+                            throw new InvalidOperationException($"Задача с ID {this.Id} не найдена в базе данных.");
+                        }
+                    }
+                    catch (MySqlException ex)
+                    {
+                        throw new Exception($"Ошибка базы данных при обновлении задачи: {ex.Message}");
+                    }
                 }
             }
         }

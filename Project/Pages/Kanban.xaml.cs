@@ -64,7 +64,42 @@ namespace Project.Pages
                     Margin = new Thickness(5),
                     Background = System.Windows.Media.Brushes.White,
                     CornerRadius = new CornerRadius(5),
-                    Padding = new Thickness(5)
+                    Padding = new Thickness(5),
+                    AllowDrop = true,
+                    Tag = column.Id 
+                };
+
+                columnBorder.DragEnter += (s, e) =>
+                {
+                    if (e.Data.GetDataPresent("TaskCard"))
+                    {
+                        columnBorder.Background = System.Windows.Media.Brushes.LightBlue;
+                    }
+                };
+                columnBorder.DragLeave += (s, e) =>
+                {
+                    columnBorder.Background = System.Windows.Media.Brushes.White;
+                };
+
+                columnBorder.Drop += (s, e) =>
+                {
+                    if (e.Data.GetDataPresent("TaskCard"))
+                    {
+                        int taskId = (int)e.Data.GetData("TaskCard");
+                        int newColumnId = (int)((Border)s).Tag;
+
+                        var task = _tasks.FirstOrDefault(t => t.Id == taskId);
+                        if (task != null)
+                        {
+                            task.Status = newColumnId;
+                            task.Update();
+                            Console.WriteLine($"Task {taskId} moved to column {newColumnId}");
+                        }
+
+                        LoadData();
+                        InitializeKanbanBoard();
+                    }
+                    columnBorder.Background = System.Windows.Media.Brushes.White;
                 };
 
                 var columnStack = new StackPanel();
@@ -113,8 +148,6 @@ namespace Project.Pages
                         Margin = new Thickness(0, 5, 0, 0)
                     };
 
-                    Console.WriteLine($"TaskCard: TaskNumber={task.Id}, TaskName={task.Name}, Responsible={responsibleNames}, ProjectCode={task.ProjectCode}, ProjectName={task.ProjectName}");
-
                     columnStack.Children.Add(taskCard);
                 }
 
@@ -125,12 +158,13 @@ namespace Project.Pages
             var addColumnButton = new Button
             {
                 Content = "+ Добавить столбец",
-                Width = 250,
+                Width = 350,
+                Height = 40,
                 Margin = new Thickness(5),
-                Style = (Style)FindResource("AddButtonStyle")
+                Background = System.Windows.Media.Brushes.LightBlue,
+                Foreground = System.Windows.Media.Brushes.Black
             };
             addColumnButton.Click += AddColumn_Click;
-
             kanbanPanel.Children.Add(addColumnButton);
 
         }

@@ -1,5 +1,7 @@
 ﻿using System.Windows.Controls;
 using System.Windows;
+using System.Windows.Input;
+using System;
 
 namespace Project.Main
 {
@@ -50,6 +52,9 @@ namespace Project.Main
             set { SetValue(ProjectNameProperty, value); }
         }
 
+        private bool _isDragging;
+        private Point _startPoint;
+
         public TaskCard()
         {
             InitializeComponent();
@@ -57,7 +62,30 @@ namespace Project.Main
 
         private void TaskButton_Click(object sender, RoutedEventArgs e)
         {
-            
+
+        }
+
+        private void Border_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _startPoint = e.GetPosition(null);
+            _isDragging = false;
+        }
+
+        private void Border_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton != MouseButtonState.Pressed || _isDragging)
+                return;
+
+            Point currentPosition = e.GetPosition(null);
+            Vector diff = _startPoint - currentPosition;
+
+            if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+            {
+                _isDragging = true;
+                DataObject data = new DataObject("TaskCard", TaskNumber);
+                DragDrop.DoDragDrop(this, data, DragDropEffects.Move);
+            }
         }
     }
 }
