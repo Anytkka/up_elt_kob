@@ -5,22 +5,26 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using MySql.Data.MySqlClient;
+using Project.Classes.Common;
 
 namespace Project.Pages
 {
     public partial class AddSubtask : Page
     {
         private int _taskId;
+        private int _projectId;
         private SubtaskContext _editingSubtask;
         private List<UserContext> _responsiblePersons;
 
-        public SubtaskContext CreatedSubtask { get; private set; } // Для возврата созданной подзадачи
+        public SubtaskContext CreatedSubtask { get; private set; }
         public string ButtonText => _editingSubtask == null ? "Добавить" : "Обновить";
 
-        public AddSubtask(int taskId, SubtaskContext subtask = null)
+        public AddSubtask(int taskId, SubtaskContext subtask = null, int projectId = 0)
         {
             InitializeComponent();
             _taskId = taskId;
+            _projectId = projectId;
             _editingSubtask = subtask;
 
             DataContext = this;
@@ -29,24 +33,76 @@ namespace Project.Pages
             InitializeFields();
         }
 
-        private void LoadResponsiblePersons()
-        {
-            try
+           private void LoadResponsiblePersons()
             {
-                _responsiblePersons = UserContext.Get();
-                кesponsible.ItemsSource = _responsiblePersons;
+                try
+                {
+                    Console.WriteLine($"Попытка загрузить пользователей для проекта ID: {_projectId}");
 
-                if (_responsiblePersons.Count > 0)
-                    кesponsible.SelectedIndex = 0;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при загрузке ответственных: {ex.Message}",
-                                "Ошибка",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-            }
-        }
+                    if (_projectId == 0)
+                    {
+                        MessageBox.Show("ID проекта не указан", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    _responsiblePersons = new List<UserContext>();
+                    using (var connection = Connection.OpenConnection())
+                    {
+                        if (connection == null)
+                        {
+                            MessageBox.Show("Не удалось подключиться к БД", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+
+                        string query = @"SELECT u.id, u.fullName 
+                           FROM user u 
+                           JOIN project_user pu ON u.id = pu.user_id 
+                           WHERE pu.project_id = @projectId";
+
+                        Console.WriteLine($"Выполняем запрос: {query}");
+
+                        using (var cmd = new MySqlCommand(query, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@projectId", _projectId);
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    _responsiblePersons.Add(new UserContext(
+                                        Convert.ToInt32(reader["id"]),
+                                        reader["fullName"].ToString(),
+                                        "", "", ""
+                                    ));
+                                }
+                            }
+                        }
+                    }
+
+                    Console.WriteLine($"Найдено пользователей: {_responsiblePersons.Count}");
+                    Responsible.ItemsSource = _responsiblePersons;
+
+                    if (_responsiblePersons.Count == 0)
+                    {
+                        MessageBox.Show("В проекте нет пользователей. Проверьте БД.",
+                                      "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                    else
+                    {
+                        Responsible.SelectedIndex = 0;
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine($"Ошибка MySQL: {ex.Number} - {ex.Message}");
+                    MessageBox.Show($"Ошибка БД: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка: {ex.Message}\n{ex.StackTrace}");
+                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+           }
+        
 
         private void InitializeFields()
         {
@@ -57,7 +113,7 @@ namespace Project.Pages
 
                 var responsible = _responsiblePersons.FirstOrDefault(u => u.Id == _editingSubtask.UserId);
                 if (responsible != null)
-                    кesponsible.SelectedItem = responsible;
+                    Responsible.SelectedItem = responsible;
             }
             else
             {
@@ -75,22 +131,23 @@ namespace Project.Pages
         {
             if (string.IsNullOrWhiteSpace(name.Text))
             {
-                MessageBox.Show("Введите наименование подзадачи");
+                MessageBox.Show("Введите наименование подзадачи", "Ошибка",
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             try
             {
-                var selectedUser = кesponsible.SelectedItem as UserContext;
+                var selectedUser = Responsible.SelectedItem as UserContext;
                 if (selectedUser == null)
                 {
-                    MessageBox.Show("Выберите ответственного");
+                    MessageBox.Show("Выберите ответственного", "Ошибка",
+                                    MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (_editingSubtask == null)
                 {
-                    // Создаем подзадачу, но не добавляем ее в базу данных
                     CreatedSubtask = new SubtaskContext(
                         0,
                         name.Text,
@@ -101,18 +158,19 @@ namespace Project.Pages
                     );
 
                     Console.WriteLine($"Created subtask: Name={CreatedSubtask.Name}, TaskId={CreatedSubtask.TaskId}, UserId={CreatedSubtask.UserId}");
-                    MessageBox.Show("Подзадача готова к добавлению");
+                    MessageBox.Show("Подзадача готова к добавлению", "Успех",
+                                    MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    // Если редактируем существующую подзадачу
                     _editingSubtask.Name = name.Text;
-                    _editingSubtask.Description = description.Text;
+                    _editingSubtask.Description = description.Text == "Опишите подробности" ? "" : description.Text;
                     _editingSubtask.UserId = selectedUser.Id;
 
                     CreatedSubtask = _editingSubtask;
                     Console.WriteLine($"Updated subtask: Id={_editingSubtask.Id}, Name={_editingSubtask.Name}, UserId={_editingSubtask.UserId}");
-                    MessageBox.Show("Подзадача успешно обновлена");
+                    MessageBox.Show("Подзадача успешно обновлена", "Успех",
+                                    MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
                 NavigationService?.GoBack();
@@ -121,7 +179,7 @@ namespace Project.Pages
             {
                 Console.WriteLine($"Error preparing subtask: {ex.Message} {ex.StackTrace}");
                 MessageBox.Show($"Ошибка при подготовке подзадачи: {ex.Message}",
-                              "Ошибка");
+                              "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

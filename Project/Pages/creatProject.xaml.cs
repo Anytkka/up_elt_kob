@@ -58,7 +58,6 @@ namespace Project.Pages
                 int participantId = (int)selectedItem.Tag;
                 string participantName = selectedItem.Content.ToString();
 
-                // Проверяем, не является ли выбранный пользователь текущим (создателем)
                 if (participantId == App.CurrentUser.Id)
                 {
                     MessageBox.Show("Вы автоматически будете добавлены как Создатель проекта.",
@@ -209,7 +208,6 @@ namespace Project.Pages
             try
             {
                 string query = "INSERT INTO project_user (project, user, role) VALUES (@projectId, @userId, @role)";
-
                 using (var command = new MySqlCommand(query, connection, transaction))
                 {
                     command.Parameters.AddWithValue("@projectId", projectId);

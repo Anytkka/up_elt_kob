@@ -13,7 +13,6 @@ namespace Project.Pages
     public partial class CreateTask : Page
     {
         public event Action<int> TaskCreated;
-
         private List<Participant> ResponsiblePersons { get; set; }
         private List<SubtaskContext> Subtasks { get; set; }
         private int _projectId;
@@ -33,18 +32,25 @@ namespace Project.Pages
             {
                 using (var connection = Connection.OpenConnection())
                 {
-                    string query = "SELECT id, fullName FROM user";
-                    using (var reader = Connection.Query(query, connection))
+                    string query = @"SELECT DISTINCT u.id, u.fullName 
+                           FROM user u 
+                           INNER JOIN project_user pu ON u.id = pu.user 
+                           WHERE pu.project = @projectId";
+                    using (var cmd = new MySqlCommand(query, connection))
                     {
-                        cmbResponsible.Items.Clear();
-                        while (reader.Read())
+                        cmd.Parameters.AddWithValue("@projectId", _projectId);
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            var participant = new Participant
+                            cmbResponsible.Items.Clear();
+                            while (reader.Read())
                             {
-                                Id = Convert.ToInt32(reader["id"]),
-                                Name = reader["fullName"].ToString()
-                            };
-                            cmbResponsible.Items.Add(participant);
+                                var participant = new Participant
+                                {
+                                    Id = Convert.ToInt32(reader["id"]),
+                                    Name = reader["fullName"].ToString()
+                                };
+                                cmbResponsible.Items.Add(participant);
+                            }
                         }
                     }
                 }
@@ -52,9 +58,9 @@ namespace Project.Pages
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка при загрузке ответственных: {ex.Message}",
-                                "Ошибка",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
+                              "Ошибка",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Error);
             }
         }
 
@@ -87,7 +93,7 @@ namespace Project.Pages
 
         private void Bt5_AddS(object sender, RoutedEventArgs e)
         {
-            var addSubtaskPage = new AddSubtask(0);
+            var addSubtaskPage = new AddSubtask(_projectId, null);
             NavigationService.Navigating += (s, args) =>
             {
                 if (args.NavigationMode == NavigationMode.Back && args.Content is CreateTask)
@@ -137,9 +143,9 @@ namespace Project.Pages
             if (string.IsNullOrWhiteSpace(taskName))
             {
                 MessageBox.Show("Пожалуйста, введите наименование задачи.",
-                                "Ошибка",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Warning);
+                              "Ошибка",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Warning);
                 return;
             }
 
@@ -183,7 +189,6 @@ namespace Project.Pages
                         throw new Exception($"Статус с ID {statusId} не существует в базе данных.");
                     }
 
-                    // Insert task with the determined status
                     string insertQuery = @"INSERT INTO task
                         (name, description, dueDate, status)
                         VALUES (@name, @description, @dueDate, @statusId);
@@ -195,7 +200,6 @@ namespace Project.Pages
                         cmd.Parameters.AddWithValue("@description", taskDescription);
                         cmd.Parameters.AddWithValue("@dueDate", dueDate);
                         cmd.Parameters.AddWithValue("@statusId", statusId);
-
                         taskId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 

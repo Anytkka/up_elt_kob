@@ -7,6 +7,7 @@ namespace Project.Main
     public partial class ProjectCard : UserControl
     {
         public event EventHandler<int> ProjectClicked;
+        public event EventHandler<int> DeleteProjectClicked; // Add this event for delete functionality
 
         public static readonly DependencyProperty ProjectNumberProperty =
             DependencyProperty.Register("ProjectNumber", typeof(int), typeof(ProjectCard), new PropertyMetadata(0));
@@ -56,6 +57,11 @@ namespace Project.Main
         private void ProjectButton_Click(object sender, RoutedEventArgs e)
         {
             ProjectClicked?.Invoke(this, ProjectNumber);
+        }
+
+        private void DeleteProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteProjectClicked?.Invoke(this, ProjectNumber);
         }
     }
 }

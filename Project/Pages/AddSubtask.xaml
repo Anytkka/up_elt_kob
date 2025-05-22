@@ -36,7 +36,7 @@
                          AcceptsReturn="True" Text="Опишите подробности" Foreground="#FFA6A6A6" FontFamily="Verdana"/>
 
                 <Label Grid.Row="2" Grid.Column="0" Content="Ответственный" Margin="10,5,10,3" FontFamily="Verdana"/>
-                <ComboBox x:Name="кesponsible" Grid.Row="2" Grid.Column="1" Margin="10,3,10,0" Height="30" VerticalAlignment="Top" 
+                <ComboBox x:Name="Responsible" Grid.Row="2" Grid.Column="1" Margin="10,3,10,0" Height="30" VerticalAlignment="Top" 
                           BorderBrush="White" Background="#FFE5E5E5" FontFamily="Verdana"
                           DisplayMemberPath="FullName"/>
 

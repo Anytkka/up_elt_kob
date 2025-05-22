@@ -72,9 +72,15 @@
             </StackPanel>
 
             <Button Grid.Row="4" Content="К задачам проекта" 
-        Background="#FF000083" Foreground="White" 
-        FontFamily="Verdana" Height="35" Margin="0,23,0,-3" 
-        BorderBrush="#FF000083" Click="ProjectButton_Click" Grid.RowSpan="3"/>
+                    Background="#FF000083" Foreground="White" 
+                    FontFamily="Verdana" Height="35" Margin="0,23,0,-3" 
+                    BorderBrush="#FF000083" Click="ProjectButton_Click" Grid.RowSpan="3"/>
+
+            <Button x:Name="DeleteProjectButton" Content="Удалить проект" 
+                    Background="#FFBB0101" Foreground="White" 
+                    FontFamily="Verdana" Height="35" Margin="0,0,0,0" 
+                    BorderBrush="Red" Click="DeleteProjectButton_Click" Visibility="Collapsed"/>
+            
         </Grid>
     </Border>
 </UserControl>
