@@ -33,6 +33,7 @@ namespace Project.Pages
                     string query = "SELECT id, fullName FROM user";
                     using (var reader = Connection.Query(query, connection))
                     {
+                        cmbResponsible.Items.Clear();
                         while (reader.Read())
                         {
                             var participant = new Participant
@@ -40,7 +41,7 @@ namespace Project.Pages
                                 Id = Convert.ToInt32(reader["id"]),
                                 Name = reader["fullName"].ToString()
                             };
-                            ResponsiblePersons.Add(participant);
+                            cmbResponsible.Items.Add(participant);
                         }
                     }
                 }
@@ -56,7 +57,14 @@ namespace Project.Pages
 
         private void Bt5_AddUsers(object sender, RoutedEventArgs e)
         {
-            // Реализация добавления ответственных
+            if (cmbResponsible.SelectedItem is Participant selectedParticipant)
+            {
+                if (!ResponsiblePersons.Any(p => p.Id == selectedParticipant.Id))
+                {
+                    ResponsiblePersons.Add(selectedParticipant);
+                    UpdateResponsibleList();
+                }
+            }
         }
 
         private void UpdateResponsibleList()
@@ -126,10 +134,18 @@ namespace Project.Pages
 
                 try
                 {
+                    // Проверяем, существует ли статус в базе данных
+                    int statusId = 1; // Установите реальный statusId из вашего UI
+
+                    if (!StatusExists(connection, statusId))
+                    {
+                        throw new Exception($"Статус с ID {statusId} не существует в базе данных.");
+                    }
+
                     // Создаем задачу (без projectId)
-                    string insertQuery = @"INSERT INTO task 
-                                (name, description, dueDate, status) 
-                                VALUES (@name, @description, @dueDate, @status);
+                    string insertQuery = @"INSERT INTO task
+                                (name, description, dueDate, status)
+                                VALUES (@name, @description, @dueDate, @statusId);
                                 SELECT LAST_INSERT_ID();";
 
                     using (var cmd = new MySqlCommand(insertQuery, connection, transaction))
@@ -137,7 +153,7 @@ namespace Project.Pages
                         cmd.Parameters.AddWithValue("@name", taskName);
                         cmd.Parameters.AddWithValue("@description", taskDescription);
                         cmd.Parameters.AddWithValue("@dueDate", dueDate);
-                        cmd.Parameters.AddWithValue("@status", 0); // Статус по умолчанию (например, "Новая")
+                        cmd.Parameters.AddWithValue("@statusId", statusId);
 
                         taskId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -145,24 +161,32 @@ namespace Project.Pages
                     // Добавляем ответственных к задаче
                     foreach (var participant in ResponsiblePersons)
                     {
-                        string responsibleQuery = @"INSERT INTO task_user 
-                                         (task, user) 
-                                         VALUES (@taskId, @userId)";
-
-                        using (var cmd = new MySqlCommand(responsibleQuery, connection, transaction))
+                        // Проверяем, существует ли участник в базе данных
+                        if (UserExists(connection, participant.Id))
                         {
-                            cmd.Parameters.AddWithValue("@taskId", taskId);
-                            cmd.Parameters.AddWithValue("@userId", participant.Id);
-                            cmd.ExecuteNonQuery();
+                            string responsibleQuery = @"INSERT INTO task_user
+                                                     (task, user)
+                                                     VALUES (@taskId, @userId)";
+
+                            using (var cmd = new MySqlCommand(responsibleQuery, connection, transaction))
+                            {
+                                cmd.Parameters.AddWithValue("@taskId", taskId);
+                                cmd.Parameters.AddWithValue("@userId", participant.Id);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception($"Участник с ID {participant.Id} не существует в базе данных.");
                         }
                     }
 
                     // Добавляем подзадачи
                     foreach (var subtask in Subtasks)
                     {
-                        string subtaskQuery = @"INSERT INTO subtask 
-                                      (task_id, name, description) 
-                                      VALUES (@taskId, @name, @description)";
+                        string subtaskQuery = @"INSERT INTO subtask
+                                              (task_id, name, description)
+                                              VALUES (@taskId, @name, @description)";
 
                         using (var cmd = new MySqlCommand(subtaskQuery, connection, transaction))
                         {
@@ -205,22 +229,25 @@ namespace Project.Pages
             }
         }
 
-        private void AddResponsibleToTask(MySqlConnection connection, MySqlTransaction transaction, int taskId, int userId)
+        private bool StatusExists(MySqlConnection connection, int statusId)
         {
-            try
+            string query = "SELECT COUNT(*) FROM kanbancolumn WHERE id = @statusId";
+            using (var cmd = new MySqlCommand(query, connection))
             {
-                string query = "INSERT INTO task_user (task, user) VALUES (@taskId, @userId)";
-
-                using (var command = new MySqlCommand(query, connection, transaction))
-                {
-                    command.Parameters.AddWithValue("@taskId", taskId);
-                    command.Parameters.AddWithValue("@userId", userId);
-                    command.ExecuteNonQuery();
-                }
+                cmd.Parameters.AddWithValue("@statusId", statusId);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                return count > 0;
             }
-            catch (Exception ex)
+        }
+
+        private bool UserExists(MySqlConnection connection, int userId)
+        {
+            string query = "SELECT COUNT(*) FROM user WHERE id = @userId";
+            using (var cmd = new MySqlCommand(query, connection))
             {
-                throw new Exception($"Ошибка при добавлении ответственного: {ex.Message}");
+                cmd.Parameters.AddWithValue("@userId", userId);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                return count > 0;
             }
         }
 
@@ -229,6 +256,5 @@ namespace Project.Pages
             public int Id { get; set; }
             public string Name { get; set; }
         }
-
     }
 }

@@ -1,117 +1,122 @@
 ﻿<Page x:Class="Project.Pages.CreateTask"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:Project.Pages"
-      mc:Ignorable="d" 
+      mc:Ignorable="d"
       d:DesignHeight="600" d:DesignWidth="800"
       Title="CreateTask">
 
-    <Grid Background="#FFE5E5E5">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0"/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <Grid Grid.Column="1" Margin="20,20,20,20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <Label Content="Добавление задачи" 
-                   FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="18"/>
-
-            <Grid Grid.Row="2">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Background="#FFE5E5E5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1" Margin="20,20,20,20">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="Наименование*" VerticalAlignment="Center" Foreground="Black"/>
-                    <TextBox x:Name="txtTaskName" Grid.Column="1" Height="25" Text="Name_task"/>
-                </Grid>
+
+                <Label Content="Добавление задачи"
+                       FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="18"/>
+
                 <Grid Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="Описание" VerticalAlignment="Center"/>
-                    <TextBox x:Name="txtTaskDescription" Grid.Column="1" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
-                             Text="Описание задачи"/>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="Наименование*" VerticalAlignment="Center" Foreground="Black"/>
+                        <TextBox x:Name="txtTaskName" Grid.Column="1" Height="25" Text="Name_task"/>
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="Описание" VerticalAlignment="Center"/>
+                        <TextBox x:Name="txtTaskDescription" Grid.Column="1" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
+                                 Text="Описание задачи"/>
+                    </Grid>
                 </Grid>
+
+                <StackPanel Grid.Row="4">
+                    <Label Content="Ответственный за задачу"
+                           FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                        <ComboBox x:Name="cmbResponsible" Width="200" Margin="0,0,10,0" DisplayMemberPath="Name"/>
+                        <Button x:Name="btAddResponsible" Content="Добавить участника" Width="150" Margin="10,0,0,0"
+                                HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt5_AddUsers"/>
+                    </StackPanel>
+
+                    <ListView x:Name="listViewResponsible">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{Binding Name}"/>
+                                    <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent"
+                                            BorderThickness="0" FontWeight="Bold"
+                                            ToolTip="Удалить ответственного"
+                                            Click="RemoveResponsible_Click"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+
+                <StackPanel Grid.Row="6">
+                    <Label Content="Подзадачи"
+                           FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
+
+                    <Button x:Name="btAddSubtask" Content="Добавить подзадачу" Width="150" Margin="0,10,0,10"
+                            HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt5_AddS"/>
+
+                    <ListView x:Name="listViewSubtasks">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{Binding Name}"/>
+                                    <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent"
+                                            BorderThickness="0" FontWeight="Bold"
+                                            ToolTip="Удалить подзадачу"
+                                            Click="Bt5_DeleteS"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+
+                <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="btCancel" Content="Отмена" Width="100" Height="30" Margin="0,0,10,0"
+                            Click="Bt5_Cancel"/>
+                    <Button x:Name="btCreate" Content="Добавить" Width="100" Height="30"
+                            Background="#FF0F0FE3" Foreground="White"
+                            Click="Bt5_Create"/>
+                </StackPanel>
             </Grid>
-
-            <StackPanel Grid.Row="4">
-                <Label Content="Ответственный за задачу" 
-                       FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
-
-                <Button x:Name="btAddResponsible" Content="Добавить участника" Width="150" Margin="0,10,0,10"
-                        HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt5_AddUsers"/>
-
-                <ListView x:Name="listViewResponsible">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Label Content="{Binding Name}"/>
-                                <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
-                                        BorderThickness="0" FontWeight="Bold"
-                                        ToolTip="Удалить ответственного"
-                                        Click="RemoveResponsible_Click"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </StackPanel>
-
-            <StackPanel Grid.Row="6">
-                <Label Content="Подзадачи" 
-                       FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
-
-                <Button x:Name="btAddSubtask" Content="Добавить подзадачу" Width="150" Margin="0,10,0,10"
-                        HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt5_AddS"/>
-
-                <ListView x:Name="listViewSubtasks">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Label Content="{Binding Name}"/>
-                                <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" 
-                                        BorderThickness="0" FontWeight="Bold"
-                                        ToolTip="Удалить подзадачу"
-                                        Click="Bt5_DeleteS"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </StackPanel>
-
-            <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="btCancel" Content="Отмена" Width="100" Height="30" Margin="0,0,10,0"
-                        Click="Bt5_Cancel"/>
-                <Button x:Name="btCreate" Content="Добавить" Width="100" Height="30" 
-                        Background="#FF0F0FE3" Foreground="White"
-                        Click="Bt5_Create"/>
-            </StackPanel>
         </Grid>
-    </Grid>
+    </ScrollViewer>
 </Page>
