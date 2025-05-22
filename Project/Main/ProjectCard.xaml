@@ -72,9 +72,9 @@
             </StackPanel>
 
             <Button Grid.Row="4" Content="К задачам проекта" 
-                    Background="#FF000083" Foreground="White" 
-                    FontFamily="Verdana" Height="35" Margin="0,23,0,-3" 
-                    BorderBrush="#FF000083" Click="ProjectButton_Click"  Command="{Binding NavigateToKanbanCommand}" Grid.RowSpan="3"/>
+        Background="#FF000083" Foreground="White" 
+        FontFamily="Verdana" Height="35" Margin="0,23,0,-3" 
+        BorderBrush="#FF000083" Click="ProjectButton_Click" Grid.RowSpan="3"/>
         </Grid>
     </Border>
 </UserControl>

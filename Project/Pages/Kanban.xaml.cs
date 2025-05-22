@@ -1,11 +1,10 @@
 ﻿using Project.Classes;
 using Project.Main;
-using Project.Pages;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
 using System.Windows.Controls;
+using System.Windows;
+using System.Linq;
+using System;
 
 namespace Project.Pages
 {
@@ -27,13 +26,13 @@ namespace Project.Pages
 
         private void LoadData()
         {
-            // Загрузка данных из БД
             _kanbanColumns = KanbanColumnContext.Get().Where(k => k.ProjectId == _currentProjectId).ToList();
-            _tasks = DocumentContext.Get().Where(t => t.ProjectId == _currentProjectId).ToList();
+            Console.WriteLine($"Filtered columns for project {_currentProjectId}: {_kanbanColumns.Count}");
+            _tasks = DocumentContext.Get().Where(t => int.TryParse(t.ProjectCode, out int projectId) && projectId == _currentProjectId).ToList();
+            Console.WriteLine($"Loaded tasks count: {_tasks.Count}");
             _taskUsers = TaskUserContext.Get();
             _users = UserContext.Get();
 
-            // Установка названия проекта
             var project = ProjectContext.Get().FirstOrDefault(p => p.Id == _currentProjectId);
             if (project != null)
             {
@@ -53,9 +52,10 @@ namespace Project.Pages
             kanbanPanel.Children.Clear();
             kanbanPanel.Orientation = Orientation.Horizontal;
 
+            Console.WriteLine($"Columns count: {_kanbanColumns.Count}, Tasks count: {_tasks.Count}");
+
             foreach (var column in _kanbanColumns.OrderBy(c => c.Id))
             {
-                // Создание столбца Kanban
                 var columnBorder = new Border
                 {
                     Width = 250,
@@ -67,7 +67,6 @@ namespace Project.Pages
 
                 var columnStack = new StackPanel();
 
-                // Заголовок столбца с кнопкой редактирования
                 var headerStack = new StackPanel { Orientation = Orientation.Horizontal };
                 var titleLabel = new Label
                 {
@@ -90,11 +89,11 @@ namespace Project.Pages
                 headerStack.Children.Add(editButton);
                 columnStack.Children.Add(headerStack);
 
-                // Добавление задач в столбец
                 var columnTasks = _tasks.Where(t => t.Status == column.Id).ToList();
+                Console.WriteLine($"Column '{column.TitleStatus}' (ID: {column.Id}) has {columnTasks.Count} tasks");
+
                 foreach (var task in columnTasks)
                 {
-                    // Получение ответственных за задачу
                     var responsibleUsers = _taskUsers
                         .Where(tu => tu.TaskId == task.Id)
                         .Join(_users, tu => tu.UserId, u => u.Id, (tu, u) => u)
@@ -102,34 +101,25 @@ namespace Project.Pages
 
                     var responsibleNames = string.Join(", ", responsibleUsers.Select(u => u.FullName));
 
-                    // Создание карточки задачи
                     var taskCard = new TaskCard
                     {
                         TaskNumber = task.Id,
                         TaskName = task.Name,
                         Responsible = responsibleNames,
+                        ProjectCode = task.ProjectCode,
+                        ProjectName = task.ProjectName,
                         Margin = new Thickness(0, 5, 0, 0)
                     };
+
+                    Console.WriteLine($"TaskCard: TaskNumber={task.Id}, TaskName={task.Name}, Responsible={responsibleNames}, ProjectCode={task.ProjectCode}, ProjectName={task.ProjectName}");
 
                     columnStack.Children.Add(taskCard);
                 }
 
-                // Кнопка добавления задачи
-                var addTaskButton = new Button
-                {
-                    Content = "+ Добавить задачу",
-                    Margin = new Thickness(0, 10, 0, 0),
-                    Tag = column.Id,
-                    Style = (Style)FindResource("AddButtonStyle")
-                };
-                addTaskButton.Click += (s, e) => AddTaskToColumn(column.Id);
-
-                columnStack.Children.Add(addTaskButton);
                 columnBorder.Child = columnStack;
                 kanbanPanel.Children.Add(columnBorder);
             }
 
-            // Кнопка добавления нового столбца
             var addColumnButton = new Button
             {
                 Content = "+ Добавить столбец",
@@ -140,6 +130,7 @@ namespace Project.Pages
             addColumnButton.Click += AddColumn_Click;
 
             kanbanPanel.Children.Add(addColumnButton);
+
         }
 
         private void AddColumn_Click(object sender, RoutedEventArgs e)
@@ -148,7 +139,7 @@ namespace Project.Pages
             if (inputDialog.ShowDialog() == true)
             {
                 var newColumn = new KanbanColumnContext(
-                    _kanbanColumns.Max(c => c.Id) + 1,
+                    0,
                     inputDialog.Answer,
                     _currentProjectId
                 );
@@ -182,11 +173,10 @@ namespace Project.Pages
             var createTaskPage = new CreateTask();
             createTaskPage.TaskCreated += (taskId) =>
             {
-                // Обновляем статус задачи после создания
                 var task = DocumentContext.GetById(taskId);
                 if (task != null)
                 {
-                    task.Status = columnId;
+                    task.Status = GetNewColumnId();
                     task.Update();
                     LoadData();
                     InitializeKanbanBoard();
@@ -195,7 +185,10 @@ namespace Project.Pages
 
             NavigationService?.Navigate(createTaskPage);
         }
-
+        private int GetNewColumnId()
+        {
+            return _kanbanColumns.FirstOrDefault(c => c.TitleStatus == "Новые")?.Id ?? 1;
+        }
         private void Bt7_Projects(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new Project1());
@@ -204,6 +197,10 @@ namespace Project.Pages
         private void Bt7_AddTask(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new CreateTask());
+        }
+        private void PAText_MouseDown(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new PersonalAccount());
         }
     }
 }

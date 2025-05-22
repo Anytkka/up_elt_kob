@@ -12,17 +12,15 @@ namespace Project.Classes
         public string Name { get; set; } 
         public string Description { get; set; } 
         public DateTime DueDate { get; set; } 
-        public int Status { get; set; } 
-        public int ProjectId { get; set; } 
+        public int Status { get; set; }
 
-        public Task(int id, string name, string description, DateTime dueDate, int status, int projectId)
+        public Task(int id, string name, string description, DateTime dueDate, int status)
         {
             this.Id = id; 
             this.Name = name;
             this.Description = description;
             this.DueDate = dueDate;
             this.Status = status;
-            this.ProjectId = projectId;
         }
     }
 }

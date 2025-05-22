@@ -7,102 +7,149 @@ namespace Project.Classes
 {
     public class DocumentContext : Task
     {
-        public DocumentContext(int id, string name, string description, DateTime dueDate, int status, int projectId)
-            : base(id, name, description, dueDate, status, projectId) { }
+        public string ProjectCode { get; set; } // Код проекта из kanbanColumn
+        public string ProjectName { get; set; } // Название проекта из Project
 
-        // Получает все задачи
+        public DocumentContext(int id, string name, string description, DateTime dueDate, int status, string projectCode, string projectName)
+            : base(id, name, description, dueDate, status)
+        {
+            ProjectCode = projectCode;
+            ProjectName = projectName;
+        }
+
         public static List<DocumentContext> Get()
         {
             List<DocumentContext> allTasks = new List<DocumentContext>();
-            string SQL = "SELECT * FROM `Tasks`;";
-            MySqlConnection connection = Connection.OpenConnection();
-            MySqlDataReader data = Connection.Query(SQL, connection);
+            string SQL = @"
+                SELECT t.id, t.name, t.description, t.dueDate, t.status, 
+                       kc.project AS projectCode, p.name AS projectName
+                FROM `task` t
+                LEFT JOIN `kanbanColumn` kc ON t.status = kc.id
+                LEFT JOIN `Project` p ON kc.project = p.id";
 
-            while (data.Read())
+            using (MySqlConnection connection = Connection.OpenConnection())
             {
-                allTasks.Add(new DocumentContext(
-                    data.GetInt32(0),   
-                    data.GetString(1),   
-                    data.GetString(2), 
-                    data.GetDateTime(3), 
-                    data.GetInt32(4),   
-                    data.GetInt32(5)   
-                ));
-            }
+                using (MySqlCommand command = new MySqlCommand(SQL, connection))
+                {
+                    using (MySqlDataReader data = command.ExecuteReader())
+                    {
+                        while (data.Read())
+                        {
+                            // Получаем projectCode как Int32 и преобразуем в строку
+                            string projectCodeValue = data.IsDBNull(data.GetOrdinal("projectCode"))
+                                ? ""
+                                : data.GetInt32("projectCode").ToString();
 
-            Connection.CloseConnection(connection);
+                            allTasks.Add(new DocumentContext(
+                                data.GetInt32("id"),
+                                data.GetString("name"),
+                                data.GetString("description"),
+                                data.GetDateTime("dueDate"),
+                                data.GetInt32("status"),
+                                projectCodeValue,
+                                data.IsDBNull(data.GetOrdinal("projectName")) ? "" : data.GetString("projectName")
+                            ));
+                        }
+                    }
+                }
+            }
             return allTasks;
         }
 
-        // Получает задачу по ID 
         public static DocumentContext GetById(int id)
         {
-            string SQL = $"SELECT * FROM `Tasks` WHERE `id`='{id}'";
-            MySqlConnection connection = Connection.OpenConnection();
-            MySqlDataReader data = Connection.Query(SQL, connection);
+            string SQL = @"
+                SELECT t.id, t.name, t.description, t.dueDate, t.status, 
+                       kc.project AS projectCode, p.name AS projectName
+                FROM `task` t
+                LEFT JOIN `kanbanColumn` kc ON t.status = kc.id
+                LEFT JOIN `Project` p ON kc.project = p.id
+                WHERE t.id = @id";
 
-            if (data.Read())
+            using (MySqlConnection connection = Connection.OpenConnection())
             {
-                var task = new DocumentContext(
-                    data.GetInt32(0),
-                    data.GetString(1),
-                    data.GetString(2),
-                    data.GetDateTime(3),
-                    data.GetInt32(4),
-                    data.GetInt32(5)
-                );
-                Connection.CloseConnection(connection);
-                return task;
-            }
+                using (MySqlCommand command = new MySqlCommand(SQL, connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
 
-            Connection.CloseConnection(connection);
+                    using (MySqlDataReader data = command.ExecuteReader())
+                    {
+                        if (data.Read())
+                        {
+                            // Получаем projectCode как Int32 и преобразуем в строку
+                            string projectCodeValue = data.IsDBNull(data.GetOrdinal("projectCode"))
+                                ? ""
+                                : data.GetInt32("projectCode").ToString();
+
+                            return new DocumentContext(
+                                data.GetInt32("id"),
+                                data.GetString("name"),
+                                data.GetString("description"),
+                                data.GetDateTime("dueDate"),
+                                data.GetInt32("status"),
+                                projectCodeValue,
+                                data.IsDBNull(data.GetOrdinal("projectName")) ? "" : data.GetString("projectName")
+                            );
+                        }
+                    }
+                }
+            }
             return null;
         }
 
-        // Добавляет новую задачу
         public void Add()
         {
-            string SQL = $"INSERT INTO `Tasks` (`name`, `description`, `dueDate`, `status`, `projectId`) " +
-                         $"VALUES ('{this.Name}', '{this.Description}', '{this.DueDate:yyyy-MM-dd}', " +
-                         $"{this.Status}, {this.ProjectId})";
+            string SQL = "INSERT INTO `task` (name, description, dueDate, status) " +
+                        "VALUES (@name, @description, @dueDate, @status)";
 
-            MySqlConnection connection = Connection.OpenConnection();
-            Connection.Query(SQL, connection);
-            Connection.CloseConnection(connection);
+            using (MySqlConnection connection = Connection.OpenConnection())
+            {
+                using (MySqlCommand command = new MySqlCommand(SQL, connection))
+                {
+                    command.Parameters.AddWithValue("@name", this.Name);
+                    command.Parameters.AddWithValue("@description", this.Description);
+                    command.Parameters.AddWithValue("@dueDate", this.DueDate);
+                    command.Parameters.AddWithValue("@status", this.Status);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
-        // Обновляет существующую задачу
         public void Update()
         {
-            string SQL = $"UPDATE `Tasks` SET " +
-                        $"`name`='{this.Name}', " +
-                        $"`description`='{this.Description}', " +
-                        $"`dueDate`='{this.DueDate:yyyy-MM-dd}', " +
-                        $"`status`={this.Status}, " +
-                        $"`projectId`={this.ProjectId} " +
-                        $"WHERE `id`={this.Id}";
+            string SQL = "UPDATE `task` SET " +
+                        "name = @name, " +
+                        "description = @description, " +
+                        "dueDate = @dueDate, " +
+                        "status = @status " +
+                        "WHERE id = @id";
 
-            MySqlConnection connection = Connection.OpenConnection();
-            Connection.Query(SQL, connection);
-            Connection.CloseConnection(connection);
+            using (MySqlConnection connection = Connection.OpenConnection())
+            {
+                using (MySqlCommand command = new MySqlCommand(SQL, connection))
+                {
+                    command.Parameters.AddWithValue("@name", this.Name);
+                    command.Parameters.AddWithValue("@description", this.Description);
+                    command.Parameters.AddWithValue("@dueDate", this.DueDate);
+                    command.Parameters.AddWithValue("@status", this.Status);
+                    command.Parameters.AddWithValue("@id", this.Id);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
-        // Удаляет задачу из БД
         public void Delete()
         {
-            string SQL = $"DELETE FROM `Tasks` WHERE `id`={this.Id}";
-            MySqlConnection connection = Connection.OpenConnection();
-            Connection.Query(SQL, connection);
-            Connection.CloseConnection(connection);
-        }
+            string SQL = "DELETE FROM `task` WHERE id = @id";
 
-        public void UpdateStatus(int newStatus)
-        {
-            string SQL = $"UPDATE `Tasks` SET `status`={newStatus} WHERE `id`={Id}";
-            MySqlConnection connection = Connection.OpenConnection();
-            Connection.Query(SQL, connection);
-            Connection.CloseConnection(connection);
-            Status = newStatus;
+            using (MySqlConnection connection = Connection.OpenConnection())
+            {
+                using (MySqlCommand command = new MySqlCommand(SQL, connection))
+                {
+                    command.Parameters.AddWithValue("@id", this.Id);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

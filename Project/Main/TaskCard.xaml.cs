@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
+using System.Windows;
 
 namespace Project.Main
 {
@@ -13,6 +13,12 @@ namespace Project.Main
 
         public static readonly DependencyProperty ResponsibleProperty =
             DependencyProperty.Register("Responsible", typeof(string), typeof(TaskCard), new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty ProjectCodeProperty =
+            DependencyProperty.Register("ProjectCode", typeof(string), typeof(TaskCard), new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty ProjectNameProperty =
+            DependencyProperty.Register("ProjectName", typeof(string), typeof(TaskCard), new PropertyMetadata(string.Empty));
 
         public int TaskNumber
         {
@@ -32,6 +38,18 @@ namespace Project.Main
             set { SetValue(ResponsibleProperty, value); }
         }
 
+        public string ProjectCode
+        {
+            get { return (string)GetValue(ProjectCodeProperty); }
+            set { SetValue(ProjectCodeProperty, value); }
+        }
+
+        public string ProjectName
+        {
+            get { return (string)GetValue(ProjectNameProperty); }
+            set { SetValue(ProjectNameProperty, value); }
+        }
+
         public TaskCard()
         {
             InitializeComponent();
@@ -39,7 +57,7 @@ namespace Project.Main
 
         private void TaskButton_Click(object sender, RoutedEventArgs e)
         {
-            // Обработка клика по кнопке подзадач
+            
         }
     }
 }

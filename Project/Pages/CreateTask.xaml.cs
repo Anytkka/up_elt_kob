@@ -11,6 +11,8 @@ namespace Project.Pages
 {
     public partial class CreateTask : Page
     {
+        public event Action<int> TaskCreated; // Добавляем событие
+
         private List<Participant> ResponsiblePersons { get; set; }
         private List<SubtaskContext> Subtasks { get; set; }
 
@@ -54,93 +56,13 @@ namespace Project.Pages
 
         private void Bt5_AddUsers(object sender, RoutedEventArgs e)
         {
-             string taskName = txtTaskName.Text;
-        string taskDescription = txtTaskDescription.Text;
-
-        if (string.IsNullOrWhiteSpace(taskName))
-        {
-            MessageBox.Show("Пожалуйста, введите наименование задачи.",
-                          "Ошибка",
-                          MessageBoxButton.OK,
-                          MessageBoxImage.Warning);
-            return;
+            // Реализация добавления ответственных
         }
-
-        MySqlConnection connection = null;
-        MySqlTransaction transaction = null;
-        int taskId = 0;
-
-        try
-        {
-            connection = Connection.OpenConnection();
-            transaction = connection.BeginTransaction();
-
-            try
-            {
-                // Создаем задачу
-                string insertQuery = "INSERT INTO task (name, description, projectId) VALUES (@name, @description, @projectId)";
-                using (var cmd = new MySqlCommand(insertQuery, connection, transaction))
-                {
-                    cmd.Parameters.AddWithValue("@name", taskName);
-                    cmd.Parameters.AddWithValue("@description", taskDescription);
-                    cmd.Parameters.AddWithValue("@projectId", 0); // Здесь нужно указать ID проекта
-                    cmd.ExecuteNonQuery();
-                }
-
-                // Получаем ID только что созданной задачи
-                using (var cmd = new MySqlCommand("SELECT LAST_INSERT_ID()", connection, transaction))
-                {
-                    taskId = Convert.ToInt32(cmd.ExecuteScalar());
-                }
-
-                // Добавляем ответственных к задаче
-                foreach (var participant in ResponsiblePersons)
-                {
-                    AddResponsibleToTask(connection, transaction, taskId, participant.Id);
-                }
-
-                // Добавляем подзадачи
-                foreach (var subtask in Subtasks)
-                {
-                    subtask.TaskId = taskId;
-                    subtask.Add();
-                }
-
-                transaction.Commit();
-
-                MessageBox.Show("Задача успешно создана!",
-                              "Успех",
-                              MessageBoxButton.OK,
-                              MessageBoxImage.Information);
-
-                TaskCreated?.Invoke(taskId);
-                NavigationService?.GoBack();
-            }
-            catch (Exception ex)
-            {
-                transaction?.Rollback();
-                MessageBox.Show($"Ошибка при создании задачи: {ex.Message}",
-                              "Ошибка",
-                              MessageBoxButton.OK,
-                              MessageBoxImage.Error);
-            }
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Ошибка подключения: {ex.Message}",
-                          "Ошибка",
-                          MessageBoxButton.OK,
-                          MessageBoxImage.Error);
-        }
-        finally
-        {
-            connection?.Close();
-        }
-    }
 
         private void UpdateResponsibleList()
         {
-            // Обновляем список ответственных в ListView
+            listViewResponsible.ItemsSource = null;
+            listViewResponsible.ItemsSource = ResponsiblePersons;
         }
 
         private void RemoveResponsible_Click(object sender, RoutedEventArgs e)
@@ -155,7 +77,7 @@ namespace Project.Pages
         private void Bt5_AddS(object sender, RoutedEventArgs e)
         {
             // Переход на страницу добавления подзадачи
-            NavigationService?.Navigate(new AddSubtask(0)); // Здесь 0 - временный taskId
+            NavigationService?.Navigate(new AddSubtask(0));
         }
 
         private void Bt5_DeleteS(object sender, RoutedEventArgs e)
@@ -169,7 +91,8 @@ namespace Project.Pages
 
         private void UpdateSubtasksList()
         {
-            // Обновляем список подзадач в ListView
+            listViewSubtasks.ItemsSource = null;
+            listViewSubtasks.ItemsSource = Subtasks;
         }
 
         private void Bt5_Cancel(object sender, RoutedEventArgs e)
@@ -181,6 +104,7 @@ namespace Project.Pages
         {
             string taskName = txtTaskName.Text;
             string taskDescription = txtTaskDescription.Text;
+            DateTime dueDate = DateTime.Now.AddDays(7); // Установите реальную дату из вашего UI
 
             if (string.IsNullOrWhiteSpace(taskName))
             {
@@ -193,6 +117,7 @@ namespace Project.Pages
 
             MySqlConnection connection = null;
             MySqlTransaction transaction = null;
+            int taskId = 0;
 
             try
             {
@@ -201,33 +126,51 @@ namespace Project.Pages
 
                 try
                 {
-                    // Создаем задачу
-                    string insertQuery = "INSERT INTO task (name, description) VALUES (@name, @description)";
+                    // Создаем задачу (без projectId)
+                    string insertQuery = @"INSERT INTO task 
+                                (name, description, dueDate, status) 
+                                VALUES (@name, @description, @dueDate, @status);
+                                SELECT LAST_INSERT_ID();";
+
                     using (var cmd = new MySqlCommand(insertQuery, connection, transaction))
                     {
                         cmd.Parameters.AddWithValue("@name", taskName);
                         cmd.Parameters.AddWithValue("@description", taskDescription);
-                        cmd.ExecuteNonQuery();
-                    }
+                        cmd.Parameters.AddWithValue("@dueDate", dueDate);
+                        cmd.Parameters.AddWithValue("@status", 0); // Статус по умолчанию (например, "Новая")
 
-                    // Получаем ID только что созданной задачи
-                    int taskId;
-                    using (var cmd = new MySqlCommand("SELECT LAST_INSERT_ID()", connection, transaction))
-                    {
                         taskId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
                     // Добавляем ответственных к задаче
                     foreach (var participant in ResponsiblePersons)
                     {
-                        AddResponsibleToTask(connection, transaction, taskId, participant.Id);
+                        string responsibleQuery = @"INSERT INTO task_user 
+                                         (task, user) 
+                                         VALUES (@taskId, @userId)";
+
+                        using (var cmd = new MySqlCommand(responsibleQuery, connection, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@taskId", taskId);
+                            cmd.Parameters.AddWithValue("@userId", participant.Id);
+                            cmd.ExecuteNonQuery();
+                        }
                     }
 
                     // Добавляем подзадачи
                     foreach (var subtask in Subtasks)
                     {
-                        subtask.TaskId = taskId;
-                        subtask.Add();
+                        string subtaskQuery = @"INSERT INTO subtask 
+                                      (task_id, name, description) 
+                                      VALUES (@taskId, @name, @description)";
+
+                        using (var cmd = new MySqlCommand(subtaskQuery, connection, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@taskId", taskId);
+                            cmd.Parameters.AddWithValue("@name", subtask.Name);
+                            cmd.Parameters.AddWithValue("@description", subtask.Description);
+                            cmd.ExecuteNonQuery();
+                        }
                     }
 
                     transaction.Commit();
@@ -237,7 +180,8 @@ namespace Project.Pages
                                   MessageBoxButton.OK,
                                   MessageBoxImage.Information);
 
-                   
+                    // Возвращаемся на предыдущую страницу
+                    NavigationService?.GoBack();
                 }
                 catch (Exception ex)
                 {
@@ -285,5 +229,6 @@ namespace Project.Pages
             public int Id { get; set; }
             public string Name { get; set; }
         }
+
     }
 }

@@ -66,14 +66,15 @@ namespace Project.Pages
                     IsPublic = project.IsPublic
                 };
 
-                projectCard.ProjectClicked += (sender, e) =>
+                projectCard.ProjectClicked += (sender, projectId) =>
                 {
-                    MessageBox.Show($"Переход к проекту {project.Name}. Ваша роль: {userRole}");
+                    NavigationService?.Navigate(new Kanban(projectId));
                 };
 
                 ProjectsPanel.Children.Add(projectCard);
             }
         }
+
 
         private void Bt_CreateProject(object sender, RoutedEventArgs e)
         {

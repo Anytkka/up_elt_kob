@@ -6,13 +6,14 @@
       xmlns:local="clr-namespace:Project.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="600"
-      Title="Kanban" Width="1268">
+      Title="Kanban">
 
     <Grid Background="#FFE5E5E5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+
         <Grid Grid.Column="0" Background="#F5F5F5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -38,19 +39,25 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Image Width="30" Height="30" Source="/Image/avata.jpg" />
-                <Label Content="Фамилия Имя Отчество" Grid.Column="1" 
-                       Margin="5,0,0,0" VerticalAlignment="Center"
-                       Foreground="#FF0F0FE3" FontWeight="Bold"/>
+                <Label Content="{Binding FullName}" Grid.Column="1"
+                        Margin="0,0,-3,0" 
+                        VerticalAlignment="Center"
+                        Foreground="#FF000083" 
+                        FontWeight="Bold" 
+                        FontFamily="Verdana" FontSize="9"
+                        MouseDown="PAText_MouseDown"/>
             </Grid>
             <Button Content="Проекты" Click="Bt7_Projects" 
                     Grid.Row="6" Height="30" Margin="10,0"/>
         </Grid>
+
         <Grid Grid.Column="1" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="10"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -59,58 +66,17 @@
 
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Проекты / " FontWeight="Bold"/>
-                    <Label Content="Name_project" FontWeight="Bold" Foreground="#FF0F0FE3"/>
+                    <Label x:Name="Name_project" FontWeight="Bold" Foreground="#FF0F0FE3"/>
                 </StackPanel>
 
                 <Button Content="Добавить задачу" 
-                        Click="Bt7_AddTask" Background="#FF0F0FE3" 
-                        Foreground="White" Padding="10,5" Grid.ColumnSpan="2" Height="28" Margin="933,0,0,0" VerticalAlignment="Top"/>
+                        Click="Bt7_AddTask" Background="#FF000083" 
+                        Foreground="White" Padding="10,5" Width="150" Margin="84,0,0,5" Grid.ColumnSpan="2"/>
+                
             </Grid>
-            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                <StackPanel x:Name="parent" Orientation="Horizontal" Height="500">
-                    <Border Width="250" Margin="5" Background="White" CornerRadius="5" Padding="5">
-                        <StackPanel>
-                            <Label Content="новые" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <Border Margin="0,5" BorderBrush="LightGray" BorderThickness="1" Padding="5">
-                                <StackPanel>
-                                    <Label Content="Наименование задачи" FontWeight="Bold"/>
-                                    <Label Content="Ответственные: Фамилия Имя Отчество" FontSize="10"/>
-                                    <Label Content="подзадачи" FontSize="10" Foreground="Gray"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-                    <Border Width="250" Margin="5" Background="White" CornerRadius="5" Padding="5">
-                        <StackPanel>
-                            <Label Content="в процессе" FontWeight="Bold" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Width="250" Margin="5" Background="White" CornerRadius="5" Padding="5">
-                        <StackPanel>
-                            <Label Content="можно проверять" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <Border Margin="0,5" BorderBrush="LightGray" BorderThickness="1" Padding="5">
-                                <StackPanel>
-                                    <Label Content="Наименование задачи" FontWeight="Bold"/>
-                                    <Label Content="Ответственные: Фамилия Имя Отчество" FontSize="10"/>
-                                    <Label Content="подзадачи" FontSize="10" Foreground="Gray"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-                    <Border Width="250" Margin="5" Background="White" CornerRadius="5" Padding="5">
-                        <StackPanel>
-                            <Label Content="готово" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <Border Margin="0,5" BorderBrush="LightGray" BorderThickness="1" Padding="5">
-                                <StackPanel>
-                                    <Label Content="Наименование задачи" FontWeight="Bold"/>
-                                    <Label Content="Ответственные: Фамилия Имя Отчество" FontSize="10"/>
-                                    <Label Content="подзадачи" FontSize="10" Foreground="Gray"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Border>
 
-
+            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="parent" Orientation="Horizontal">
                 </StackPanel>
             </ScrollViewer>
         </Grid>

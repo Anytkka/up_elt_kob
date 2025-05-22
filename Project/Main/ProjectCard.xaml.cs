@@ -6,7 +6,7 @@ namespace Project.Main
 {
     public partial class ProjectCard : UserControl
     {
-        public event EventHandler ProjectClicked;
+        public event EventHandler<int> ProjectClicked;
 
         public static readonly DependencyProperty ProjectNumberProperty =
             DependencyProperty.Register("ProjectNumber", typeof(int), typeof(ProjectCard), new PropertyMetadata(0));
@@ -48,7 +48,14 @@ namespace Project.Main
             get { return (string)GetValue(CreatorNameProperty); }
             set { SetValue(CreatorNameProperty, value); }
         }
-        public ProjectCard() {InitializeComponent();}
-        private void ProjectButton_Click(object sender, RoutedEventArgs e) {}  
+        public ProjectCard()
+        {
+            InitializeComponent();
+        }
+
+        private void ProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            ProjectClicked?.Invoke(this, ProjectNumber);
+        }
     }
 }
