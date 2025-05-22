@@ -44,7 +44,8 @@
                     <Button x:Name="bt_Cancel" Click="Bt_Cancel" Content="Отмена" Margin="10" Padding="10,5" 
                             Background="White" Foreground="#FF000083" BorderBrush="White" Width="120" FontFamily="Verdana"/>
                     <Button x:Name="bt_Add" Click="Bt_AddS" Content="{Binding ButtonText}" Margin="10" Padding="10,5" 
-                            Background="#FF000083" Foreground="White" BorderBrush="#FF000083" Width="120" Height="30" FontFamily="Verdana"/>
+                            Background="#FF000083" Foreground="White" BorderBrush="#FF000083" Width="120" Height="40" 
+                            FontFamily="Verdana"/>
                 </StackPanel>
             </Grid>
         </Border>

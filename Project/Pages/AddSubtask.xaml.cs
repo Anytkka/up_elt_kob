@@ -14,11 +14,15 @@ namespace Project.Pages
         private SubtaskContext _editingSubtask;
         private List<UserContext> _responsiblePersons;
 
+        public string ButtonText => _editingSubtask == null ? "Добавить" : "Обновить";
+
         public AddSubtask(int taskId, SubtaskContext subtask = null)
         {
             InitializeComponent();
             _taskId = taskId;
             _editingSubtask = subtask;
+
+            DataContext = this;
 
             LoadResponsiblePersons();
             InitializeFields();
@@ -94,17 +98,20 @@ namespace Project.Pages
                         selectedUser.Id
                     );
 
+                    Console.WriteLine($"Adding new subtask: Name={newSubtask.Name}, TaskId={newSubtask.TaskId}, UserId={newSubtask.UserId}");
                     newSubtask.Add();
+                    Console.WriteLine("Subtask added successfully");
                     MessageBox.Show("Подзадача успешно добавлена");
                 }
                 else
                 {
-                    // Обновляем существующую подзадачу
                     _editingSubtask.Name = name.Text;
                     _editingSubtask.Description = description.Text;
                     _editingSubtask.UserId = selectedUser.Id;
 
+                    Console.WriteLine($"Updating subtask: Id={_editingSubtask.Id}, Name={_editingSubtask.Name}, UserId={_editingSubtask.UserId}");
                     _editingSubtask.Update();
+                    Console.WriteLine("Subtask updated successfully");
                     MessageBox.Show("Подзадача успешно обновлена");
                 }
 
@@ -112,6 +119,7 @@ namespace Project.Pages
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error saving subtask: {ex.Message} {ex.StackTrace}");
                 MessageBox.Show($"Ошибка при сохранении подзадачи: {ex.Message}",
                               "Ошибка");
             }

@@ -14,7 +14,7 @@ namespace Project.Classes
         public static List<SubtaskContext> Get()
         {
             List<SubtaskContext> allSubtasks = new List<SubtaskContext>();
-            string SQL = "SELECT * FROM `Subtasks`;";
+            string SQL = "SELECT * FROM `Subtask`;";
             MySqlConnection connection = Connection.OpenConnection();
             MySqlDataReader data = Connection.Query(SQL, connection);
 
@@ -37,7 +37,7 @@ namespace Project.Classes
         // Получает подзадачу по ID
         public static SubtaskContext GetById(int id)
         {
-            string SQL = $"SELECT * FROM `Subtasks` WHERE `id`='{id}'";
+            string SQL = $"SELECT * FROM `Subtask` WHERE `id`='{id}'";
             MySqlConnection connection = Connection.OpenConnection();
             MySqlDataReader data = Connection.Query(SQL, connection);
 
@@ -63,7 +63,7 @@ namespace Project.Classes
         public static List<SubtaskContext> GetByTaskId(int taskId)
         {
             List<SubtaskContext> subtasks = new List<SubtaskContext>();
-            string SQL = $"SELECT * FROM `Subtasks` WHERE `task`='{taskId}'";
+            string SQL = $"SELECT * FROM `Subtask` WHERE `task`='{taskId}'";
             MySqlConnection connection = Connection.OpenConnection();
             MySqlDataReader data = Connection.Query(SQL, connection);
 
@@ -86,7 +86,7 @@ namespace Project.Classes
         // Добавляет новую подзадачу
         public void Add()
         {
-            string SQL = $"INSERT INTO `Subtasks` (`name`, `description`, `dueDate`, `task`, `user`) " +
+            string SQL = $"INSERT INTO `Subtask` (`name`, `description`, `dueDate`, `task`, `user`) " +
                          $"VALUES ('{this.Name}', '{this.Description}', '{this.DueDate:yyyy-MM-dd}', " +
                          $"{this.TaskId}, {this.UserId})";
 
@@ -98,7 +98,7 @@ namespace Project.Classes
         // Обновляет существующую подзадачу
         public void Update()
         {
-            string SQL = $"UPDATE `Subtasks` SET " +
+            string SQL = $"UPDATE `Subtask` SET " +
                         $"`name`='{this.Name}', " +
                         $"`description`='{this.Description}', " +
                         $"`dueDate`='{this.DueDate:yyyy-MM-dd}', " +
@@ -114,7 +114,7 @@ namespace Project.Classes
         // Удаляет подзадачу 
         public void Delete()
         {
-            string SQL = $"DELETE FROM `Subtasks` WHERE `id`={this.Id}";
+            string SQL = $"DELETE FROM `Subtask` WHERE `id`={this.Id}";
             MySqlConnection connection = Connection.OpenConnection();
             Connection.Query(SQL, connection);
             Connection.CloseConnection(connection);
