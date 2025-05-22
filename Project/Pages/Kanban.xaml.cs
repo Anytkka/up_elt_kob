@@ -16,7 +16,6 @@ namespace Project.Pages
         private List<TaskUserContext> _taskUsers;
         private List<UserContext> _users;
 
-
         public Kanban(int projectId)
         {
             InitializeComponent();
@@ -66,7 +65,7 @@ namespace Project.Pages
                     CornerRadius = new CornerRadius(5),
                     Padding = new Thickness(5),
                     AllowDrop = true,
-                    Tag = column.Id 
+                    Tag = column.Id
                 };
 
                 columnBorder.DragEnter += (s, e) =>
@@ -166,7 +165,6 @@ namespace Project.Pages
             };
             addColumnButton.Click += AddColumn_Click;
             kanbanPanel.Children.Add(addColumnButton);
-
         }
 
         private void AddColumn_Click(object sender, RoutedEventArgs e)
@@ -206,7 +204,7 @@ namespace Project.Pages
 
         private void AddTaskToColumn(int columnId)
         {
-            var createTaskPage = new CreateTask();
+            var createTaskPage = new CreateTask(_currentProjectId); // Pass the current projectId
             createTaskPage.TaskCreated += (taskId) =>
             {
                 var task = DocumentContext.GetById(taskId);
@@ -221,10 +219,12 @@ namespace Project.Pages
 
             NavigationService?.Navigate(createTaskPage);
         }
+
         private int GetNewColumnId()
         {
             return _kanbanColumns.FirstOrDefault(c => c.TitleStatus == "Новые")?.Id ?? 1;
         }
+
         private void Bt7_Projects(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new Project1());
@@ -232,8 +232,21 @@ namespace Project.Pages
 
         private void Bt7_AddTask(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new CreateTask());
+            var createTaskPage = new CreateTask(_currentProjectId); // Pass the current projectId
+            createTaskPage.TaskCreated += (taskId) =>
+            {
+                var task = DocumentContext.GetById(taskId);
+                if (task != null)
+                {
+                    task.Status = GetNewColumnId();
+                    task.Update();
+                    LoadData();
+                    InitializeKanbanBoard();
+                }
+            };
+            NavigationService?.Navigate(createTaskPage);
         }
+
         private void PAText_MouseDown(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new PersonalAccount());

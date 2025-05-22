@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 using MySql.Data.MySqlClient;
 using System.Linq;
 
@@ -11,14 +12,16 @@ namespace Project.Pages
 {
     public partial class CreateTask : Page
     {
-        public event Action<int> TaskCreated; // Добавляем событие
+        public event Action<int> TaskCreated; // Event to notify about task creation
 
         private List<Participant> ResponsiblePersons { get; set; }
         private List<SubtaskContext> Subtasks { get; set; }
+        private int _projectId; // Project ID will be set via constructor
 
-        public CreateTask()
+        public CreateTask(int projectId) // Add constructor with projectId parameter
         {
             InitializeComponent();
+            _projectId = projectId; // Set the projectId from the parameter
             ResponsiblePersons = new List<Participant>();
             Subtasks = new List<SubtaskContext>();
             LoadResponsiblePersonsFromDatabase();
@@ -84,8 +87,19 @@ namespace Project.Pages
 
         private void Bt5_AddS(object sender, RoutedEventArgs e)
         {
-            // Переход на страницу добавления подзадачи
-            NavigationService?.Navigate(new AddSubtask(0));
+            var addSubtaskPage = new AddSubtask(0);
+            NavigationService.Navigating += (s, args) =>
+            {
+                if (args.NavigationMode == NavigationMode.Back && args.Content is CreateTask)
+                {
+                    if (addSubtaskPage.CreatedSubtask != null)
+                    {
+                        Subtasks.Add(addSubtaskPage.CreatedSubtask);
+                        UpdateSubtasksList();
+                    }
+                }
+            };
+            NavigationService?.Navigate(addSubtaskPage);
         }
 
         private void Bt5_DeleteS(object sender, RoutedEventArgs e)
@@ -108,24 +122,32 @@ namespace Project.Pages
             NavigationService?.GoBack();
         }
 
+        // Method to refresh task display (simulates immediate update)
+        private void RefreshTaskDisplay(int taskId)
+        {
+            Console.WriteLine($"Task with ID {taskId} created at {DateTime.Now}, refreshing display...");
+            TaskCreated?.Invoke(taskId); // Notify subscribers (e.g., kanban board) to update
+        }
+
         private void Bt5_Create(object sender, RoutedEventArgs e)
         {
             string taskName = txtTaskName.Text;
             string taskDescription = txtTaskDescription.Text;
-            DateTime dueDate = DateTime.Now.AddDays(7); // Установите реальную дату из вашего UI
+            DateTime dueDate = DateTime.Now.AddDays(7);
 
             if (string.IsNullOrWhiteSpace(taskName))
             {
                 MessageBox.Show("Пожалуйста, введите наименование задачи.",
-                              "Ошибка",
-                              MessageBoxButton.OK,
-                              MessageBoxImage.Warning);
+                                "Ошибка",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Warning);
                 return;
             }
 
             MySqlConnection connection = null;
             MySqlTransaction transaction = null;
             int taskId = 0;
+            int statusId = 0;
 
             try
             {
@@ -134,19 +156,40 @@ namespace Project.Pages
 
                 try
                 {
-                    // Проверяем, существует ли статус в базе данных
-                    int statusId = 1; // Установите реальный statusId из вашего UI
+                    // Find or create the "новые" status for the current project
+                    string statusQuery = @"SELECT id FROM kanbanColumn 
+                                 WHERE project = @projectId AND title_status = 'новые'";
+                    using (var cmd = new MySqlCommand(statusQuery, connection, transaction))
+                    {
+                        cmd.Parameters.AddWithValue("@projectId", _projectId);
+                        var result = cmd.ExecuteScalar();
+                        if (result != null)
+                        {
+                            statusId = Convert.ToInt32(result);
+                        }
+                        else
+                        {
+                            string insertStatusQuery = @"INSERT INTO kanbanColumn (title_status, project) 
+                                                       VALUES ('новые', @projectId);
+                                                       SELECT LAST_INSERT_ID();";
+                            using (var insertCmd = new MySqlCommand(insertStatusQuery, connection, transaction))
+                            {
+                                insertCmd.Parameters.AddWithValue("@projectId", _projectId);
+                                statusId = Convert.ToInt32(insertCmd.ExecuteScalar());
+                            }
+                        }
+                    }
 
                     if (!StatusExists(connection, statusId))
                     {
                         throw new Exception($"Статус с ID {statusId} не существует в базе данных.");
                     }
 
-                    // Создаем задачу (без projectId)
+                    // Insert task with the determined status
                     string insertQuery = @"INSERT INTO task
-                                (name, description, dueDate, status)
-                                VALUES (@name, @description, @dueDate, @statusId);
-                                SELECT LAST_INSERT_ID();";
+                        (name, description, dueDate, status)
+                        VALUES (@name, @description, @dueDate, @statusId);
+                        SELECT LAST_INSERT_ID();";
 
                     using (var cmd = new MySqlCommand(insertQuery, connection, transaction))
                     {
@@ -158,15 +201,13 @@ namespace Project.Pages
                         taskId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
-                    // Добавляем ответственных к задаче
                     foreach (var participant in ResponsiblePersons)
                     {
-                        // Проверяем, существует ли участник в базе данных
                         if (UserExists(connection, participant.Id))
                         {
                             string responsibleQuery = @"INSERT INTO task_user
-                                                     (task, user)
-                                                     VALUES (@taskId, @userId)";
+                                             (task, user)
+                                             VALUES (@taskId, @userId)";
 
                             using (var cmd = new MySqlCommand(responsibleQuery, connection, transaction))
                             {
@@ -181,18 +222,19 @@ namespace Project.Pages
                         }
                     }
 
-                    // Добавляем подзадачи
                     foreach (var subtask in Subtasks)
                     {
                         string subtaskQuery = @"INSERT INTO subtask
-                                              (task_id, name, description)
-                                              VALUES (@taskId, @name, @description)";
+                                      (task, name, description, dueDate, user)
+                                      VALUES (@task, @name, @description, @dueDate, @user)";
 
                         using (var cmd = new MySqlCommand(subtaskQuery, connection, transaction))
                         {
-                            cmd.Parameters.AddWithValue("@taskId", taskId);
+                            cmd.Parameters.AddWithValue("@task", taskId);
                             cmd.Parameters.AddWithValue("@name", subtask.Name);
-                            cmd.Parameters.AddWithValue("@description", subtask.Description);
+                            cmd.Parameters.AddWithValue("@description", subtask.Description ?? "");
+                            cmd.Parameters.AddWithValue("@dueDate", subtask.DueDate);
+                            cmd.Parameters.AddWithValue("@user", subtask.UserId);
                             cmd.ExecuteNonQuery();
                         }
                     }
@@ -204,8 +246,9 @@ namespace Project.Pages
                                   MessageBoxButton.OK,
                                   MessageBoxImage.Information);
 
-                    // Возвращаемся на предыдущую страницу
-                    NavigationService?.GoBack();
+                    // Refresh display immediately and navigate to Kanban page
+                    RefreshTaskDisplay(taskId);
+                    NavigationService?.Navigate(new Kanban(_projectId)); // Pass projectId to Kanban constructor
                 }
                 catch (Exception ex)
                 {
@@ -231,7 +274,7 @@ namespace Project.Pages
 
         private bool StatusExists(MySqlConnection connection, int statusId)
         {
-            string query = "SELECT COUNT(*) FROM kanbancolumn WHERE id = @statusId";
+            string query = "SELECT COUNT(*) FROM kanbanColumn WHERE id = @statusId";
             using (var cmd = new MySqlCommand(query, connection))
             {
                 cmd.Parameters.AddWithValue("@statusId", statusId);

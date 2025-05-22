@@ -14,6 +14,7 @@ namespace Project.Pages
         private SubtaskContext _editingSubtask;
         private List<UserContext> _responsiblePersons;
 
+        public SubtaskContext CreatedSubtask { get; private set; } // Для возврата созданной подзадачи
         public string ButtonText => _editingSubtask == null ? "Добавить" : "Обновить";
 
         public AddSubtask(int taskId, SubtaskContext subtask = null)
@@ -89,7 +90,8 @@ namespace Project.Pages
 
                 if (_editingSubtask == null)
                 {
-                    var newSubtask = new SubtaskContext(
+                    // Создаем подзадачу, но не добавляем ее в базу данных
+                    CreatedSubtask = new SubtaskContext(
                         0,
                         name.Text,
                         description.Text == "Опишите подробности" ? "" : description.Text,
@@ -98,20 +100,18 @@ namespace Project.Pages
                         selectedUser.Id
                     );
 
-                    Console.WriteLine($"Adding new subtask: Name={newSubtask.Name}, TaskId={newSubtask.TaskId}, UserId={newSubtask.UserId}");
-                    newSubtask.Add();
-                    Console.WriteLine("Subtask added successfully");
-                    MessageBox.Show("Подзадача успешно добавлена");
+                    Console.WriteLine($"Created subtask: Name={CreatedSubtask.Name}, TaskId={CreatedSubtask.TaskId}, UserId={CreatedSubtask.UserId}");
+                    MessageBox.Show("Подзадача готова к добавлению");
                 }
                 else
                 {
+                    // Если редактируем существующую подзадачу
                     _editingSubtask.Name = name.Text;
                     _editingSubtask.Description = description.Text;
                     _editingSubtask.UserId = selectedUser.Id;
 
-                    Console.WriteLine($"Updating subtask: Id={_editingSubtask.Id}, Name={_editingSubtask.Name}, UserId={_editingSubtask.UserId}");
-                    _editingSubtask.Update();
-                    Console.WriteLine("Subtask updated successfully");
+                    CreatedSubtask = _editingSubtask;
+                    Console.WriteLine($"Updated subtask: Id={_editingSubtask.Id}, Name={_editingSubtask.Name}, UserId={_editingSubtask.UserId}");
                     MessageBox.Show("Подзадача успешно обновлена");
                 }
 
@@ -119,8 +119,8 @@ namespace Project.Pages
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving subtask: {ex.Message} {ex.StackTrace}");
-                MessageBox.Show($"Ошибка при сохранении подзадачи: {ex.Message}",
+                Console.WriteLine($"Error preparing subtask: {ex.Message} {ex.StackTrace}");
+                MessageBox.Show($"Ошибка при подготовке подзадачи: {ex.Message}",
                               "Ошибка");
             }
         }
