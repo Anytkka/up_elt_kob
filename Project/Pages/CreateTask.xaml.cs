@@ -54,10 +54,89 @@ namespace Project.Pages
 
         private void Bt5_AddUsers(object sender, RoutedEventArgs e)
         {
-            // Здесь можно реализовать выбор ответственных из списка,
-            // аналогично тому как это сделано в creatProject
-            // или перейти на страницу выбора ответственных
+             string taskName = txtTaskName.Text;
+        string taskDescription = txtTaskDescription.Text;
+
+        if (string.IsNullOrWhiteSpace(taskName))
+        {
+            MessageBox.Show("Пожалуйста, введите наименование задачи.",
+                          "Ошибка",
+                          MessageBoxButton.OK,
+                          MessageBoxImage.Warning);
+            return;
         }
+
+        MySqlConnection connection = null;
+        MySqlTransaction transaction = null;
+        int taskId = 0;
+
+        try
+        {
+            connection = Connection.OpenConnection();
+            transaction = connection.BeginTransaction();
+
+            try
+            {
+                // Создаем задачу
+                string insertQuery = "INSERT INTO task (name, description, projectId) VALUES (@name, @description, @projectId)";
+                using (var cmd = new MySqlCommand(insertQuery, connection, transaction))
+                {
+                    cmd.Parameters.AddWithValue("@name", taskName);
+                    cmd.Parameters.AddWithValue("@description", taskDescription);
+                    cmd.Parameters.AddWithValue("@projectId", 0); // Здесь нужно указать ID проекта
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Получаем ID только что созданной задачи
+                using (var cmd = new MySqlCommand("SELECT LAST_INSERT_ID()", connection, transaction))
+                {
+                    taskId = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+
+                // Добавляем ответственных к задаче
+                foreach (var participant in ResponsiblePersons)
+                {
+                    AddResponsibleToTask(connection, transaction, taskId, participant.Id);
+                }
+
+                // Добавляем подзадачи
+                foreach (var subtask in Subtasks)
+                {
+                    subtask.TaskId = taskId;
+                    subtask.Add();
+                }
+
+                transaction.Commit();
+
+                MessageBox.Show("Задача успешно создана!",
+                              "Успех",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Information);
+
+                TaskCreated?.Invoke(taskId);
+                NavigationService?.GoBack();
+            }
+            catch (Exception ex)
+            {
+                transaction?.Rollback();
+                MessageBox.Show($"Ошибка при создании задачи: {ex.Message}",
+                              "Ошибка",
+                              MessageBoxButton.OK,
+                              MessageBoxImage.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Ошибка подключения: {ex.Message}",
+                          "Ошибка",
+                          MessageBoxButton.OK,
+                          MessageBoxImage.Error);
+        }
+        finally
+        {
+            connection?.Close();
+        }
+    }
 
         private void UpdateResponsibleList()
         {

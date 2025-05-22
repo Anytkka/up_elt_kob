@@ -10,7 +10,7 @@ namespace Project.Classes
 {
     public class KanbanColumnContext : KanbanColumn
     {
-        public KanbanColumnContext(int Id, string TitleStatus, int ProjectId) : base (Id, TitleStatus, ProjectId) {}
+        public KanbanColumnContext(int Id, string TitleStatus, int ProjectId) : base(Id, TitleStatus, ProjectId) { }
 
         public static List<KanbanColumnContext> Get()
         {

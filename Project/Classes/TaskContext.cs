@@ -95,5 +95,14 @@ namespace Project.Classes
             Connection.Query(SQL, connection);
             Connection.CloseConnection(connection);
         }
+
+        public void UpdateStatus(int newStatus)
+        {
+            string SQL = $"UPDATE `Tasks` SET `status`={newStatus} WHERE `id`={Id}";
+            MySqlConnection connection = Connection.OpenConnection();
+            Connection.Query(SQL, connection);
+            Connection.CloseConnection(connection);
+            Status = newStatus;
+        }
     }
 }

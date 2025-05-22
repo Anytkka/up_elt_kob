@@ -123,6 +123,9 @@
     <Compile Include="Classes\TaskContext.cs" />
     <Compile Include="Classes\TaskUserContext.cs" />
     <Compile Include="Classes\UserContext.cs.cs" />
+    <Compile Include="Main\TaskCard.xaml.cs">
+      <DependentUpon>TaskCard.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Modell\KanbanColumn.cs" />
     <Compile Include="Modell\Project.cs" />
     <Compile Include="Modell\ProjUser.cs" />
@@ -142,6 +145,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Main\TaskCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\AddSubtask.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -155,6 +162,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\editProfil.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\InputDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -205,6 +216,9 @@
     </Compile>
     <Compile Include="Pages\editProfil.xaml.cs">
       <DependentUpon>editProfil.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\InputDialog.xaml.cs">
+      <DependentUpon>InputDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Kanban.xaml.cs">
       <DependentUpon>Kanban.xaml</DependentUpon>

@@ -67,7 +67,7 @@
                         Foreground="White" Padding="10,5" Grid.ColumnSpan="2" Height="28" Margin="933,0,0,0" VerticalAlignment="Top"/>
             </Grid>
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                <StackPanel Orientation="Horizontal" Height="500">
+                <StackPanel x:Name="parent" Orientation="Horizontal" Height="500">
                     <Border Width="250" Margin="5" Background="White" CornerRadius="5" Padding="5">
                         <StackPanel>
                             <Label Content="новые" FontWeight="Bold" HorizontalAlignment="Center"/>
