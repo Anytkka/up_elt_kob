@@ -57,6 +57,17 @@ namespace Project.Pages
             {
                 int participantId = (int)selectedItem.Tag;
                 string participantName = selectedItem.Content.ToString();
+
+                // Проверяем, не является ли выбранный пользователь текущим (создателем)
+                if (participantId == App.CurrentUser.Id)
+                {
+                    MessageBox.Show("Вы автоматически будете добавлены как Создатель проекта.",
+                                  "Информация",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Information);
+                    return;
+                }
+
                 string role = rbAdmin.IsChecked == true ? "Администратор" : "Пользователь";
 
                 if (!Participants.Any(p => p.Id == participantId))
@@ -125,9 +136,6 @@ namespace Project.Pages
                 try
                 {
                     // Создаем проект
-                    var project = new ProjectContext(0, projectName, projectDescription, is_public);
-
-                    // Модифицируем метод Add для работы с транзакцией
                     string insertQuery = "INSERT INTO project (name, description, is_public) VALUES (@name, @description, @is_public)";
                     using (var cmd = new MySqlCommand(insertQuery, connection, transaction))
                     {
@@ -144,7 +152,10 @@ namespace Project.Pages
                         projectId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
-                    // Добавляем участников к проекту
+                    // Добавляем текущего пользователя как Создателя
+                    AddParticipantToProject(connection, transaction, projectId, App.CurrentUser.Id, "Создатель");
+
+                    // Добавляем остальных участников к проекту
                     foreach (var participant in Participants)
                     {
                         AddParticipantToProject(connection, transaction, projectId, participant.Id, participant.Role);
@@ -152,8 +163,6 @@ namespace Project.Pages
 
                     transaction.Commit();
 
-                    // Обновляем ID проекта для навигации
-                    project.Id = projectId;
                     NavigationService?.Navigate(new Project1());
                     MessageBox.Show("Проект успешно создан!",
                                   "Успех",
@@ -201,6 +210,7 @@ namespace Project.Pages
                 throw new Exception($"Ошибка при добавлении участника: {ex.Message}");
             }
         }
+
         public class Participant
         {
             public int Id { get; set; }

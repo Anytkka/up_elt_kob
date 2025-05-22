@@ -204,7 +204,7 @@ namespace Project.Pages
 
         private void AddTaskToColumn(int columnId)
         {
-            var createTaskPage = new CreateTask(_currentProjectId); // Pass the current projectId
+            var createTaskPage = new CreateTask(_currentProjectId);
             createTaskPage.TaskCreated += (taskId) =>
             {
                 var task = DocumentContext.GetById(taskId);
@@ -232,7 +232,7 @@ namespace Project.Pages
 
         private void Bt7_AddTask(object sender, RoutedEventArgs e)
         {
-            var createTaskPage = new CreateTask(_currentProjectId); // Pass the current projectId
+            var createTaskPage = new CreateTask(_currentProjectId);
             createTaskPage.TaskCreated += (taskId) =>
             {
                 var task = DocumentContext.GetById(taskId);

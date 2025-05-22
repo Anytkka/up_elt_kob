@@ -12,16 +12,16 @@ namespace Project.Pages
 {
     public partial class CreateTask : Page
     {
-        public event Action<int> TaskCreated; // Event to notify about task creation
+        public event Action<int> TaskCreated;
 
         private List<Participant> ResponsiblePersons { get; set; }
         private List<SubtaskContext> Subtasks { get; set; }
-        private int _projectId; // Project ID will be set via constructor
+        private int _projectId;
 
-        public CreateTask(int projectId) // Add constructor with projectId parameter
+        public CreateTask(int projectId)
         {
             InitializeComponent();
-            _projectId = projectId; // Set the projectId from the parameter
+            _projectId = projectId;
             ResponsiblePersons = new List<Participant>();
             Subtasks = new List<SubtaskContext>();
             LoadResponsiblePersonsFromDatabase();
@@ -122,11 +122,10 @@ namespace Project.Pages
             NavigationService?.GoBack();
         }
 
-        // Method to refresh task display (simulates immediate update)
         private void RefreshTaskDisplay(int taskId)
         {
             Console.WriteLine($"Task with ID {taskId} created at {DateTime.Now}, refreshing display...");
-            TaskCreated?.Invoke(taskId); // Notify subscribers (e.g., kanban board) to update
+            TaskCreated?.Invoke(taskId);
         }
 
         private void Bt5_Create(object sender, RoutedEventArgs e)
@@ -156,7 +155,6 @@ namespace Project.Pages
 
                 try
                 {
-                    // Find or create the "новые" status for the current project
                     string statusQuery = @"SELECT id FROM kanbanColumn 
                                  WHERE project = @projectId AND title_status = 'новые'";
                     using (var cmd = new MySqlCommand(statusQuery, connection, transaction))
@@ -246,9 +244,8 @@ namespace Project.Pages
                                   MessageBoxButton.OK,
                                   MessageBoxImage.Information);
 
-                    // Refresh display immediately and navigate to Kanban page
                     RefreshTaskDisplay(taskId);
-                    NavigationService?.Navigate(new Kanban(_projectId)); // Pass projectId to Kanban constructor
+                    NavigationService?.Navigate(new Kanban(_projectId));
                 }
                 catch (Exception ex)
                 {
