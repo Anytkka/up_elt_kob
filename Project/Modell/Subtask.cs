@@ -14,8 +14,9 @@ namespace Project.Classes
         public DateTime DueDate { get; set; }
         public int TaskId { get; set; }
         public int UserId {  get; set; }
+        public int StatusId { get; set; }
 
-        public Subtask(int id, string name, string description, DateTime dueDate, int taskId, int UserId)
+        public Subtask(int id, string name, string description, DateTime dueDate, int taskId, int UserId, int statusId)
         {
             this.Id = id;
             this.Name = name;
@@ -23,6 +24,7 @@ namespace Project.Classes
             this.DueDate = dueDate;
             this.TaskId = taskId;
             this.UserId = UserId;
+            StatusId = statusId;
         }
 
     }
