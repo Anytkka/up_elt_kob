@@ -1,5 +1,4 @@
 ﻿using Project.Classes;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -9,11 +8,24 @@ namespace Project.Pages
 {
     public partial class PersonalAccount : Page
     {
-
         public PersonalAccount()
         {
             InitializeComponent();
             this.DataContext = App.CurrentUser;
+            LoadProfileImage();
+        }
+
+        private void LoadProfileImage()
+        {
+            var profileImageControl = this.profileImage;
+            if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath) && System.IO.File.Exists(App.CurrentUser.ProfileImagePath))
+            {
+                profileImageControl.Source = new System.Windows.Media.Imaging.BitmapImage(new System.Uri(App.CurrentUser.ProfileImagePath));
+            }
+            else
+            {
+                profileImageControl.Source = new System.Windows.Media.Imaging.BitmapImage(new System.Uri("Image/avata.jpg"));
+            }
         }
 
         private void Bt_Projects(object sender, RoutedEventArgs e)
