@@ -31,7 +31,7 @@ namespace Project.Classes
 
             try
             {
-                string query = "SELECT * FROM users WHERE email = @email AND password = @password";
+                string query = "SELECT * FROM user WHERE email = @email AND password = @password";
                 var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@email", email);
                 command.Parameters.AddWithValue("@password", password);
@@ -44,9 +44,9 @@ namespace Project.Classes
                             reader.GetInt32("id"),
                             reader.GetString("email"),
                             reader.GetString("password"),
-                            reader.GetString("full_name"),
+                            reader.GetString("fullName"),
                             reader.IsDBNull(reader.GetOrdinal("biography")) ? null : reader.GetString("biography"),
-                            reader.IsDBNull(reader.GetOrdinal("image")) ? null : reader.GetString("image")
+                            reader.IsDBNull(reader.GetOrdinal("Image")) ? null : reader.GetString("Image")
                         );
                     }
                 }

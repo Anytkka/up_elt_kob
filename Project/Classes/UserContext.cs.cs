@@ -23,7 +23,7 @@ namespace Project.Classes
                     Data.GetString(1),
                     Data.GetString(2),
                     Data.GetString(3),
-                    Data.IsDBNull(4) ? null : Data.GetString(4), 
+                    Data.IsDBNull(4) ? null : Data.GetString(4),
                     Data.IsDBNull(5) ? null : Data.GetString(5)
                 ));
             }
@@ -33,7 +33,7 @@ namespace Project.Classes
 
         public void Add()
         {
-            string SQL = "INSERT INTO `user` (`email`, `password`, `fullName`, `biography`, `Image`) " +
+            string SQL = "INSERT INTO `user` (`email`, `password`, `fullName`, `biography`, `image`) " +
                          "VALUES (@email, @password, @fullName, @biography, @image)";
 
             MySqlConnection connection = Connection.OpenConnection();
@@ -52,12 +52,12 @@ namespace Project.Classes
         public void Update()
         {
             string SQL = "UPDATE `user` " +
-                         "SET `email`=@email, " +
-                         "`password`=@password, " +
-                         "`fullName`=@fullName, " +
-                         "`biography`=@biography, " +
-                         "`Image`=@image " +
-                         "WHERE `id`=@id";
+                 "SET `email`=@email, " +
+                 "`password`=@password, " +
+                 "`fullName`=@fullName, " +
+                 "`biography`=@biography, " +
+                 "`image`=@image " +
+                 "WHERE `id`=@id";
 
             MySqlConnection connection = Connection.OpenConnection();
             using (var cmd = new MySqlCommand(SQL, connection))

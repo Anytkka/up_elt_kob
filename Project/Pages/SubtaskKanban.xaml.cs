@@ -8,6 +8,7 @@ using System;
 using MySql.Data.MySqlClient;
 using Project.Classes.Common;
 using System.Windows.Media;
+using System.Windows.Input;
 
 namespace Project.Pages
 {
@@ -56,7 +57,7 @@ namespace Project.Pages
                     Console.WriteLine($"Загружено подзадач: {_subtasks.Count}");
                     foreach (var subtask in _subtasks)
                     {
-                        Console.WriteLine($"Подзадача: {subtask.Id} - {subtask.Name} (Статус: {subtask.Status})");
+                        Console.WriteLine($"Подзадача: {subtask.Id} - {subtask.Name} (Статус: {subtask.StatusId})");
                     }
                 }
             }
@@ -80,7 +81,6 @@ namespace Project.Pages
                 }
             }
         }
-
 
         private void InitializeKanbanBoard()
         {
@@ -146,9 +146,9 @@ namespace Project.Pages
                             int newColumnId = (int)((Border)s).Tag;
 
                             var subtask = _subtasks.FirstOrDefault(t => t.Id == subtaskId);
-                            if (subtask != null && subtask.Status != newColumnId)
+                            if (subtask != null && subtask.StatusId != newColumnId) // Исправлено на StatusId
                             {
-                                subtask.Status = newColumnId;
+                                subtask.StatusId = newColumnId;
                                 subtask.Update();
 
                                 // Обновляем UI
@@ -165,7 +165,7 @@ namespace Project.Pages
                     var headerStack = new StackPanel { Orientation = Orientation.Horizontal };
                     var titleLabel = new Label
                     {
-                        Content = $"{column.TitleStatus} ({_subtasks.Count(t => t.Status == column.Id)})",
+                        Content = $"{column.TitleStatus} ({_subtasks.Count(t => t.StatusId == column.Id)})", // Исправлено на StatusId
                         FontWeight = FontWeights.Bold,
                         HorizontalAlignment = HorizontalAlignment.Center,
                         Width = 200
@@ -174,7 +174,7 @@ namespace Project.Pages
                     columnStack.Children.Add(headerStack);
 
                     // Получаем подзадачи для текущей колонки
-                    var columnSubtasks = _subtasks.Where(t => t.Status == column.Id).ToList();
+                    var columnSubtasks = _subtasks.Where(t => t.StatusId == column.Id).ToList(); // Исправлено на StatusId
 
                     if (columnSubtasks.Count == 0)
                     {
@@ -242,6 +242,7 @@ namespace Project.Pages
                 MessageBox.Show($"Ошибка при инициализации Kanban: {ex.Message}");
             }
         }
+
         private void Bt7_AddSubtask(object sender, RoutedEventArgs e)
         {
             var addSubtaskPage = new AddSubtask(_currentTaskId);
@@ -253,7 +254,7 @@ namespace Project.Pages
         {
             if (subtask != null)
             {
-                subtask.Status = GetNewColumnId();
+                subtask.StatusId = GetNewColumnId(); // Исправлено на StatusId
                 subtask.Update();
                 LoadData();
                 InitializeKanbanBoard();
@@ -270,7 +271,7 @@ namespace Project.Pages
             NavigationService?.Navigate(new Kanban(_currentTaskId));
         }
 
-        private void PAText_MouseDown(object sender, RoutedEventArgs e)
+        private void PAText_MouseDown(object sender, MouseButtonEventArgs e)
         {
             NavigationService?.Navigate(new PersonalAccount());
         }

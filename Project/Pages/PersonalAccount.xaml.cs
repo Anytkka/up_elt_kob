@@ -1,6 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace Project.Pages
 {
@@ -9,20 +11,41 @@ namespace Project.Pages
         public PersonalAccount()
         {
             InitializeComponent();
-            this.DataContext = App.CurrentUser;
+            this.DataContext = App.CurrentUser ?? new object(); // Защита от null
             LoadProfileImage();
         }
 
         private void LoadProfileImage()
         {
             var profileImageControl = this.profileImage;
-            if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath) && System.IO.File.Exists(App.CurrentUser.ProfileImagePath))
+            if (profileImageControl == null)
             {
-                profileImageControl.Source = new System.Windows.Media.Imaging.BitmapImage(new System.Uri(App.CurrentUser.ProfileImagePath));
+                MessageBox.Show("Элемент изображения 'profileImage' не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
-            else
+
+            try
             {
-                profileImageControl.Source = new System.Windows.Media.Imaging.BitmapImage(new System.Uri("Image/avata.jpg"));
+                if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath) && System.IO.File.Exists(App.CurrentUser.ProfileImagePath))
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(App.CurrentUser.ProfileImagePath, UriKind.Absolute);
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+                    profileImageControl.Source = bitmap;
+                }
+                else
+                {
+                    // Используем pack:// для доступа к ресурсу в проекте
+                    profileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg"));
+                }
+            }
+            catch (Exception ex)
+            {
+                // Логируем ошибку и загружаем изображение по умолчанию
+                Console.WriteLine($"Ошибка загрузки изображения: {ex.Message}");
+                profileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg"));
             }
         }
 
@@ -44,7 +67,9 @@ namespace Project.Pages
 
         private void PAText_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            NavigationService?.Navigate(new PersonalAccount());
+            // Вместо создания новой страницы просто обновляем текущую
+            LoadProfileImage();
+            this.DataContext = App.CurrentUser ?? new object();
         }
     }
 }
