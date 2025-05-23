@@ -1,33 +1,29 @@
 ﻿using MySql.Data.MySqlClient;
 using Project.Classes.Common;
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace Project.Classes
 {
     public class User
     {
-        //Поля почта, ФИО, пароль обязательны для заполнения.
         public int Id { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
         public string FullName { get; set; }
         public string Biography { get; set; }
-        public string ProfileImagePath { get; internal set; }
+        public string ProfileImagePath { get; set; }
 
-        public User(int Id, string Email, string Password, string FullName, string Biography)
+        public User(int Id, string Email, string Password, string FullName, string Biography, string ProfileImagePath = null)
         {
             this.Id = Id;
             this.Email = Email;
             this.Password = Password;
             this.FullName = FullName;
             this.Biography = Biography;
+            this.ProfileImagePath = ProfileImagePath;
         }
+
         public static User GetUserByCredentials(string email, string password)
         {
             User user = null;
@@ -49,7 +45,8 @@ namespace Project.Classes
                             reader.GetString("email"),
                             reader.GetString("password"),
                             reader.GetString("full_name"),
-                            reader.IsDBNull(reader.GetOrdinal("biography")) ? null : reader.GetString("biography")
+                            reader.IsDBNull(reader.GetOrdinal("biography")) ? null : reader.GetString("biography"),
+                            reader.IsDBNull(reader.GetOrdinal("image")) ? null : reader.GetString("image")
                         );
                     }
                 }

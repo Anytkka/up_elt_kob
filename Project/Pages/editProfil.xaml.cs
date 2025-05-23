@@ -20,8 +20,7 @@ namespace Project.Pages
         public editProfil(User user)
         {
             InitializeComponent();
-            _currentUser = user;
-
+            _currentUser = user ?? new User(0, "", "", "", "");
             LoadProfileImage();
             LoadUserData();
             InitializePlaceholders();
@@ -37,27 +36,19 @@ namespace Project.Pages
                 }
                 else
                 {
-                    profileImage.Source = new BitmapImage(
-                        new Uri("pack://application:,,,/Image/avata.jpg"));
+                    profileImage.Source = new BitmapImage(new Uri("Image/avata.jpg"));
                 }
             }
             catch
             {
-                profileImage.Source = new BitmapImage(
-                    new Uri("pack://application:,,,/Image/avata.jpg"));
+                profileImage.Source = new BitmapImage(new Uri("Image/avata.jpg"));
             }
         }
 
         private void LoadUserData()
         {
-            txtFullName.Text = string.IsNullOrWhiteSpace(_currentUser.FullName)
-                ? "Фамилия Имя Отчество"
-                : _currentUser.FullName;
-
-            txtEmail.Text = string.IsNullOrWhiteSpace(_currentUser.Email)
-                ? "client@example.com"
-                : _currentUser.Email;
-
+            txtFullName.Text = string.IsNullOrWhiteSpace(_currentUser.FullName) ? "Фамилия Имя Отчество" : _currentUser.FullName;
+            txtEmail.Text = string.IsNullOrWhiteSpace(_currentUser.Email) ? "client@example.com" : _currentUser.Email;
             txtBio.Text = _currentUser.Biography ?? "";
         }
 
@@ -113,8 +104,8 @@ namespace Project.Pages
 
         private void Bt6_Delete_Click(object sender, RoutedEventArgs e)
         {
-            profileImage.Source = new BitmapImage(
-                new Uri("pack://application:,,,/Images/default_profile.png"));
+            _currentUser.ProfileImagePath = null;
+            profileImage.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg"));
             _tempImagePath = null;
         }
 
@@ -122,9 +113,7 @@ namespace Project.Pages
         {
             try
             {
-                // Удаляем старое изображение, если оно было
-                if (!string.IsNullOrEmpty(_currentUser.ProfileImagePath) &&
-                    File.Exists(_currentUser.ProfileImagePath))
+                if (!string.IsNullOrEmpty(_currentUser.ProfileImagePath) && File.Exists(_currentUser.ProfileImagePath))
                 {
                     File.Delete(_currentUser.ProfileImagePath);
                 }
@@ -141,7 +130,7 @@ namespace Project.Pages
                     File.Copy(_tempImagePath, newImagePath, true);
                     _currentUser.ProfileImagePath = newImagePath;
                 }
-                else if (profileImage.Source.ToString().Contains("default_profile.png"))
+                else if (profileImage.Source.ToString().Contains("avata.jpg"))
                 {
                     _currentUser.ProfileImagePath = null;
                 }
@@ -240,7 +229,8 @@ namespace Project.Pages
                     _currentUser.Email,
                     _currentUser.Password,
                     _currentUser.FullName,
-                    _currentUser.Biography
+                    _currentUser.Biography,
+                    _currentUser.ProfileImagePath
                 );
 
                 userContext.Update();
@@ -270,9 +260,7 @@ namespace Project.Pages
             {
                 try
                 {
-                    // Удаляем изображение профиля
-                    if (!string.IsNullOrEmpty(_currentUser.ProfileImagePath) &&
-                        File.Exists(_currentUser.ProfileImagePath))
+                    if (!string.IsNullOrEmpty(_currentUser.ProfileImagePath) && File.Exists(_currentUser.ProfileImagePath))
                     {
                         File.Delete(_currentUser.ProfileImagePath);
                     }
@@ -282,7 +270,8 @@ namespace Project.Pages
                         _currentUser.Email,
                         _currentUser.Password,
                         _currentUser.FullName,
-                        _currentUser.Biography
+                        _currentUser.Biography,
+                        _currentUser.ProfileImagePath
                     );
 
                     userContext.Delete();
