@@ -7,7 +7,8 @@ namespace Project.Classes
 {
     public class SubtaskContext : Subtask
     {
-        public int Status { get; set; }
+        public SubtaskContext(int id, string name, string description, DateTime dueDate, int taskId, int userId, int statusId)
+            : base(id, name, description, dueDate, taskId, userId, statusId) { }
 
         public SubtaskContext(int id, string name, string description, DateTime dueDate, int taskId, int userId, int status)
             : base(id, name, description, dueDate, taskId, userId)
@@ -26,13 +27,13 @@ namespace Project.Classes
             while (data.Read())
             {
                 allSubtasks.Add(new SubtaskContext(
-                    data.GetInt32(0),
-                    data.GetString(1),
-                    data.GetString(2),
-                    data.GetDateTime(3),
-                    data.GetInt32(4),
+                    data.GetInt32(0),   
+                    data.GetString(1),   
+                    data.GetString(2),   
+                    data.GetDateTime(3), 
+                    data.GetInt32(4),    
                     data.GetInt32(5),
-                    data.GetInt32(6) // Добавляем статус
+                    data.GetInt32(6)
                 ));
             }
 
@@ -56,7 +57,7 @@ namespace Project.Classes
                     data.GetDateTime(3),
                     data.GetInt32(4),
                     data.GetInt32(5),
-                    data.GetInt32(6) // Добавляем статус
+                    data.GetInt32(6)
                 );
                 Connection.CloseConnection(connection);
                 return subtask;
@@ -83,7 +84,7 @@ namespace Project.Classes
                     data.GetDateTime(3),
                     data.GetInt32(4),
                     data.GetInt32(5),
-                    data.GetInt32(6) // Добавляем статус
+                    data.GetInt32(6)
                 ));
             }
 
@@ -96,7 +97,7 @@ namespace Project.Classes
         {
             string SQL = $"INSERT INTO `Subtask` (`name`, `description`, `dueDate`, `task`, `user`, `status`) " +
                          $"VALUES ('{this.Name}', '{this.Description}', '{this.DueDate:yyyy-MM-dd}', " +
-                         $"{this.TaskId}, {this.UserId}, {this.Status})";
+                         $"{this.TaskId}, {this.UserId}, {this.StatusId})" ;
 
             MySqlConnection connection = Connection.OpenConnection();
             Connection.Query(SQL, connection);
@@ -111,8 +112,8 @@ namespace Project.Classes
                         $"`description`='{this.Description}', " +
                         $"`dueDate`='{this.DueDate:yyyy-MM-dd}', " +
                         $"`task`={this.TaskId}, " +
-                        $"`user`={this.UserId}, " +
-                        $"`status`={this.Status} " +
+                       $"`status`={this.StatusId} " +
+                        $"`user`={this.UserId} " +
                         $"WHERE `id`={this.Id}";
 
             MySqlConnection connection = Connection.OpenConnection();
