@@ -32,9 +32,9 @@ namespace Project.Pages
             {
                 using (var connection = Connection.OpenConnection())
                 {
-                    string query = @"SELECT DISTINCT u.id, u.fullName 
-                           FROM user u 
-                           INNER JOIN project_user pu ON u.id = pu.user 
+                    string query = @"SELECT DISTINCT u.id, u.fullName
+                           FROM user u
+                           INNER JOIN project_user pu ON u.id = pu.user
                            WHERE pu.project = @projectId";
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -93,19 +93,18 @@ namespace Project.Pages
 
         private void Bt5_AddS(object sender, RoutedEventArgs e)
         {
-            var addSubtaskPage = new AddSubtask(_projectId, null);
-            NavigationService.Navigating += (s, args) =>
-            {
-                if (args.NavigationMode == NavigationMode.Back && args.Content is CreateTask)
-                {
-                    if (addSubtaskPage.CreatedSubtask != null)
-                    {
-                        Subtasks.Add(addSubtaskPage.CreatedSubtask);
-                        UpdateSubtasksList();
-                    }
-                }
-            };
+            var addSubtaskPage = new AddSubtask(_projectId);
+            addSubtaskPage.CreatedSubtask += OnSubtaskCreated;
             NavigationService?.Navigate(addSubtaskPage);
+        }
+
+        private void OnSubtaskCreated(SubtaskContext subtask)
+        {
+            if (subtask != null)
+            {
+                Subtasks.Add(subtask);
+                UpdateSubtasksList();
+            }
         }
 
         private void Bt5_DeleteS(object sender, RoutedEventArgs e)
@@ -161,7 +160,7 @@ namespace Project.Pages
 
                 try
                 {
-                    string statusQuery = @"SELECT id FROM kanbanColumn 
+                    string statusQuery = @"SELECT id FROM kanbanColumn
                                  WHERE project = @projectId AND title_status = 'новые'";
                     using (var cmd = new MySqlCommand(statusQuery, connection, transaction))
                     {
@@ -173,7 +172,7 @@ namespace Project.Pages
                         }
                         else
                         {
-                            string insertStatusQuery = @"INSERT INTO kanbanColumn (title_status, project) 
+                            string insertStatusQuery = @"INSERT INTO kanbanColumn (title_status, project)
                                                        VALUES ('новые', @projectId);
                                                        SELECT LAST_INSERT_ID();";
                             using (var insertCmd = new MySqlCommand(insertStatusQuery, connection, transaction))

@@ -1,7 +1,9 @@
-﻿using System.Windows.Controls;
-using System.Windows;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System;
+using Project.Pages;
+using System.Windows.Navigation;
 
 namespace Project.Main
 {
@@ -62,7 +64,13 @@ namespace Project.Main
 
         private void TaskButton_Click(object sender, RoutedEventArgs e)
         {
-
+            // Переход на Kanban доску подзадач
+            var subtaskKanbanPage = new SubtaskKanban(TaskNumber);
+            var navigationService = NavigationService.GetNavigationService(this);
+            if (navigationService != null)
+            {
+                navigationService.Navigate(subtaskKanbanPage);
+            }
         }
 
         private void Border_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

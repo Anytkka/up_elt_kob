@@ -7,8 +7,13 @@ namespace Project.Classes
 {
     public class SubtaskContext : Subtask
     {
-        public SubtaskContext(int id, string name, string description, DateTime dueDate, int taskId, int userId)
-            : base(id, name, description, dueDate, taskId, userId) { }
+        public int Status { get; set; }
+
+        public SubtaskContext(int id, string name, string description, DateTime dueDate, int taskId, int userId, int status)
+            : base(id, name, description, dueDate, taskId, userId)
+        {
+            this.Status = status;
+        }
 
         // Получает все подзадачи
         public static List<SubtaskContext> Get()
@@ -21,12 +26,13 @@ namespace Project.Classes
             while (data.Read())
             {
                 allSubtasks.Add(new SubtaskContext(
-                    data.GetInt32(0),   
-                    data.GetString(1),   
-                    data.GetString(2),   
-                    data.GetDateTime(3), 
-                    data.GetInt32(4),    
-                    data.GetInt32(5)     
+                    data.GetInt32(0),
+                    data.GetString(1),
+                    data.GetString(2),
+                    data.GetDateTime(3),
+                    data.GetInt32(4),
+                    data.GetInt32(5),
+                    data.GetInt32(6) // Добавляем статус
                 ));
             }
 
@@ -49,7 +55,8 @@ namespace Project.Classes
                     data.GetString(2),
                     data.GetDateTime(3),
                     data.GetInt32(4),
-                    data.GetInt32(5)
+                    data.GetInt32(5),
+                    data.GetInt32(6) // Добавляем статус
                 );
                 Connection.CloseConnection(connection);
                 return subtask;
@@ -75,7 +82,8 @@ namespace Project.Classes
                     data.GetString(2),
                     data.GetDateTime(3),
                     data.GetInt32(4),
-                    data.GetInt32(5)
+                    data.GetInt32(5),
+                    data.GetInt32(6) // Добавляем статус
                 ));
             }
 
@@ -86,9 +94,9 @@ namespace Project.Classes
         // Добавляет новую подзадачу
         public void Add()
         {
-            string SQL = $"INSERT INTO `Subtask` (`name`, `description`, `dueDate`, `task`, `user`) " +
+            string SQL = $"INSERT INTO `Subtask` (`name`, `description`, `dueDate`, `task`, `user`, `status`) " +
                          $"VALUES ('{this.Name}', '{this.Description}', '{this.DueDate:yyyy-MM-dd}', " +
-                         $"{this.TaskId}, {this.UserId})";
+                         $"{this.TaskId}, {this.UserId}, {this.Status})";
 
             MySqlConnection connection = Connection.OpenConnection();
             Connection.Query(SQL, connection);
@@ -103,7 +111,8 @@ namespace Project.Classes
                         $"`description`='{this.Description}', " +
                         $"`dueDate`='{this.DueDate:yyyy-MM-dd}', " +
                         $"`task`={this.TaskId}, " +
-                        $"`user`={this.UserId} " +
+                        $"`user`={this.UserId}, " +
+                        $"`status`={this.Status} " +
                         $"WHERE `id`={this.Id}";
 
             MySqlConnection connection = Connection.OpenConnection();
@@ -111,7 +120,7 @@ namespace Project.Classes
             Connection.CloseConnection(connection);
         }
 
-        // Удаляет подзадачу 
+        // Удаляет подзадачу
         public void Delete()
         {
             string SQL = $"DELETE FROM `Subtask` WHERE `id`={this.Id}";

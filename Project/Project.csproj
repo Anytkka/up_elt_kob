@@ -123,6 +123,9 @@
     <Compile Include="Classes\TaskContext.cs" />
     <Compile Include="Classes\TaskUserContext.cs" />
     <Compile Include="Classes\UserContext.cs.cs" />
+    <Compile Include="Main\SubtaskCard.xaml.cs">
+      <DependentUpon>SubtaskCard.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Main\TaskCard.xaml.cs">
       <DependentUpon>TaskCard.xaml</DependentUpon>
     </Compile>
@@ -142,6 +145,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Main\ProjectCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Main\SubtaskCard.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -193,6 +200,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\SubtaskKanban.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\ViewProject.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -237,6 +248,9 @@
     </Compile>
     <Compile Include="Pages\SubtaskDetails.xaml.cs">
       <DependentUpon>SubtaskDetails.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SubtaskKanban.xaml.cs">
+      <DependentUpon>SubtaskKanban.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\ViewProject.xaml.cs">
       <DependentUpon>ViewProject.xaml</DependentUpon>
