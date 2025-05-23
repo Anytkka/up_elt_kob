@@ -1,8 +1,6 @@
-﻿using Project.Classes;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Effects;
 
 namespace Project.Pages
 {
