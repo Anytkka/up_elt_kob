@@ -2,11 +2,11 @@
 using Project.Classes.Common;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using MySql.Data.MySqlClient;
-using System.Linq;
 
 namespace Project.Pages
 {
@@ -93,14 +93,14 @@ namespace Project.Pages
 
         private void Bt5_AddS(object sender, RoutedEventArgs e)
         {
-            var addSubtaskPage = new AddSubtask(_projectId);
+            var addSubtaskPage = new AddSubtask(0, null, _projectId);
             addSubtaskPage.CreatedSubtask += OnSubtaskCreated;
             NavigationService?.Navigate(addSubtaskPage);
         }
 
         private void OnSubtaskCreated(SubtaskContext subtask)
         {
-            if (subtask != null)
+            if (subtask != null) // Исправлено с thickened на null
             {
                 Subtasks.Add(subtask);
                 UpdateSubtasksList();
@@ -161,7 +161,7 @@ namespace Project.Pages
                 try
                 {
                     string statusQuery = @"SELECT id FROM kanbanColumn
-                                 WHERE project = @projectId AND title_status = 'новые'";
+                         WHERE project = @projectId AND title_status = 'Новые'";
                     using (var cmd = new MySqlCommand(statusQuery, connection, transaction))
                     {
                         cmd.Parameters.AddWithValue("@projectId", _projectId);
@@ -173,8 +173,8 @@ namespace Project.Pages
                         else
                         {
                             string insertStatusQuery = @"INSERT INTO kanbanColumn (title_status, project)
-                                                       VALUES ('новые', @projectId);
-                                                       SELECT LAST_INSERT_ID();";
+                                       VALUES ('Новые', @projectId);
+                                       SELECT LAST_INSERT_ID();";
                             using (var insertCmd = new MySqlCommand(insertStatusQuery, connection, transaction))
                             {
                                 insertCmd.Parameters.AddWithValue("@projectId", _projectId);
@@ -189,9 +189,9 @@ namespace Project.Pages
                     }
 
                     string insertQuery = @"INSERT INTO task
-                        (name, description, dueDate, status)
-                        VALUES (@name, @description, @dueDate, @statusId);
-                        SELECT LAST_INSERT_ID();";
+                (name, description, dueDate, status)
+                VALUES (@name, @description, @dueDate, @statusId);
+                SELECT LAST_INSERT_ID();";
 
                     using (var cmd = new MySqlCommand(insertQuery, connection, transaction))
                     {
@@ -207,8 +207,8 @@ namespace Project.Pages
                         if (UserExists(connection, participant.Id))
                         {
                             string responsibleQuery = @"INSERT INTO task_user
-                                             (task, user)
-                                             VALUES (@taskId, @userId)";
+                                     (task, user)
+                                     VALUES (@taskId, @userId)";
 
                             using (var cmd = new MySqlCommand(responsibleQuery, connection, transaction))
                             {
@@ -223,19 +223,22 @@ namespace Project.Pages
                         }
                     }
 
+                    // Сохранение подзадач с обновленным taskId
                     foreach (var subtask in Subtasks)
                     {
+                        subtask.TaskId = taskId; // Обновляем TaskId подзадачи
                         string subtaskQuery = @"INSERT INTO subtask
-                                      (task, name, description, dueDate, user)
-                                      VALUES (@task, @name, @description, @dueDate, @user)";
+                          (task, name, description, dueDate, user, status)
+                          VALUES (@task, @name, @description, @dueDate, @user, @status)";
 
                         using (var cmd = new MySqlCommand(subtaskQuery, connection, transaction))
                         {
-                            cmd.Parameters.AddWithValue("@task", taskId);
+                            cmd.Parameters.AddWithValue("@task", subtask.TaskId);
                             cmd.Parameters.AddWithValue("@name", subtask.Name);
                             cmd.Parameters.AddWithValue("@description", subtask.Description ?? "");
                             cmd.Parameters.AddWithValue("@dueDate", subtask.DueDate);
                             cmd.Parameters.AddWithValue("@user", subtask.UserId);
+                            cmd.Parameters.AddWithValue("@status", statusId);
                             cmd.ExecuteNonQuery();
                         }
                     }

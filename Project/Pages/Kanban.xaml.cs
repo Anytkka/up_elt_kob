@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 using MySql.Data.MySqlClient;
 using Project.Classes.Common;
+using System.Windows.Input;
 
 namespace Project.Pages
 {
@@ -14,7 +15,7 @@ namespace Project.Pages
     {
         private int _currentProjectId;
         private List<KanbanColumnContext> _kanbanColumns;
-        private List<DocumentContext> _tasks;
+        private List<TaskContext> _tasks;
         private List<TaskUserContext> _taskUsers;
         private List<UserContext> _users;
 
@@ -25,12 +26,13 @@ namespace Project.Pages
             LoadData();
             InitializeKanbanBoard();
             this.DataContext = App.CurrentUser;
+            InitializeAddTaskButtonVisibility(); // Добавляем вызов метода для управления видимостью кнопки
         }
 
         private void LoadData()
         {
             _kanbanColumns = KanbanColumnContext.Get().Where(k => k.ProjectId == _currentProjectId).ToList();
-            _tasks = DocumentContext.Get().Where(t => int.TryParse(t.ProjectCode, out int projectId) && projectId == _currentProjectId).ToList();
+            _tasks = TaskContext.Get().Where(t => int.TryParse(t.ProjectCode, out int projectId) && projectId == _currentProjectId).ToList();
             _taskUsers = TaskUserContext.Get();
             _users = UserContext.Get();
             var project = ProjectContext.Get().FirstOrDefault(p => p.Id == _currentProjectId);
@@ -41,6 +43,11 @@ namespace Project.Pages
                 {
                     nameLabel.Content = project.Name;
                 }
+            }
+            Console.WriteLine($"Загружено задач: {_tasks.Count}");
+            foreach (var task in _tasks)
+            {
+                Console.WriteLine($"Задача: {task.Id} - {task.Name} (Статус: {task.Status})");
             }
         }
 
@@ -54,9 +61,20 @@ namespace Project.Pages
                     cmd.Parameters.AddWithValue("@projectId", projectId);
                     cmd.Parameters.AddWithValue("@userId", userId);
                     var result = cmd.ExecuteScalar();
-                    return result?.ToString() ?? "Не в проекте"; // Если роли нет, пользователь не в проекте
+                    return result?.ToString() ?? "Не в проекте";
                 }
             }
+        }
+
+        private void InitializeAddTaskButtonVisibility()
+        {
+            if (App.CurrentUser == null) return;
+
+            string userRole = GetUserRole(_currentProjectId, App.CurrentUser.Id);
+            // Показываем кнопку только для "Создатель" и "Администратор"
+            AddTaskButton.Visibility = (userRole == "Создатель" || userRole == "Администратор") 
+                ? Visibility.Visible 
+                : Visibility.Collapsed;
         }
 
         private void InitializeKanbanBoard()
@@ -66,6 +84,9 @@ namespace Project.Pages
 
             kanbanPanel.Children.Clear();
             kanbanPanel.Orientation = Orientation.Horizontal;
+
+            // Перечитываем данные перед отображением
+            LoadData();
 
             string userRole = GetUserRole(_currentProjectId, App.CurrentUser.Id);
 
@@ -78,7 +99,7 @@ namespace Project.Pages
                     Background = System.Windows.Media.Brushes.White,
                     CornerRadius = new CornerRadius(5),
                     Padding = new Thickness(5),
-                    AllowDrop = userRole != "Не в проекте", // Разрешаем перетаскивание только для участников проекта
+                    AllowDrop = userRole != "Не в проекте", // Только участники проекта могут перемещать
                     Tag = column.Id
                 };
 
@@ -153,21 +174,23 @@ namespace Project.Pages
                 kanbanPanel.Children.Add(columnBorder);
             }
 
+            // Добавление столбца доступно только для Создателя и Администратора
             if (userRole == "Создатель" || userRole == "Администратор")
             {
-                var addTaskButton = new Button
+                var addColumnButton = new Button
                 {
-                    Content = "Добавить задачу",
+                    Content = "Добавить столбец",
                     Width = 150,
                     Height = 40,
                     Margin = new Thickness(5),
                     Background = System.Windows.Media.Brushes.LightBlue,
                     Foreground = System.Windows.Media.Brushes.Black
                 };
-                addTaskButton.Click += Bt7_AddTask;
-                kanbanPanel.Children.Add(addTaskButton);
+                addColumnButton.Click += Bt_AddColumn;
+                kanbanPanel.Children.Add(addColumnButton);
             }
 
+            // Удаление проекта доступно только для Создателя
             if (userRole == "Создатель")
             {
                 var deleteProjectButton = new Button
@@ -184,21 +207,66 @@ namespace Project.Pages
             }
         }
 
-        private void Bt7_AddTask(object sender, RoutedEventArgs e)
+        private void Bt_AddColumn(object sender, RoutedEventArgs e)
         {
-            var createTaskPage = new CreateTask(_currentProjectId);
-            createTaskPage.TaskCreated += (taskId) =>
+            string columnName = ShowInputDialog("Введите название нового столбца", "Добавить столбец", "Новый столбец");
+            if (!string.IsNullOrWhiteSpace(columnName))
             {
-                var task = DocumentContext.GetById(taskId);
-                if (task != null)
+                try
                 {
-                    task.Status = GetNewColumnId();
-                    task.Update();
-                    LoadData();
-                    InitializeKanbanBoard();
+                    using (var connection = Connection.OpenConnection())
+                    {
+                        string query = "INSERT INTO kanbanColumn (title_status, project) VALUES (@title, @projectId); SELECT LAST_INSERT_ID();";
+                        using (var cmd = new MySqlCommand(query, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@title", columnName);
+                            cmd.Parameters.AddWithValue("@projectId", _currentProjectId);
+                            int newColumnId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                            // Обновляем список колонок
+                            LoadData();
+                            InitializeKanbanBoard();
+                        }
+                    }
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при добавлении столбца: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private string ShowInputDialog(string prompt, string title, string defaultValue)
+        {
+            Window inputWindow = new Window
+            {
+                Title = title,
+                Width = 300,
+                Height = 150,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                ResizeMode = ResizeMode.NoResize
             };
-            NavigationService?.Navigate(createTaskPage);
+
+            StackPanel panel = new StackPanel { Margin = new Thickness(10) };
+            panel.Children.Add(new TextBlock { Text = prompt, Margin = new Thickness(0, 0, 0, 5) });
+            TextBox inputBox = new TextBox { Text = defaultValue, Margin = new Thickness(0, 0, 0, 5), Width = 200 };
+            panel.Children.Add(inputBox);
+
+            StackPanel buttonPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+            Button okButton = new Button { Content = "OK", Width = 60, Margin = new Thickness(0, 0, 5, 0) };
+            Button cancelButton = new Button { Content = "Отмена", Width = 60 };
+            buttonPanel.Children.Add(okButton);
+            buttonPanel.Children.Add(cancelButton);
+            panel.Children.Add(buttonPanel);
+
+            inputWindow.Content = panel;
+
+            bool? result = null;
+            okButton.Click += (s, e) => { result = true; inputWindow.Close(); };
+            cancelButton.Click += (s, e) => { result = false; inputWindow.Close(); };
+            inputWindow.ShowDialog();
+
+            return result == true ? inputBox.Text : null;
         }
 
         private int GetNewColumnId()
@@ -206,21 +274,170 @@ namespace Project.Pages
             return _kanbanColumns.FirstOrDefault(c => c.TitleStatus == "Новые")?.Id ?? 1;
         }
 
+        private void Bt7_AddTask(object sender, RoutedEventArgs e)
+        {
+            var currentUser = App.CurrentUser;
+            if (currentUser == null) return;
+
+            string userRole = GetUserRole(_currentProjectId, currentUser.Id);
+
+            // Разрешаем создание задач только Создателям и Администраторам
+            if (userRole == "Создатель" || userRole == "Администратор")
+            {
+                var createTaskPage = new CreateTask(_currentProjectId);
+                createTaskPage.TaskCreated += (taskId) =>
+                {
+                    var task = TaskContext.GetById(taskId);
+                    if (task != null)
+                    {
+                        task.Status = GetNewColumnId();
+                        task.Update();
+                        LoadData();
+                        InitializeKanbanBoard();
+                    }
+                };
+                NavigationService?.Navigate(createTaskPage);
+            }
+            else
+            {
+                MessageBox.Show("Только Создатель и Администратор могут создавать задачи.",
+                                "Ошибка доступа",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Warning);
+            }
+        }
+
         private void DeleteProject_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Вы уверены, что хотите удалить проект?", "Подтверждение",
-                MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            if (MessageBox.Show("Вы уверены, что хотите удалить проект? Все связанные данные (задачи, подзадачи, столбцы) будут удалены.",
+         "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
             {
-                using (var connection = Connection.OpenConnection())
+                return;
+            }
+
+            MySqlConnection connection = null;
+            MySqlTransaction transaction = null;
+
+            try
+            {
+                connection = Connection.OpenConnection();
+                if (connection == null)
                 {
-                    string deleteQuery = "DELETE FROM project WHERE id = @projectId";
-                    using (var cmd = new MySqlCommand(deleteQuery, connection))
+                    MessageBox.Show("Не удалось подключиться к базе данных.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                transaction = connection.BeginTransaction();
+
+                // Шаг 1: Находим все столбцы (kanbanColumn), связанные с проектом
+                List<int> columnIds = new List<int>();
+                string getColumnsQuery = "SELECT id FROM kanbanColumn WHERE project = @projectId";
+                using (var cmd = new MySqlCommand(getColumnsQuery, connection, transaction))
+                {
+                    cmd.Parameters.AddWithValue("@projectId", _currentProjectId);
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("@projectId", _currentProjectId);
+                        while (reader.Read())
+                        {
+                            columnIds.Add(reader.GetInt32("id"));
+                        }
+                    }
+                }
+
+                // Шаг 2: Находим все задачи, связанные с этими столбцами
+                List<int> taskIds = new List<int>();
+                if (columnIds.Count > 0)
+                {
+                    string getTasksQuery = "SELECT id FROM task WHERE status IN (" + string.Join(",", columnIds) + ")";
+                    using (var cmd = new MySqlCommand(getTasksQuery, connection, transaction))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                taskIds.Add(reader.GetInt32("id"));
+                            }
+                        }
+                    }
+                }
+
+                // Шаг 3: Удаляем связанные подзадачи (subtask) для всех задач
+                if (taskIds.Count > 0)
+                {
+                    string deleteSubtasksQuery = "DELETE FROM subtask WHERE task IN (" + string.Join(",", taskIds) + ")";
+                    using (var cmd = new MySqlCommand(deleteSubtasksQuery, connection, transaction))
+                    {
                         cmd.ExecuteNonQuery();
                     }
                 }
+
+                // Шаг 4: Удаляем связи задач с пользователями (task_user)
+                if (taskIds.Count > 0)
+                {
+                    string deleteTaskUserQuery = "DELETE FROM task_user WHERE task IN (" + string.Join(",", taskIds) + ")";
+                    using (var cmd = new MySqlCommand(deleteTaskUserQuery, connection, transaction))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                // Шаг 5: Удаляем сами задачи (task)
+                if (taskIds.Count > 0)
+                {
+                    string deleteTasksQuery = "DELETE FROM task WHERE status IN (" + string.Join(",", columnIds) + ")";
+                    using (var cmd = new MySqlCommand(deleteTasksQuery, connection, transaction))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                // Шаг 6: Удаляем столбцы (kanbanColumn)
+                string deleteColumnsQuery = "DELETE FROM kanbanColumn WHERE project = @projectId";
+                using (var cmd = new MySqlCommand(deleteColumnsQuery, connection, transaction))
+                {
+                    cmd.Parameters.AddWithValue("@projectId", _currentProjectId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Шаг 7: Удаляем связи проекта с пользователями (project_user)
+                string deleteProjectUserQuery = "DELETE FROM project_user WHERE project = @projectId";
+                using (var cmd = new MySqlCommand(deleteProjectUserQuery, connection, transaction))
+                {
+                    cmd.Parameters.AddWithValue("@projectId", _currentProjectId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Шаг 8: Удаляем сам проект
+                string deleteProjectQuery = "DELETE FROM project WHERE id = @projectId";
+                using (var cmd = new MySqlCommand(deleteProjectQuery, connection, transaction))
+                {
+                    cmd.Parameters.AddWithValue("@projectId", _currentProjectId);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected == 0)
+                    {
+                        throw new Exception("Проект не был удалён. Возможно, он уже был удалён или не существует.");
+                    }
+                }
+
+                // Подтверждаем транзакцию
+                transaction.Commit();
+                MessageBox.Show("Проект успешно удалён.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Переходим на страницу проектов
                 NavigationService?.Navigate(new Project1());
+            }
+            catch (Exception ex)
+            {
+                transaction?.Rollback();
+                MessageBox.Show($"Ошибка при удалении проекта: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                if (connection != null)
+                {
+                    Connection.CloseConnection(connection);
+                }
             }
         }
 
@@ -229,7 +446,7 @@ namespace Project.Pages
             NavigationService?.Navigate(new Project1());
         }
 
-        private void PAText_MouseDown(object sender, RoutedEventArgs e)
+        private void PAText_MouseDown(object sender, MouseButtonEventArgs e)
         {
             NavigationService?.Navigate(new PersonalAccount());
         }

@@ -10,127 +10,159 @@ namespace Project.Classes
         public ProjUserContext(int id, int project, int user, string role)
             : base(id, project, user, role) { }
 
-        // Получает все связи пользователей 
         public static List<ProjUserContext> Get()
         {
             List<ProjUserContext> allProjUsers = new List<ProjUserContext>();
-            string SQL = "SELECT * FROM `project_user`;";
-            MySqlConnection connection = Connection.OpenConnection();
-            MySqlDataReader data = Connection.Query(SQL, connection);
+            string SQL = "SELECT id, project, user, role FROM `project_user`";
 
-            while (data.Read())
+            using (MySqlConnection connection = Connection.OpenConnection())
             {
-                allProjUsers.Add(new ProjUserContext(
-                    data.GetInt32(0),    
-                    data.GetInt32(1),    
-                    data.GetInt32(2),     
-                    data.GetString(3)     
-                ));
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    using (MySqlDataReader data = cmd.ExecuteReader())
+                    {
+                        while (data.Read())
+                        {
+                            allProjUsers.Add(new ProjUserContext(
+                                data.GetInt32("id"),
+                                data.GetInt32("project"),
+                                data.GetInt32("user"),
+                                data.GetString("role")
+                            ));
+                        }
+                    }
+                }
             }
-
-            Connection.CloseConnection(connection);
             return allProjUsers;
         }
 
-        // Получает связь по ID
         public static ProjUserContext GetById(int id)
         {
-            string SQL = $"SELECT * FROM `project_user` WHERE `id`='{id}'";
-            MySqlConnection connection = Connection.OpenConnection();
-            MySqlDataReader data = Connection.Query(SQL, connection);
+            string SQL = "SELECT id, project, user, role FROM `project_user` WHERE id = @id";
 
-            if (data.Read())
+            using (MySqlConnection connection = Connection.OpenConnection())
             {
-                var projUser = new ProjUserContext(
-                    data.GetInt32(0),
-                    data.GetInt32(1),
-                    data.GetInt32(2),
-                    data.GetString(3)
-                );
-                Connection.CloseConnection(connection);
-                return projUser;
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    using (MySqlDataReader data = cmd.ExecuteReader())
+                    {
+                        if (data.Read())
+                        {
+                            return new ProjUserContext(
+                                data.GetInt32("id"),
+                                data.GetInt32("project"),
+                                data.GetInt32("user"),
+                                data.GetString("role")
+                            );
+                        }
+                    }
+                }
             }
-
-            Connection.CloseConnection(connection);
             return null;
         }
 
-        // Получает все связи для конкретного проекта
         public static List<ProjUserContext> GetByProjectId(int projectId)
         {
             List<ProjUserContext> projUsers = new List<ProjUserContext>();
-            string SQL = $"SELECT * FROM `project_user` WHERE `project`='{projectId}'";
-            MySqlConnection connection = Connection.OpenConnection();
-            MySqlDataReader data = Connection.Query(SQL, connection);
+            string SQL = "SELECT id, project, user, role FROM `project_user` WHERE project = @projectId";
 
-            while (data.Read())
+            using (MySqlConnection connection = Connection.OpenConnection())
             {
-                projUsers.Add(new ProjUserContext(
-                    data.GetInt32(0),
-                    data.GetInt32(1),
-                    data.GetInt32(2),
-                    data.GetString(3)
-                ));
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    cmd.Parameters.AddWithValue("@projectId", projectId);
+                    using (MySqlDataReader data = cmd.ExecuteReader())
+                    {
+                        while (data.Read())
+                        {
+                            projUsers.Add(new ProjUserContext(
+                                data.GetInt32("id"),
+                                data.GetInt32("project"),
+                                data.GetInt32("user"),
+                                data.GetString("role")
+                            ));
+                        }
+                    }
+                }
             }
-
-            Connection.CloseConnection(connection);
             return projUsers;
         }
 
-        // Получает все связи для конкретного пользователя
         public static List<ProjUserContext> GetByUserId(int userId)
         {
             List<ProjUserContext> projUsers = new List<ProjUserContext>();
-            string SQL = $"SELECT * FROM `project_user` WHERE `user`='{userId}'";
-            MySqlConnection connection = Connection.OpenConnection();
-            MySqlDataReader data = Connection.Query(SQL, connection);
+            string SQL = "SELECT id, project, user, role FROM `project_user` WHERE user = @userId";
 
-            while (data.Read())
+            using (MySqlConnection connection = Connection.OpenConnection())
             {
-                projUsers.Add(new ProjUserContext(
-                    data.GetInt32(0),
-                    data.GetInt32(1),
-                    data.GetInt32(2),
-                    data.GetString(3)
-                ));
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    using (MySqlDataReader data = cmd.ExecuteReader())
+                    {
+                        while (data.Read())
+                        {
+                            projUsers.Add(new ProjUserContext(
+                                data.GetInt32("id"),
+                                data.GetInt32("project"),
+                                data.GetInt32("user"),
+                                data.GetString("role")
+                            ));
+                        }
+                    }
+                }
             }
-
-            Connection.CloseConnection(connection);
             return projUsers;
         }
 
-        // Добавляет новую связь
         public void Add()
         {
-            string SQL = $"INSERT INTO `project_user` (`project`, `user`, `role`) " +
-                         $"VALUES ({this.Project}, {this.User}, '{this.Role}')";
+            string SQL = "INSERT INTO `project_user` (project, user, role) VALUES (@project, @user, @role)";
 
-            MySqlConnection connection = Connection.OpenConnection();
-            Connection.Query(SQL, connection);
-            Connection.CloseConnection(connection);
+            using (MySqlConnection connection = Connection.OpenConnection())
+            {
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    cmd.Parameters.AddWithValue("@project", this.Project);
+                    cmd.Parameters.AddWithValue("@user", this.User);
+                    cmd.Parameters.AddWithValue("@role", this.Role);
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "SELECT LAST_INSERT_ID()";
+                    this.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
         }
 
-        // Обновляет существующую связь
         public void Update()
         {
-            string SQL = $"UPDATE `project_user` SET " +
-                        $"`project`={this.Project}, " +
-                        $"`user`={this.User}, " +
-                        $"`role`='{this.Role}' " +
-                        $"WHERE `id`={this.Id}";
+            string SQL = "UPDATE `project_user` SET project = @project, user = @user, role = @role WHERE id = @id";
 
-            MySqlConnection connection = Connection.OpenConnection();
-            Connection.Query(SQL, connection);
-            Connection.CloseConnection(connection);
+            using (MySqlConnection connection = Connection.OpenConnection())
+            {
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", this.Id);
+                    cmd.Parameters.AddWithValue("@project", this.Project);
+                    cmd.Parameters.AddWithValue("@user", this.User);
+                    cmd.Parameters.AddWithValue("@role", this.Role);
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
 
-        // Удаляет связь из БД
         public void Delete()
         {
-            string SQL = $"DELETE FROM `project_user` WHERE `id`={this.Id}";
-            MySqlConnection connection = Connection.OpenConnection();
-            Connection.Query(SQL, connection);
-            Connection.CloseConnection(connection);
+            string SQL = "DELETE FROM `project_user` WHERE id = @id";
+
+            using (MySqlConnection connection = Connection.OpenConnection())
+            {
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", this.Id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

@@ -37,8 +37,8 @@
 
                 <Label Grid.Row="2" Grid.Column="0" Content="Ответственный" Margin="10,5,10,3" FontFamily="Verdana"/>
                 <ComboBox x:Name="Responsible" Grid.Row="2" Grid.Column="1" Margin="10,3,10,0" Height="30" VerticalAlignment="Top" 
-                          BorderBrush="White" Background="#FFE5E5E5" FontFamily="Verdana"
-                          DisplayMemberPath="FullName"/>
+          BorderBrush="White" Background="#FFE5E5E5" FontFamily="Verdana"
+          DisplayMemberPath="FullName"/>
 
                 <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button x:Name="bt_Cancel" Click="Bt_Cancel" Content="Отмена" Margin="10" Padding="10,5" 

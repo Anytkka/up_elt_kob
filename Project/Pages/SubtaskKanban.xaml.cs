@@ -27,33 +27,38 @@ namespace Project.Pages
             LoadData();
             InitializeKanbanBoard();
             this.DataContext = App.CurrentUser;
+            InitializeAddSubtaskButtonVisibility(); // Управление видимостью кнопки
         }
 
         private void LoadData()
         {
             try
             {
-                // Загружаем колонки Kanban для текущей задачи
+                // Получаем ProjectId для текущей задачи
+                var task = TaskContext.GetById(_currentTaskId);
+                if (task == null)
+                {
+                    MessageBox.Show("Задача не найдена");
+                    return;
+                }
+                int projectId = int.Parse(task.ProjectCode);
+
+                // Загружаем колонки Kanban для проекта
                 _kanbanColumns = KanbanColumnContext.Get()
-                                  .Where(k => k.ProjectId == _currentTaskId)
+                                  .Where(k => k.ProjectId == projectId)
                                   .ToList();
 
-                // Загружаем все подзадачи для текущей задачи
-                _subtasks = SubtaskContext.Get()
-                            .Where(t => t.TaskId == _currentTaskId)
-                            .ToList();
+                // Загружаем подзадачи для текущей задачи
+                _subtasks = SubtaskContext.GetByTaskId(_currentTaskId);
 
                 _taskUsers = TaskUserContext.Get();
                 _users = UserContext.Get();
 
-                // Загружаем информацию о задаче
-                var task = DocumentContext.GetById(_currentTaskId);
                 if (task != null)
                 {
                     var nameLabel = FindName("Name_task") as Label;
                     nameLabel.Content = task.Name;
 
-                    // Добавим вывод в консоль для отладки
                     Console.WriteLine($"Загружено подзадач: {_subtasks.Count}");
                     foreach (var subtask in _subtasks)
                     {
@@ -82,6 +87,21 @@ namespace Project.Pages
             }
         }
 
+        private void InitializeAddSubtaskButtonVisibility()
+        {
+            if (App.CurrentUser == null) return;
+
+            var task = TaskContext.GetById(_currentTaskId);
+            if (task == null) return;
+            int projectId = int.Parse(task.ProjectCode);
+
+            string userRole = GetUserRole(projectId, App.CurrentUser.Id);
+            // Показываем кнопку только для "Создатель" и "Администратор"
+            AddSubtaskButton.Visibility = (userRole == "Создатель" || userRole == "Администратор")
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
         private void InitializeKanbanBoard()
         {
             try
@@ -93,18 +113,20 @@ namespace Project.Pages
                     return;
                 }
 
-                // Очищаем панель перед повторной инициализацией
                 kanbanPanel.Children.Clear();
                 kanbanPanel.Orientation = Orientation.Horizontal;
 
-                // Получаем роль текущего пользователя
-                string userRole = GetUserRole(_currentTaskId, App.CurrentUser.Id);
-                bool canEdit = userRole == "Создатель" || userRole == "Администратор";
+                var task = TaskContext.GetById(_currentTaskId);
+                if (task == null) return;
+                int projectId = int.Parse(task.ProjectCode);
+                string userRole = GetUserRole(projectId, App.CurrentUser.Id);
+                bool canEditColumns = userRole == "Создатель" || userRole == "Администратор"; // Для управления столбцами
+                bool canMoveSubtasks = userRole != "Не в проекте"; // Для перемещения подзадач
 
-                // Сортируем колонки по ID и создаем их
+                Console.WriteLine($"Найдено колонок: {_kanbanColumns.Count}");
                 foreach (var column in _kanbanColumns.OrderBy(c => c.Id))
                 {
-                    // Создаем контейнер для колонки
+                    Console.WriteLine($"Колонка: {column.Id} - {column.TitleStatus}");
                     var columnBorder = new Border
                     {
                         Width = 250,
@@ -112,14 +134,13 @@ namespace Project.Pages
                         Background = Brushes.White,
                         CornerRadius = new CornerRadius(5),
                         Padding = new Thickness(5),
-                        AllowDrop = canEdit, // Разрешаем перетаскивание только для редакторов
-                        Tag = column.Id // Сохраняем ID колонки в Tag
+                        AllowDrop = canMoveSubtasks, // Разрешаем перемещение всем участникам проекта
+                        Tag = column.Id
                     };
 
-                    // Обработчики событий drag-and-drop
                     columnBorder.DragEnter += (s, e) =>
                     {
-                        if (e.Data.GetDataPresent("SubtaskCard") && canEdit)
+                        if (e.Data.GetDataPresent("SubtaskCard") && canMoveSubtasks)
                         {
                             columnBorder.Background = Brushes.LightBlue;
                             e.Effects = DragDropEffects.Move;
@@ -140,32 +161,29 @@ namespace Project.Pages
                     {
                         columnBorder.Background = Brushes.White;
 
-                        if (e.Data.GetDataPresent("SubtaskCard") && canEdit)
+                        if (e.Data.GetDataPresent("SubtaskCard") && canMoveSubtasks)
                         {
                             int subtaskId = (int)e.Data.GetData("SubtaskCard");
                             int newColumnId = (int)((Border)s).Tag;
 
                             var subtask = _subtasks.FirstOrDefault(t => t.Id == subtaskId);
-                            if (subtask != null && subtask.StatusId != newColumnId) // Исправлено на StatusId
+                            if (subtask != null && subtask.StatusId != newColumnId)
                             {
                                 subtask.StatusId = newColumnId;
                                 subtask.Update();
-
-                                // Обновляем UI
+                                Console.WriteLine($"Подзадача {subtaskId} перемещена в колонку {newColumnId}");
                                 LoadData();
                                 InitializeKanbanBoard();
                             }
                         }
                     };
 
-                    // Создаем содержимое колонки
                     var columnStack = new StackPanel();
 
-                    // Заголовок колонки
                     var headerStack = new StackPanel { Orientation = Orientation.Horizontal };
                     var titleLabel = new Label
                     {
-                        Content = $"{column.TitleStatus} ({_subtasks.Count(t => t.StatusId == column.Id)})", // Исправлено на StatusId
+                        Content = $"{column.TitleStatus} ({_subtasks.Count(t => t.StatusId == column.Id)})",
                         FontWeight = FontWeights.Bold,
                         HorizontalAlignment = HorizontalAlignment.Center,
                         Width = 200
@@ -173,12 +191,11 @@ namespace Project.Pages
                     headerStack.Children.Add(titleLabel);
                     columnStack.Children.Add(headerStack);
 
-                    // Получаем подзадачи для текущей колонки
-                    var columnSubtasks = _subtasks.Where(t => t.StatusId == column.Id).ToList(); // Исправлено на StatusId
+                    var columnSubtasks = _subtasks.Where(t => t.StatusId == column.Id).ToList();
+                    Console.WriteLine($"Подзадачи в колонке {column.TitleStatus}: {columnSubtasks.Count}");
 
                     if (columnSubtasks.Count == 0)
                     {
-                        // Если подзадач нет, показываем заглушку
                         var emptyText = new TextBlock
                         {
                             Text = "Нет подзадач",
@@ -190,25 +207,28 @@ namespace Project.Pages
                     }
                     else
                     {
-                        // Добавляем все подзадачи колонки
+                        Console.WriteLine($"Всего пользователей в _users: {_users.Count}");
+                        foreach (var user in _users)
+                        {
+                            Console.WriteLine($"Пользователь в _users: ID = {user.Id}, FullName = {user.FullName}");
+                        }
+
                         foreach (var subtask in columnSubtasks)
                         {
-                            var responsibleUsers = _taskUsers
-                                .Where(tu => tu.TaskId == subtask.Id)
-                                .Join(_users, tu => tu.UserId, u => u.Id, (tu, u) => u)
-                                .ToList();
+                            Console.WriteLine($"Подзадача {subtask.Id}: UserId = {subtask.UserId}");
 
-                            var responsibleNames = responsibleUsers.Any()
-                                ? string.Join(", ", responsibleUsers.Select(u => u.FullName))
-                                : "Не назначены";
+                            // Находим ответственного напрямую через UserId из SubtaskContext
+                            var responsibleUser = _users.FirstOrDefault(u => u.Id == subtask.UserId);
+                            var responsibleName = responsibleUser != null ? responsibleUser.FullName : "Не назначен";
+                            Console.WriteLine($"Ответственный для подзадачи {subtask.Id}: {responsibleName}");
 
                             var subtaskCard = new SubtaskCard
                             {
                                 SubtaskNumber = subtask.Id,
                                 SubtaskName = subtask.Name,
-                                Responsible = responsibleNames,
+                                Responsible = responsibleName,
                                 TaskCode = subtask.TaskId.ToString(),
-                                TaskName = subtask.Name, // Исправлено: теперь отображается название подзадачи
+                                TaskName = subtask.Name,
                                 Margin = new Thickness(0, 5, 0, 0)
                             };
 
@@ -220,8 +240,8 @@ namespace Project.Pages
                     kanbanPanel.Children.Add(columnBorder);
                 }
 
-                // Кнопка добавления новой подзадачи (только для редакторов)
-                if (canEdit)
+                // Добавляем кнопки в зависимости от роли
+                if (canEditColumns)
                 {
                     var addSubtaskButton = new Button
                     {
@@ -235,6 +255,21 @@ namespace Project.Pages
                     };
                     addSubtaskButton.Click += Bt7_AddSubtask;
                     kanbanPanel.Children.Add(addSubtaskButton);
+
+                    // Добавляем кнопку "Добавить столбец"
+                    var addColumnButton = new Button
+                    {
+                        Content = "Добавить столбец",
+                        Width = 150,
+                        Height = 40,
+                        Margin = new Thickness(5),
+                        Background = Brushes.LightBlue,
+                        Foreground = Brushes.Black,
+                        FontWeight = FontWeights.Bold
+                    };
+                    addColumnButton.Click += Bt_AddColumn;
+                    kanbanPanel.Children.Add(addColumnButton);
+                    Console.WriteLine("Кнопка 'Добавить столбец' добавлена в kanbanPanel на SubtaskKanban");
                 }
             }
             catch (Exception ex)
@@ -243,19 +278,108 @@ namespace Project.Pages
             }
         }
 
+        private void Bt_AddColumn(object sender, RoutedEventArgs e)
+        {
+            string columnName = ShowInputDialog("Введите название нового столбца", "Добавить столбец", "Новый столбец");
+            if (!string.IsNullOrWhiteSpace(columnName))
+            {
+                try
+                {
+                    var task = TaskContext.GetById(_currentTaskId);
+                    if (task == null)
+                    {
+                        MessageBox.Show("Задача не найдена", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    int projectId = int.Parse(task.ProjectCode);
+
+                    using (var connection = Connection.OpenConnection())
+                    {
+                        string query = "INSERT INTO kanbanColumn (title_status, project) VALUES (@title, @projectId); SELECT LAST_INSERT_ID();";
+                        using (var cmd = new MySqlCommand(query, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@title", columnName);
+                            cmd.Parameters.AddWithValue("@projectId", projectId);
+                            int newColumnId = Convert.ToInt32(cmd.ExecuteScalar());
+                            Console.WriteLine($"Добавлен новый столбец: ID = {newColumnId}, Название = {columnName}");
+
+                            // Обновляем данные и перерисовываем доску
+                            LoadData();
+                            InitializeKanbanBoard();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при добавлении столбца: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private string ShowInputDialog(string prompt, string title, string defaultValue)
+        {
+            Window inputWindow = new Window
+            {
+                Title = title,
+                Width = 300,
+                Height = 150,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                ResizeMode = ResizeMode.NoResize
+            };
+
+            StackPanel panel = new StackPanel { Margin = new Thickness(10) };
+            panel.Children.Add(new TextBlock { Text = prompt, Margin = new Thickness(0, 0, 0, 5) });
+            TextBox inputBox = new TextBox { Text = defaultValue, Margin = new Thickness(0, 0, 0, 5), Width = 200 };
+            panel.Children.Add(inputBox);
+
+            StackPanel buttonPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+            Button okButton = new Button { Content = "OK", Width = 60, Margin = new Thickness(0, 0, 5, 0) };
+            Button cancelButton = new Button { Content = "Отмена", Width = 60 };
+            buttonPanel.Children.Add(okButton);
+            buttonPanel.Children.Add(cancelButton);
+            panel.Children.Add(buttonPanel);
+
+            inputWindow.Content = panel;
+
+            bool? result = null;
+            okButton.Click += (s, e) => { result = true; inputWindow.Close(); };
+            cancelButton.Click += (s, e) => { result = false; inputWindow.Close(); };
+            inputWindow.ShowDialog();
+
+            return result == true ? inputBox.Text : null;
+        }
+
         private void Bt7_AddSubtask(object sender, RoutedEventArgs e)
         {
-            var addSubtaskPage = new AddSubtask(_currentTaskId);
-            addSubtaskPage.CreatedSubtask += OnSubtaskCreated;
-            NavigationService?.Navigate(addSubtaskPage);
+            var currentUser = App.CurrentUser;
+            if (currentUser == null) return;
+
+            var task = TaskContext.GetById(_currentTaskId);
+            if (task == null) return;
+            int projectId = int.Parse(task.ProjectCode);
+
+            string userRole = GetUserRole(projectId, currentUser.Id);
+
+            // Разрешаем создание подзадач только Создателям и Администраторам
+            if (userRole == "Создатель" || userRole == "Администратор")
+            {
+                var addSubtaskPage = new AddSubtask(_currentTaskId, null, projectId);
+                addSubtaskPage.CreatedSubtask += OnSubtaskCreated;
+                NavigationService?.Navigate(addSubtaskPage);
+            }
+            else
+            {
+                MessageBox.Show("Только Создатель и Администратор могут создавать подзадачи.",
+                                "Ошибка доступа",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Warning);
+            }
         }
 
         private void OnSubtaskCreated(SubtaskContext subtask)
         {
             if (subtask != null)
             {
-                subtask.StatusId = GetNewColumnId(); // Исправлено на StatusId
-                subtask.Update();
                 LoadData();
                 InitializeKanbanBoard();
             }
@@ -263,12 +387,26 @@ namespace Project.Pages
 
         private int GetNewColumnId()
         {
-            return _kanbanColumns.FirstOrDefault(c => c.TitleStatus == "Новые")?.Id ?? 1;
+            var task = TaskContext.GetById(_currentTaskId);
+            if (task == null) return 1;
+            int projectId = int.Parse(task.ProjectCode);
+            return KanbanColumnContext.Get()
+                    .FirstOrDefault(c => c.ProjectId == projectId && c.TitleStatus == "Новые")?.Id ?? 1;
         }
 
         private void Bt7_Subtasks(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new Kanban(_currentTaskId));
+            var task = TaskContext.GetById(_currentTaskId);
+            if (task != null)
+            {
+                int projectId = int.Parse(task.ProjectCode);
+                NavigationService?.Navigate(new Kanban(projectId));
+            }
+            else
+            {
+                MessageBox.Show("Задача не найдена, возвращение на страницу проектов.");
+                NavigationService?.Navigate(new Project1());
+            }
         }
 
         private void PAText_MouseDown(object sender, MouseButtonEventArgs e)

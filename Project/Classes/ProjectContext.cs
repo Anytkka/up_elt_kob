@@ -2,9 +2,6 @@
 using Project.Classes.Common;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Project.Classes
 {
@@ -14,61 +11,77 @@ namespace Project.Classes
 
         public static List<ProjectContext> Get()
         {
-            List<ProjectContext> AllUser = new List<ProjectContext>();
-            string SQL = $"SELECT * FROM `project`;";
-            MySqlConnection connection = Connection.OpenConnection();
-            MySqlDataReader Data = Connection.Query(SQL, connection);
-            while (Data.Read())
+            List<ProjectContext> allProjects = new List<ProjectContext>();
+            string SQL = "SELECT id, name, description, is_public FROM `project`";
+
+            using (MySqlConnection connection = Connection.OpenConnection())
             {
-                AllUser.Add(new ProjectContext(
-                    Data.GetInt32(0),
-                    Data.GetString(1),
-                    Data.GetString(2),
-                    Data.GetBoolean(3)
-                ));
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    using (MySqlDataReader data = cmd.ExecuteReader())
+                    {
+                        while (data.Read())
+                        {
+                            allProjects.Add(new ProjectContext(
+                                data.GetInt32("id"),
+                                data.GetString("name"),
+                                data.GetString("description"),
+                                data.GetBoolean("is_public")
+                            ));
+                        }
+                    }
+                }
             }
-            Connection.CloseConnection(connection);
-            return AllUser;
+            return allProjects;
         }
+
         public void Add()
         {
-            int isPublicValue = this.IsPublic ? 1 : 0;
-            string SQL = "INSERT INTO " +
-                            "`project`( " +
-                                "`id`, " +
-                                "`name`, " +
-                                "`description`, " +
-                                "`is_public`) " +
-                        "VALUES ( " +
-                            $"'{this.Id}', " +
-                            $"'{this.Name}', " +
-                            $"'{this.Description}', " +
-                            $"{isPublicValue})"; 
-            MySqlConnection connection = Connection.OpenConnection();
-            Connection.Query(SQL, connection);
-            Connection.CloseConnection(connection);
+            string SQL = "INSERT INTO `project` (name, description, is_public) VALUES (@name, @description, @isPublic)";
+
+            using (MySqlConnection connection = Connection.OpenConnection())
+            {
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    cmd.Parameters.AddWithValue("@name", this.Name);
+                    cmd.Parameters.AddWithValue("@description", this.Description);
+                    cmd.Parameters.AddWithValue("@isPublic", this.IsPublic ? 1 : 0);
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "SELECT LAST_INSERT_ID()";
+                    this.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
         }
+
         public void Update()
         {
-            string SQL = "UPDATE " +
-                            "`project` " +
-                          "SET " +
-                                $"`name`='{this.Name}', " +
-                                $"`description`='{this.Description}', " +
-                                $"`is_public`='{this.IsPublic }' " +
-                          "WHERE " +
-                                $"`id`='{this.Id}'";
-            MySqlConnection connection = Connection.OpenConnection();
-            Connection.Query(SQL, connection);
-            Connection.CloseConnection(connection);
+            string SQL = "UPDATE `project` SET name = @name, description = @description, is_public = @isPublic WHERE id = @id";
+
+            using (MySqlConnection connection = Connection.OpenConnection())
+            {
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", this.Id);
+                    cmd.Parameters.AddWithValue("@name", this.Name);
+                    cmd.Parameters.AddWithValue("@description", this.Description);
+                    cmd.Parameters.AddWithValue("@isPublic", this.IsPublic ? 1 : 0);
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
 
         public void Delete()
         {
-            string SQL = $"DELETE FROM `project` `id`='{this.Id}'";
-            MySqlConnection connection = Connection.OpenConnection();
-            Connection.Query(SQL, connection);
-            Connection.CloseConnection(connection);
+            string SQL = "DELETE FROM `project` WHERE id = @id";
+
+            using (MySqlConnection connection = Connection.OpenConnection())
+            {
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", this.Id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

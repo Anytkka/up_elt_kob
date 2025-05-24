@@ -5,21 +5,21 @@ using System.Collections.Generic;
 
 namespace Project.Classes
 {
-    public class DocumentContext : Task
+    public class TaskContext : Task
     {
         public string ProjectCode { get; set; } // Код проекта из kanbanColumn
         public string ProjectName { get; set; } // Название проекта из Project
 
-        public DocumentContext(int id, string name, string description, DateTime dueDate, int status, string projectCode, string projectName)
+        public TaskContext(int id, string name, string description, DateTime dueDate, int status, string projectCode, string projectName)
             : base(id, name, description, dueDate, status)
         {
             ProjectCode = projectCode;
             ProjectName = projectName;
         }
 
-        public static List<DocumentContext> Get()
+        public static List<TaskContext> Get()
         {
-            List<DocumentContext> allTasks = new List<DocumentContext>();
+            List<TaskContext> allTasks = new List<TaskContext>();
             string SQL = @"
                 SELECT t.id, t.name, t.description, t.dueDate, t.status, 
                        kc.project AS projectCode, p.name AS projectName
@@ -40,7 +40,7 @@ namespace Project.Classes
                                 ? ""
                                 : data.GetInt32("projectCode").ToString();
 
-                            allTasks.Add(new DocumentContext(
+                            allTasks.Add(new TaskContext(
                                 data.GetInt32("id"),
                                 data.GetString("name"),
                                 data.GetString("description"),
@@ -56,7 +56,7 @@ namespace Project.Classes
             return allTasks;
         }
 
-        public static DocumentContext GetById(int id)
+        public static TaskContext GetById(int id)
         {
             string SQL = @"
                 SELECT t.id, t.name, t.description, t.dueDate, t.status, 
@@ -81,7 +81,7 @@ namespace Project.Classes
                                 ? ""
                                 : data.GetInt32("projectCode").ToString();
 
-                            return new DocumentContext(
+                            return new TaskContext(
                                 data.GetInt32("id"),
                                 data.GetString("name"),
                                 data.GetString("description"),
