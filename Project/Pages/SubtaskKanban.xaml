@@ -38,7 +38,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Image Width="30" Height="30" Source="/Image/avata.jpg" />
+                <Image x:Name="leftProfileImage" Width="30" Height="30" Grid.Column="0"/>
                 <Label Content="{Binding FullName}" Grid.Column="1"
                        Margin="0,0,-3,0"
                        VerticalAlignment="Center"
@@ -62,7 +62,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
-                    <!-- Оставляем только одну колонку для кнопки -->
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal">
@@ -78,7 +77,6 @@
 
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                 <StackPanel x:Name="parent" Orientation="Horizontal">
-                    <!-- Подзадачи будут добавлены сюда -->
                 </StackPanel>
             </ScrollViewer>
         </Grid>

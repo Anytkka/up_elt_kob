@@ -4,6 +4,7 @@ using Project.Classes;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System;
 
 namespace Project.Pages
 {
@@ -46,13 +47,18 @@ namespace Project.Pages
                     {
                         if (reader.Read())
                         {
-                            App.CurrentUser = new User(
-                                reader.GetInt32(0),
-                                reader.GetString(1),
-                                reader.GetString(2),
-                                reader.GetString(3),
-                                reader.GetString(4));
+                            string profileImagePath = reader.IsDBNull(reader.GetOrdinal("image")) ? null : reader.GetString("image");
 
+                            App.CurrentUser = new User(
+                                reader.GetInt32("id"),
+                                reader.GetString("email"),
+                                reader.GetString("password"),
+                                reader.GetString("fullName"),
+                                reader.IsDBNull(reader.GetOrdinal("biography")) ? null : reader.GetString("biography"),
+                                profileImagePath
+                            );
+
+                            Console.WriteLine($"Успешный вход. App.CurrentUser.ProfileImagePath: {App.CurrentUser.ProfileImagePath}");
                             NavigationService?.Navigate(new PersonalAccount());
                         }
                         else
@@ -64,7 +70,6 @@ namespace Project.Pages
             }
             catch (MySqlException ex)
             {
-                // Log the exception details for debugging
                 MessageBox.Show($"Ошибка подключения: {ex.Message}");
             }
         }
@@ -75,3 +80,4 @@ namespace Project.Pages
         }
     }
 }
+

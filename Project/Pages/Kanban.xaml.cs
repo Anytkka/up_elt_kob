@@ -8,6 +8,8 @@ using System;
 using MySql.Data.MySqlClient;
 using Project.Classes.Common;
 using System.Windows.Input;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace Project.Pages
 {
@@ -26,7 +28,52 @@ namespace Project.Pages
             LoadData();
             InitializeKanbanBoard();
             this.DataContext = App.CurrentUser;
-            InitializeAddTaskButtonVisibility(); // Добавляем вызов метода для управления видимостью кнопки
+            InitializeAddTaskButtonVisibility();
+            LoadProfileImage();
+        }
+
+        private void LoadProfileImage()
+        {
+            var leftProfileImageControl = this.leftProfileImage;
+            if (leftProfileImageControl == null)
+            {
+                MessageBox.Show("Элемент изображения 'leftProfileImage' не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            try
+            {
+                Console.WriteLine($"App.CurrentUser: {(App.CurrentUser != null ? "Не null" : "Null")}");
+                if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath?.Trim()))
+                {
+                    Console.WriteLine($"Проверка существования файла: {App.CurrentUser.ProfileImagePath}");
+                    if (File.Exists(App.CurrentUser.ProfileImagePath))
+                    {
+                        Console.WriteLine("Файл существует, загружаем...");
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(App.CurrentUser.ProfileImagePath, UriKind.Absolute);
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        leftProfileImageControl.Source = bitmap;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Файл не найден по пути: {App.CurrentUser.ProfileImagePath}");
+                        leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ProfileImagePath пустой или null, загружаем изображение по умолчанию.");
+                    leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка загрузки изображения: {ex.Message}");
+                leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
+            }
         }
 
         private void LoadData()
@@ -71,9 +118,8 @@ namespace Project.Pages
             if (App.CurrentUser == null) return;
 
             string userRole = GetUserRole(_currentProjectId, App.CurrentUser.Id);
-            // Показываем кнопку только для "Создатель" и "Администратор"
-            AddTaskButton.Visibility = (userRole == "Создатель" || userRole == "Администратор") 
-                ? Visibility.Visible 
+            AddTaskButton.Visibility = (userRole == "Создатель" || userRole == "Администратор")
+                ? Visibility.Visible
                 : Visibility.Collapsed;
         }
 
@@ -85,7 +131,6 @@ namespace Project.Pages
             kanbanPanel.Children.Clear();
             kanbanPanel.Orientation = Orientation.Horizontal;
 
-            // Перечитываем данные перед отображением
             LoadData();
 
             string userRole = GetUserRole(_currentProjectId, App.CurrentUser.Id);
@@ -99,7 +144,7 @@ namespace Project.Pages
                     Background = System.Windows.Media.Brushes.White,
                     CornerRadius = new CornerRadius(5),
                     Padding = new Thickness(5),
-                    AllowDrop = userRole != "Не в проекте", // Только участники проекта могут перемещать
+                    AllowDrop = userRole != "Не в проекте",
                     Tag = column.Id
                 };
 
@@ -174,7 +219,6 @@ namespace Project.Pages
                 kanbanPanel.Children.Add(columnBorder);
             }
 
-            // Добавление столбца доступно только для Создателя и Администратора
             if (userRole == "Создатель" || userRole == "Администратор")
             {
                 var addColumnButton = new Button
@@ -190,7 +234,6 @@ namespace Project.Pages
                 kanbanPanel.Children.Add(addColumnButton);
             }
 
-            // Удаление проекта доступно только для Создателя
             if (userRole == "Создатель")
             {
                 var deleteProjectButton = new Button
@@ -222,8 +265,6 @@ namespace Project.Pages
                             cmd.Parameters.AddWithValue("@title", columnName);
                             cmd.Parameters.AddWithValue("@projectId", _currentProjectId);
                             int newColumnId = Convert.ToInt32(cmd.ExecuteScalar());
-
-                            // Обновляем список колонок
                             LoadData();
                             InitializeKanbanBoard();
                         }
@@ -281,7 +322,6 @@ namespace Project.Pages
 
             string userRole = GetUserRole(_currentProjectId, currentUser.Id);
 
-            // Разрешаем создание задач только Создателям и Администраторам
             if (userRole == "Создатель" || userRole == "Администратор")
             {
                 var createTaskPage = new CreateTask(_currentProjectId);
@@ -329,7 +369,6 @@ namespace Project.Pages
 
                 transaction = connection.BeginTransaction();
 
-                // Шаг 1: Находим все столбцы (kanbanColumn), связанные с проектом
                 List<int> columnIds = new List<int>();
                 string getColumnsQuery = "SELECT id FROM kanbanColumn WHERE project = @projectId";
                 using (var cmd = new MySqlCommand(getColumnsQuery, connection, transaction))
@@ -344,7 +383,6 @@ namespace Project.Pages
                     }
                 }
 
-                // Шаг 2: Находим все задачи, связанные с этими столбцами
                 List<int> taskIds = new List<int>();
                 if (columnIds.Count > 0)
                 {
@@ -361,7 +399,6 @@ namespace Project.Pages
                     }
                 }
 
-                // Шаг 3: Удаляем связанные подзадачи (subtask) для всех задач
                 if (taskIds.Count > 0)
                 {
                     string deleteSubtasksQuery = "DELETE FROM subtask WHERE task IN (" + string.Join(",", taskIds) + ")";
@@ -371,7 +408,6 @@ namespace Project.Pages
                     }
                 }
 
-                // Шаг 4: Удаляем связи задач с пользователями (task_user)
                 if (taskIds.Count > 0)
                 {
                     string deleteTaskUserQuery = "DELETE FROM task_user WHERE task IN (" + string.Join(",", taskIds) + ")";
@@ -381,7 +417,6 @@ namespace Project.Pages
                     }
                 }
 
-                // Шаг 5: Удаляем сами задачи (task)
                 if (taskIds.Count > 0)
                 {
                     string deleteTasksQuery = "DELETE FROM task WHERE status IN (" + string.Join(",", columnIds) + ")";
@@ -391,7 +426,6 @@ namespace Project.Pages
                     }
                 }
 
-                // Шаг 6: Удаляем столбцы (kanbanColumn)
                 string deleteColumnsQuery = "DELETE FROM kanbanColumn WHERE project = @projectId";
                 using (var cmd = new MySqlCommand(deleteColumnsQuery, connection, transaction))
                 {
@@ -399,7 +433,6 @@ namespace Project.Pages
                     cmd.ExecuteNonQuery();
                 }
 
-                // Шаг 7: Удаляем связи проекта с пользователями (project_user)
                 string deleteProjectUserQuery = "DELETE FROM project_user WHERE project = @projectId";
                 using (var cmd = new MySqlCommand(deleteProjectUserQuery, connection, transaction))
                 {
@@ -407,7 +440,6 @@ namespace Project.Pages
                     cmd.ExecuteNonQuery();
                 }
 
-                // Шаг 8: Удаляем сам проект
                 string deleteProjectQuery = "DELETE FROM project WHERE id = @projectId";
                 using (var cmd = new MySqlCommand(deleteProjectQuery, connection, transaction))
                 {
@@ -420,11 +452,9 @@ namespace Project.Pages
                     }
                 }
 
-                // Подтверждаем транзакцию
                 transaction.Commit();
                 MessageBox.Show("Проект успешно удалён.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // Переходим на страницу проектов
                 NavigationService?.Navigate(new Project1());
             }
             catch (Exception ex)

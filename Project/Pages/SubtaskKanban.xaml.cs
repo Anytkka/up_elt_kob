@@ -9,6 +9,8 @@ using MySql.Data.MySqlClient;
 using Project.Classes.Common;
 using System.Windows.Media;
 using System.Windows.Input;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace Project.Pages
 {
@@ -27,14 +29,58 @@ namespace Project.Pages
             LoadData();
             InitializeKanbanBoard();
             this.DataContext = App.CurrentUser;
-            InitializeAddSubtaskButtonVisibility(); // Управление видимостью кнопки
+            InitializeAddSubtaskButtonVisibility();
+            LoadProfileImage();
+        }
+
+        private void LoadProfileImage()
+        {
+            var leftProfileImageControl = this.leftProfileImage;
+            if (leftProfileImageControl == null)
+            {
+                MessageBox.Show("Элемент изображения 'leftProfileImage' не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            try
+            {
+                Console.WriteLine($"App.CurrentUser: {(App.CurrentUser != null ? "Не null" : "Null")}");
+                if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath?.Trim()))
+                {
+                    Console.WriteLine($"Проверка существования файла: {App.CurrentUser.ProfileImagePath}");
+                    if (File.Exists(App.CurrentUser.ProfileImagePath))
+                    {
+                        Console.WriteLine("Файл существует, загружаем...");
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(App.CurrentUser.ProfileImagePath, UriKind.Absolute);
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        leftProfileImageControl.Source = bitmap;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Файл не найден по пути: {App.CurrentUser.ProfileImagePath}");
+                        leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ProfileImagePath пустой или null, загружаем изображение по умолчанию.");
+                    leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка загрузки изображения: {ex.Message}");
+                leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
+            }
         }
 
         private void LoadData()
         {
             try
             {
-                // Получаем ProjectId для текущей задачи
                 var task = TaskContext.GetById(_currentTaskId);
                 if (task == null)
                 {
@@ -43,12 +89,10 @@ namespace Project.Pages
                 }
                 int projectId = int.Parse(task.ProjectCode);
 
-                // Загружаем колонки Kanban для проекта
                 _kanbanColumns = KanbanColumnContext.Get()
                                   .Where(k => k.ProjectId == projectId)
                                   .ToList();
 
-                // Загружаем подзадачи для текущей задачи
                 _subtasks = SubtaskContext.GetByTaskId(_currentTaskId);
 
                 _taskUsers = TaskUserContext.Get();
@@ -96,7 +140,6 @@ namespace Project.Pages
             int projectId = int.Parse(task.ProjectCode);
 
             string userRole = GetUserRole(projectId, App.CurrentUser.Id);
-            // Показываем кнопку только для "Создатель" и "Администратор"
             AddSubtaskButton.Visibility = (userRole == "Создатель" || userRole == "Администратор")
                 ? Visibility.Visible
                 : Visibility.Collapsed;
@@ -120,8 +163,8 @@ namespace Project.Pages
                 if (task == null) return;
                 int projectId = int.Parse(task.ProjectCode);
                 string userRole = GetUserRole(projectId, App.CurrentUser.Id);
-                bool canEditColumns = userRole == "Создатель" || userRole == "Администратор"; // Для управления столбцами
-                bool canMoveSubtasks = userRole != "Не в проекте"; // Для перемещения подзадач
+                bool canEditColumns = userRole == "Создатель" || userRole == "Администратор";
+                bool canMoveSubtasks = userRole != "Не в проекте";
 
                 Console.WriteLine($"Найдено колонок: {_kanbanColumns.Count}");
                 foreach (var column in _kanbanColumns.OrderBy(c => c.Id))
@@ -134,7 +177,7 @@ namespace Project.Pages
                         Background = Brushes.White,
                         CornerRadius = new CornerRadius(5),
                         Padding = new Thickness(5),
-                        AllowDrop = canMoveSubtasks, // Разрешаем перемещение всем участникам проекта
+                        AllowDrop = canMoveSubtasks,
                         Tag = column.Id
                     };
 
@@ -217,7 +260,6 @@ namespace Project.Pages
                         {
                             Console.WriteLine($"Подзадача {subtask.Id}: UserId = {subtask.UserId}");
 
-                            // Находим ответственного напрямую через UserId из SubtaskContext
                             var responsibleUser = _users.FirstOrDefault(u => u.Id == subtask.UserId);
                             var responsibleName = responsibleUser != null ? responsibleUser.FullName : "Не назначен";
                             Console.WriteLine($"Ответственный для подзадачи {subtask.Id}: {responsibleName}");
@@ -240,7 +282,6 @@ namespace Project.Pages
                     kanbanPanel.Children.Add(columnBorder);
                 }
 
-                // Добавляем кнопки в зависимости от роли
                 if (canEditColumns)
                 {
                     var addSubtaskButton = new Button
@@ -256,7 +297,6 @@ namespace Project.Pages
                     addSubtaskButton.Click += Bt7_AddSubtask;
                     kanbanPanel.Children.Add(addSubtaskButton);
 
-                    // Добавляем кнопку "Добавить столбец"
                     var addColumnButton = new Button
                     {
                         Content = "Добавить столбец",
@@ -303,7 +343,6 @@ namespace Project.Pages
                             int newColumnId = Convert.ToInt32(cmd.ExecuteScalar());
                             Console.WriteLine($"Добавлен новый столбец: ID = {newColumnId}, Название = {columnName}");
 
-                            // Обновляем данные и перерисовываем доску
                             LoadData();
                             InitializeKanbanBoard();
                         }
@@ -360,7 +399,6 @@ namespace Project.Pages
 
             string userRole = GetUserRole(projectId, currentUser.Id);
 
-            // Разрешаем создание подзадач только Создателям и Администраторам
             if (userRole == "Создатель" || userRole == "Администратор")
             {
                 var addSubtaskPage = new AddSubtask(_currentTaskId, null, projectId);
@@ -409,7 +447,7 @@ namespace Project.Pages
             }
         }
 
-        private void PAText_MouseDown(object sender, MouseButtonEventArgs e)
+        private void PAText_MouseDown(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new PersonalAccount());
         }

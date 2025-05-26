@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace Project.Pages
 {
@@ -11,6 +12,11 @@ namespace Project.Pages
         public PersonalAccount()
         {
             InitializeComponent();
+            RefreshUserData();
+        }
+
+        private void RefreshUserData()
+        {
             this.DataContext = App.CurrentUser ?? new object(); // Защита от null
             LoadProfileImage();
         }
@@ -18,34 +24,49 @@ namespace Project.Pages
         private void LoadProfileImage()
         {
             var profileImageControl = this.profileImage;
-            if (profileImageControl == null)
+            var leftProfileImageControl = this.leftProfileImage;
+            if (profileImageControl == null || leftProfileImageControl == null)
             {
-                MessageBox.Show("Элемент изображения 'profileImage' не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Один из элементов изображения 'profileImage' или 'leftProfileImage' не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             try
             {
-                if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath) && System.IO.File.Exists(App.CurrentUser.ProfileImagePath))
+                Console.WriteLine($"App.CurrentUser: {App.CurrentUser != null}");
+                if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath?.Trim()))
                 {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(App.CurrentUser.ProfileImagePath, UriKind.Absolute);
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
-                    profileImageControl.Source = bitmap;
+                    Console.WriteLine($"Попытка загрузки изображения из: {App.CurrentUser.ProfileImagePath}");
+                    if (File.Exists(App.CurrentUser.ProfileImagePath))
+                    {
+                        Console.WriteLine("Файл существует, загружаем...");
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(App.CurrentUser.ProfileImagePath, UriKind.Absolute);
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        profileImageControl.Source = bitmap;
+                        leftProfileImageControl.Source = bitmap;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Файл не найден по пути: {App.CurrentUser.ProfileImagePath}");
+                        profileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
+                        leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
+                    }
                 }
                 else
                 {
-                    // Используем pack:// для доступа к ресурсу в проекте
-                    profileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg"));
+                    Console.WriteLine("ProfileImagePath пустой или null, загружаем изображение по умолчанию.");
+                    profileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
+                    leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
                 }
             }
             catch (Exception ex)
             {
-                // Логируем ошибку и загружаем изображение по умолчанию
                 Console.WriteLine($"Ошибка загрузки изображения: {ex.Message}");
-                profileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg"));
+                profileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
+                leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
             }
         }
 
@@ -67,9 +88,7 @@ namespace Project.Pages
 
         private void PAText_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Вместо создания новой страницы просто обновляем текущую
-            LoadProfileImage();
-            this.DataContext = App.CurrentUser ?? new object();
+            RefreshUserData();
         }
     }
 }

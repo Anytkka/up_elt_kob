@@ -10,6 +10,7 @@ using Microsoft.Win32;
 using MySql.Data.MySqlClient;
 using Project.Classes.Common;
 
+
 namespace Project.Pages
 {
     public partial class editProfil : Page
@@ -32,14 +33,13 @@ namespace Project.Pages
             {
                 if (_currentUser != null && !string.IsNullOrEmpty(_currentUser.ProfileImagePath?.Trim()))
                 {
-                    Console.WriteLine($"ProfileImagePath: {_currentUser.ProfileImagePath}, Exists: {File.Exists(_currentUser.ProfileImagePath)}");
                     if (File.Exists(_currentUser.ProfileImagePath))
                     {
                         profileImage.Source = new BitmapImage(new Uri(_currentUser.ProfileImagePath, UriKind.Absolute));
                     }
                     else
                     {
-                        Console.WriteLine($"File does not exist at: {_currentUser.ProfileImagePath}");
+                        Console.WriteLine($"Image file not found at: {_currentUser.ProfileImagePath}");
                         profileImage.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
                     }
                 }
@@ -52,7 +52,6 @@ namespace Project.Pages
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading image: {ex.Message}");
-                MessageBox.Show($"Ошибка загрузки изображения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 profileImage.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
             }
         }
@@ -122,47 +121,50 @@ namespace Project.Pages
         }
 
         private void SaveProfileImage()
-{
-    try
-    {
-        if (!string.IsNullOrEmpty(_currentUser.ProfileImagePath) && File.Exists(_currentUser.ProfileImagePath))
         {
-            File.Delete(_currentUser.ProfileImagePath);
-        }
-
-        if (_tempImagePath != null)
-        {
-            string projectImagePath = @"C:\Users\User-PC\Source\Repos\up_elt_kobук\Project\Image"; // Замените на ваш путь
-            Directory.CreateDirectory(projectImagePath); // Убедимся, что папка существует
-
-            string baseFileName = Path.GetFileNameWithoutExtension(_tempImagePath);
-            string extension = Path.GetExtension(_tempImagePath);
-            string newFileName = $"{_currentUser.Id}_{baseFileName}_{DateTime.Now:yyyyMMddHHmmssfff}{extension}";
-            string newImagePath = Path.Combine(projectImagePath, newFileName);
-
-            File.Copy(_tempImagePath, newImagePath, true);
-            _currentUser.ProfileImagePath = newImagePath;
-
-            if (File.Exists(newImagePath))
+            try
             {
-                Console.WriteLine($"File successfully copied to: {newImagePath}");
+                if (_tempImagePath != null) // Обработка только нового изображения
+                {
+                    // Удаляем старое изображение, если оно существует
+                    if (!string.IsNullOrEmpty(_currentUser.ProfileImagePath) && File.Exists(_currentUser.ProfileImagePath))
+                    {
+                        File.Delete(_currentUser.ProfileImagePath);
+                    }
+
+                    string projectImagePath = @"C:\Users\User-PC\Source\Repos\ProjectImages"; // Изменили путь
+                    Directory.CreateDirectory(projectImagePath);
+
+                    // Получаем оригинальное имя файла
+                    string fileName = Path.GetFileName(_tempImagePath);
+                    string newImagePath = Path.Combine(projectImagePath, fileName);
+
+                    // Проверяем, существует ли файл, и добавляем счетчик, если нужно
+                    int counter = 1;
+                    string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(_tempImagePath);
+                    string extension = Path.GetExtension(_tempImagePath);
+                    while (File.Exists(newImagePath))
+                    {
+                        string newFileName = $"{fileNameWithoutExtension}_{counter}{extension}";
+                        newImagePath = Path.Combine(projectImagePath, newFileName);
+                        counter++;
+                    }
+
+                    // Копируем файл
+                    File.Copy(_tempImagePath, newImagePath, true);
+                    _currentUser.ProfileImagePath = newImagePath;
+
+                    if (!File.Exists(newImagePath))
+                    {
+                        throw new IOException($"Не удалось скопировать файл изображения в {newImagePath}.");
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine($"Failed to copy file to: {newImagePath}");
-                throw new IOException($"Не удалось скопировать файл изображения в {newImagePath}.");
+                MessageBox.Show($"Ошибка при сохранении изображения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        else if (profileImage.Source.ToString().Contains("avata.jpg"))
-        {
-            _currentUser.ProfileImagePath = null;
-        }
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show($"Ошибка при сохранении изображения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-    }
-}
 
         private bool ValidateInput()
         {
@@ -252,7 +254,7 @@ namespace Project.Pages
                     _currentUser.Password,
                     _currentUser.FullName,
                     _currentUser.Biography,
-                    _currentUser.ProfileImagePath
+                    _currentUser.ProfileImagePath // Сохраняем null, если пользователь не выбрал изображение
                 );
 
                 userContext.Update();
