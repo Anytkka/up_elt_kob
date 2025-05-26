@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Project.Main
 {
     public partial class ProjectCard : UserControl
     {
         public event EventHandler<int> ProjectClicked;
-        public event EventHandler<int> DeleteProjectClicked; // Add this event for delete functionality
+        public event EventHandler<int> DeleteProjectClicked;
+        public event EventHandler<int> EditProjectClicked;
+        public event EventHandler<int> DetailsButtonClicked;
 
         public static readonly DependencyProperty ProjectNumberProperty =
             DependencyProperty.Register("ProjectNumber", typeof(int), typeof(ProjectCard), new PropertyMetadata(0));
@@ -62,6 +65,16 @@ namespace Project.Main
         private void DeleteProjectButton_Click(object sender, RoutedEventArgs e)
         {
             DeleteProjectClicked?.Invoke(this, ProjectNumber);
+        }
+
+        private void EditProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            EditProjectClicked?.Invoke(this, ProjectNumber);
+        }
+
+        private void DetailsTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DetailsButtonClicked?.Invoke(this, ProjectNumber);
         }
     }
 }

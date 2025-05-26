@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
@@ -8,6 +9,11 @@ namespace Project.Main
 {
     public partial class SubtaskCard : UserControl
     {
+        public event EventHandler<int> SubtaskButtonClicked;
+        public event EventHandler<int> DetailsButtonClicked;
+        public event EventHandler<int> EditButtonClicked;
+        public event EventHandler<int> DeleteButtonClicked;
+
         public static readonly DependencyProperty SubtaskNumberProperty =
             DependencyProperty.Register("SubtaskNumber", typeof(int), typeof(SubtaskCard),
                 new PropertyMetadata(0));
@@ -87,6 +93,21 @@ namespace Project.Main
             {
                 DragDrop.DoDragDrop(this, new DataObject("SubtaskCard", SubtaskNumber), DragDropEffects.Move);
             }
+        }
+
+        private void DetailsTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DetailsButtonClicked?.Invoke(this, SubtaskNumber);
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            EditButtonClicked?.Invoke(this, SubtaskNumber);
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteButtonClicked?.Invoke(this, SubtaskNumber);
         }
     }
 }

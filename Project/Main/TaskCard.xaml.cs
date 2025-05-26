@@ -9,6 +9,11 @@ namespace Project.Main
 {
     public partial class TaskCard : UserControl
     {
+        public event EventHandler<int> TaskButtonClicked;
+        public event EventHandler<int> DetailsButtonClicked;
+        public event EventHandler<int> EditButtonClicked;
+        public event EventHandler<int> DeleteButtonClicked;
+
         public static readonly DependencyProperty TaskNumberProperty =
             DependencyProperty.Register("TaskNumber", typeof(int), typeof(TaskCard), new PropertyMetadata(0));
 
@@ -94,6 +99,21 @@ namespace Project.Main
                 DataObject data = new DataObject("TaskCard", TaskNumber);
                 DragDrop.DoDragDrop(this, data, DragDropEffects.Move);
             }
+        }
+
+        private void DetailsTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DetailsButtonClicked?.Invoke(this, TaskNumber);
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            EditButtonClicked?.Invoke(this, TaskNumber);
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteButtonClicked?.Invoke(this, TaskNumber);
         }
     }
 }
