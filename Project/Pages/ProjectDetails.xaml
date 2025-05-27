@@ -9,7 +9,7 @@
       Title="Подробности проекта">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Background="#FFE5E5E5" Margin="20">
+        <Grid Background="White" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="20"/>
@@ -18,10 +18,12 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <!-- Новая строка для кнопки -->
             </Grid.RowDefinitions>
 
             <Label Content="Подробности проекта"
-                   FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="18"/>
+                   FontFamily="Verdana" FontWeight="Bold" FontSize="18"/>
 
             <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
@@ -34,16 +36,16 @@
                         <ColumnDefinition Width="150"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Content="Наименование:" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="txtProjectName" Grid.Column="1" Text="" FontFamily="Verdana" FontSize="14"/>
+                    <Label Content="Наименование:" VerticalAlignment="Center" FontFamily="Verdana" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtProjectName" Grid.Column="1" Text="" FontFamily="Verdana"/>
                 </Grid>
                 <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Content="Описание:" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="txtProjectDescription" Grid.Column="1" Text="" FontFamily="Verdana" FontSize="14" TextWrapping="Wrap"/>
+                    <Label Content="Описание:" VerticalAlignment="Center" FontFamily="Verdana" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtProjectDescription" Grid.Column="1" Text="" FontFamily="Verdana" TextWrapping="Wrap"/>
                 </Grid>
             </Grid>
 
@@ -52,14 +54,14 @@
                     <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Label Content="Публичность:" VerticalAlignment="Center"/>
-                <TextBlock x:Name="txtPublicity" Grid.Column="1" Text="" FontFamily="Verdana" FontSize="14"/>
+                <Label Content="Публичность:" VerticalAlignment="Center" FontFamily="Verdana" FontWeight="Bold"/>
+                <TextBlock x:Name="txtPublicity" Grid.Column="1" Text="" FontFamily="Verdana"/>
             </Grid>
 
             <StackPanel Grid.Row="6" Margin="0,0,0,10">
                 <Label Content="Участники проекта"
-                       FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
-                <ListView x:Name="listViewParticipants" Margin="0,10,0,0">
+                       FontFamily="Verdana" FontWeight="Bold" FontSize="14"/>
+                <ListView x:Name="listViewParticipants" Margin="0,10,0,0" Height="101" FontFamily="Verdana">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid>
@@ -75,8 +77,9 @@
                 </ListView>
             </StackPanel>
 
-            <Button Grid.Row="6" Content="Назад" Height="30"
-                    Click="BackButton_Click" Margin="600,338,10,0" VerticalAlignment="Top" Background="#FF000083" BorderBrush="#FF000083" Foreground="White" FontFamily="Verdana"/>
+            <Button Grid.Row="7" Content="Назад" Height="32" Width="150"
+                    Click="BackButton_Click" HorizontalAlignment="Right" Background="#FF000083" 
+                    BorderBrush="#FF000083" Foreground="White" FontFamily="Verdana"/>
         </Grid>
     </ScrollViewer>
 </Page>
