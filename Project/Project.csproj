@@ -140,10 +140,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Main\DeleteAccount.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Main\ProjectCard.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -226,9 +222,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Main\DeleteAccount.xaml.cs">
-      <DependentUpon>DeleteAccount.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Main\ProjectCard.xaml.cs">
       <DependentUpon>ProjectCard.xaml</DependentUpon>
     </Compile>

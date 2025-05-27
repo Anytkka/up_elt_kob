@@ -5,192 +5,98 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:Project.Pages"
       mc:Ignorable="d"
-      Width="621" Height="600"
+      d:DesignHeight="600" d:DesignWidth="800"
       Title="Редактирование задачи">
 
-    <Grid Background="#F5F5F5">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <!-- Заголовок -->
-        <Border Grid.Row="0" Background="White" Padding="10">
-            <TextBlock Foreground="#FFA6A6A6" FontFamily="Verdana">
-                <Run Language="ru-ru" Text="Редактирование задачи"/>
-            </TextBlock>
-        </Border>
-
-        <!-- Основной контент -->
-        <Border Grid.Row="1" Background="White" Margin="10" CornerRadius="5">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Grid Margin="10">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Background="#F5F5F5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Background="White" Padding="10">
+                <TextBlock Foreground="#FFA6A6A6" FontFamily="Verdana">Редактирование задачи</TextBlock>
+            </Border>
+            <Border Grid.Row="1" Background="White" Margin="10" CornerRadius="5" Padding="10">
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <!-- Наименование -->
                         <RowDefinition Height="Auto"/>
-                        <!-- Описание -->
                         <RowDefinition Height="Auto"/>
-                        <!-- Срок выполнения -->
                         <RowDefinition Height="Auto"/>
-                        <!-- Ответственные -->
                         <RowDefinition Height="Auto"/>
-                        <!-- Подзадачи -->
                         <RowDefinition Height="Auto"/>
-                        <!-- Кнопки -->
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Добавлена строка для кнопок -->
                     </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                    <!-- Наименование -->
-                    <Grid Grid.Row="0" Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Наименование" Margin="10,0,10,0" VerticalAlignment="Center" Height="16" FontFamily="Verdana"/>
-                        <TextBox x:Name="txtTaskName" Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center" Height="25" IsReadOnly="{Binding IsReadOnly}" TextWrapping="Wrap"/>
-                    </Grid>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Наименование*" VerticalAlignment="Center" FontFamily="Verdana" FontSize="12"/>
+                    <TextBox x:Name="txtTaskName" Grid.Row="0" Grid.Column="1" Height="25" Margin="0,0,0,10"/>
 
-                    <!-- Описание -->
-                    <Grid Grid.Row="1" Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Описание" Margin="10,0,10,0" VerticalAlignment="Center" Height="16" FontFamily="Verdana"/>
-                        <TextBox x:Name="txtTaskDescription" Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center" Height="60" IsReadOnly="{Binding IsReadOnly}" TextWrapping="Wrap" AcceptsReturn="True"/>
-                    </Grid>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Описание" VerticalAlignment="Center" FontFamily="Verdana" FontSize="12"/>
+                    <TextBox x:Name="txtTaskDescription" Grid.Row="1" Grid.Column="1" Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
 
-                    <!-- Срок выполнения -->
-                    <Grid Grid.Row="2" Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Срок выполнения" Margin="10,0,10,0" VerticalAlignment="Center" Height="16" FontFamily="Verdana"/>
-                        <DatePicker x:Name="dpDueDate" Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center" Height="25" IsEnabled="{Binding CanEdit}"/>
-                    </Grid>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Дата завершения" VerticalAlignment="Center" FontFamily="Verdana" FontSize="12"/>
+                    <DatePicker x:Name="dpDueDate" Grid.Row="2" Grid.Column="1" Height="25" Margin="0,0,0,10"/>
 
-                    <!-- Ответственные -->
-                    <Grid Grid.Row="3" Margin="0,0,0,10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Ответственные" Margin="10,0,10,0" VerticalAlignment="Center" Height="16" FontFamily="Verdana"/>
-                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="10,0,10,0">
-                            <ComboBox x:Name="cmbResponsible" Width="200" Margin="0,0,10,0" DisplayMemberPath="Name" IsEnabled="{Binding CanEdit}"/>
-                            <Button x:Name="btAddResponsible" Content="Добавить" Width="100" Height="25" Background="#FF0F0FE3" Foreground="White" FontFamily="Verdana" Click="BtAddResponsible_Click">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CanEdit}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                        </StackPanel>
-                        <ListView x:Name="listViewResponsible" Grid.Row="1" Grid.Column="1" Margin="10,5,10,0">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Name}" FontFamily="Verdana"/>
-                                        <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" BorderThickness="0" FontWeight="Bold" ToolTip="Удалить ответственного" Click="RemoveResponsible_Click">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type Page}}, Path=DataContext.CanEdit}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Grid>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Ответственные" FontFamily="Verdana" Margin="0,10,0,0"/>
 
-                    <!-- Подзадачи -->
-                    <Grid Grid.Row="4" Margin="0,0,0,10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Подзадачи" Margin="10,0,10,0" VerticalAlignment="Center" Height="16" FontFamily="Verdana"/>
-                        <Button x:Name="btAddSubtask" Grid.Row="0" Grid.Column="1" Content="Добавить подзадачу" Width="150" Height="25" Margin="10,0,0,0" HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" FontFamily="Verdana" Click="BtAddSubtask_Click">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CanEdit}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                        <ListView x:Name="listViewSubtasks" Grid.Row="1" Grid.Column="1" Margin="10,5,10,0">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Name}" FontFamily="Verdana"/>
-                                        <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent" BorderThickness="0" FontWeight="Bold" ToolTip="Удалить подзадачу" Click="RemoveSubtask_Click">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type Page}}, Path=DataContext.CanEdit}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Grid>
+                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,10,0,10">
+                        <ComboBox x:Name="cmbResponsible" Width="200" Margin="0,0,10,0" DisplayMemberPath="Name"/>
+                        <Button x:Name="btAddResponsible" Content="Добавить участника" Width="150" Margin="10,0,0,0" Background="#FF000083" Foreground="White" Click="BtAddResponsible_Click" FontFamily="Verdana" Height="31" BorderBrush="#FF000083"/>
+                    </StackPanel>
 
-                    <!-- Кнопки -->
-                    <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,10,10">
-                        <Button x:Name="btCancel" Content="Закрыть" Margin="0,0,10,0" Padding="10,5" Background="#FFDDDDDD" Foreground="Black" Width="120" Height="30" FontFamily="Verdana" Click="BtCancel_Click"/>
-                        <Button x:Name="btSave" Content="Сохранить" Padding="10,5" Background="#FF0F0FE3" Foreground="White" Width="120" Height="30" BorderBrush="#FF0F0FE3" FontFamily="Verdana" Click="BtSave_Click">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CanEdit}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                    <ListView x:Name="listViewResponsible" Grid.Row="5" Grid.Column="1" Margin="0,10,0,10">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" FontFamily="Verdana" FontSize="12"/>
+                                    <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent"
+                                            BorderThickness="0" FontWeight="Bold" Click="RemoveResponsible_Click" ToolTip="Удалить ответственного"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Подзадачи" FontFamily="Verdana" Margin="0,10,0,0"/>
+
+                    <Button x:Name="btAddSubtask" Grid.Row="6" Grid.Column="1" Content="Добавить подзадачу" Width="150" Margin="0,10,0,10"
+                            HorizontalAlignment="Left" Background="#FF000083" Foreground="White" Click="BtAddSubtask_Click" FontFamily="Verdana" Height="30" BorderBrush="#FF000083"/>
+
+                    <ListView x:Name="listViewSubtasks" Grid.Row="7" Grid.Column="1" Margin="0,10,0,10">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" FontFamily="Verdana" FontSize="12"/>
+                                    <Button Grid.Column="1" Content="✕" Foreground="Red" Background="Transparent"
+                                            BorderThickness="0" FontWeight="Bold" Click="RemoveSubtask_Click" ToolTip="Удалить подзадачу"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                        <Button x:Name="btCancel" Content="Отмена" Width="100" Height="30" Margin="0,0,10,0"
+                                Background="#FFDDDDDD" Foreground="Black" Click="BtCancel_Click" FontFamily="Verdana" BorderBrush="#FFDDDDDD"/>
+                        <Button x:Name="btSave" Content="Сохранить" Width="100" Height="30"
+                                Background="#FF000083" Foreground="White" Click="BtSave_Click" FontFamily="Verdana" BorderBrush="#FF000083"/>
                     </StackPanel>
                 </Grid>
-            </ScrollViewer>
-        </Border>
-    </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </Page>

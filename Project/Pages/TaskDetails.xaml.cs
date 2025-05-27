@@ -14,7 +14,7 @@ namespace Project.Pages
         private TaskContext _task;
         private List<UserContext> _responsibleUsers;
         private string _userRole;
-        private int _taskId; // Сохраняем taskId
+        private int _taskId; 
 
         public int TaskNumber => _task?.Id ?? 0;
         public string TaskName => _task?.Name ?? "Не указано";
@@ -22,16 +22,22 @@ namespace Project.Pages
         public DateTime DueDate => _task?.DueDate ?? DateTime.MinValue;
         public string StatusName => GetStatusName(_task?.Status ?? 0);
         public string ProjectName => _task?.ProjectName ?? "Не указан";
-        // Удаляем ProjectId, так как используем только ProjectCode
-        public List<UserContext> ResponsibleUsers => _responsibleUsers;
-        public bool CanDelete => _userRole == "Создатель" || _userRole == "Администратор";
+        public List<UserContext> ResponsibleUsers
+        {
+            get => _responsibleUsers;
+            set
+            {
+                _responsibleUsers = value;
+                listViewResponsible.ItemsSource = _responsibleUsers;
+            }
+        }
 
         public TaskDetails(int taskId)
         {
             InitializeComponent();
-            _taskId = taskId; // Сохраняем taskId
-            LoadTaskData(taskId); // Сначала загружаем задачу
-            LoadUserRole(); // Затем загружаем роль
+            _taskId = taskId;
+            LoadTaskData(taskId);
+            LoadUserRole();
             DataContext = this;
         }
 
@@ -41,18 +47,16 @@ namespace Project.Pages
             {
                 using (var connection = Connection.OpenConnection())
                 {
-                    // Используем ProjectCode из TaskContext
                     int projectId = 0;
                     if (_task != null && !string.IsNullOrEmpty(_task.ProjectCode))
                     {
-                        projectId = int.Parse(_task.ProjectCode); // Преобразуем ProjectCode в int
+                        projectId = int.Parse(_task.ProjectCode);
                     }
                     else
                     {
-                        // Если ProjectCode пустой, пытаемся получить projectId через запрос
                         string projectQuery = @"
                             SELECT kc.project 
-                            FROM project_task t
+                            FROM task t
                             JOIN kanbanColumn kc ON t.status = kc.id
                             WHERE t.id = @taskId";
                         using (var cmd = new MySqlCommand(projectQuery, connection))
@@ -96,17 +100,35 @@ namespace Project.Pages
             {
                 _task = TaskContext.GetById(taskId);
                 _responsibleUsers = new List<UserContext>();
-                var taskUsers = TaskUserContext.Get().Where(tu => tu.TaskId == taskId).ToList();
-                var allUsers = UserContext.Get();
 
-                foreach (var taskUser in taskUsers)
+                using (var connection = Connection.OpenConnection())
                 {
-                    var user = allUsers.FirstOrDefault(u => u.Id == taskUser.UserId);
-                    if (user != null)
+                    string responsibleQuery = @"
+                        SELECT u.id, u.fullName
+                        FROM task_user tu
+                        JOIN user u ON tu.user = u.id
+                        WHERE tu.task = @taskId";
+                    using (var cmd = new MySqlCommand(responsibleQuery, connection))
                     {
-                        _responsibleUsers.Add(user);
+                        cmd.Parameters.AddWithValue("@taskId", taskId);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                _responsibleUsers.Add(new UserContext(
+                                    reader.GetInt32("id"),
+                                    "",
+                                    "",
+                                    reader.GetString("fullName"),
+                                    null,
+                                    null
+                                ));
+                            }
+                        }
                     }
                 }
+                System.Diagnostics.Debug.WriteLine($"TaskDetails: Loaded {_responsibleUsers.Count} responsible users for task ID {taskId}");
+                ResponsibleUsers = _responsibleUsers;
             }
             catch (Exception ex)
             {
@@ -132,35 +154,6 @@ namespace Project.Pages
             catch (Exception)
             {
                 return $"Статус {statusId}";
-            }
-        }
-
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!CanDelete)
-            {
-                MessageBox.Show("Только Создатель и Администратор могут удалять задачи.", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var result = MessageBox.Show(
-                "Вы уверены, что хотите удалить эту задачу?",
-                "Подтверждение удаления",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.Yes && _task != null)
-            {
-                try
-                {
-                    _task.Delete();
-                    MessageBox.Show("Задача успешно удалена", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                    NavigationService?.GoBack();
-                }
-                catch (System.Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
             }
         }
 

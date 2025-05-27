@@ -16,7 +16,7 @@
 
         <Border Grid.Row="0" Background="White" Padding="10">
             <TextBlock Foreground="#FFA6A6A6" FontFamily="Verdana">
-                <Run Language="ru-ru" Text="Детали задачи"/>
+                <Run Language="ru-ru" Text="Подробности задачи"/>
             </TextBlock>
         </Border>
 
@@ -92,19 +92,7 @@
                         </ListView>
                     </Grid>
                     <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,10,10">
-                        <Button x:Name="btCancel" Content="Закрыть" Margin="0,0,10,0" Padding="10,5" Background="#FFDDDDDD" Foreground="Black" Width="120" Height="30" FontFamily="Verdana" Click="BtCancel_Click"/>
-                        <Button x:Name="btDelete" Content="Удалить" Padding="10,5" Background="#FF0F0FE3" Foreground="White" Width="120" Height="30" BorderBrush="#FF0F0FE3" FontFamily="Verdana" Click="DeleteButton_Click">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CanDelete}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                        <Button x:Name="btCancel" Content="Закрыть" Margin="0,0,10,0" Padding="10,5" Background="#FF000083" Foreground="White" Width="120" Height="30" FontFamily="Verdana" Click="BtCancel_Click" BorderBrush="#FF000083"/>
                     </StackPanel>
                 </Grid>
             </ScrollViewer>

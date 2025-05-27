@@ -6,77 +6,57 @@
       xmlns:local="clr-namespace:Project.Pages"
       mc:Ignorable="d"
       d:DesignHeight="600" d:DesignWidth="800"
-      Title="EditProject">
+      Title="Редактирование проекта">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Background="#FFE5E5E5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="1" Margin="20,20,20,20">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="20"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="20"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <Label Content="Редактирование проекта"
-                       FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="18"/>
-                <Grid Grid.Row="2">
+        <Grid Background="#F5F5F5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Background="White" Padding="10">
+                <TextBlock Foreground="#FFA6A6A6" FontFamily="Verdana">Редактирование проекта</TextBlock>
+            </Border>
+            <Border Grid.Row="1" Background="White" Margin="10" CornerRadius="5" Padding="10">
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="10"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Content="Наименование*" VerticalAlignment="Center" Foreground="Black"/>
-                        <TextBox x:Name="txtProjectName" Grid.Column="1" Height="25"/>
-                    </Grid>
-                    <Grid Grid.Row="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Content="Описание" VerticalAlignment="Center"/>
-                        <TextBox x:Name="txtProjectDescription" Grid.Column="1" Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
-                    </Grid>
-                    <Grid Grid.Row="4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Content="Публичность*" VerticalAlignment="Center" Foreground="Black"/>
-                        <ComboBox x:Name="cmbPublicity" Grid.Column="1" Height="25">
-                            <ComboBoxItem Content="Открытый"/>
-                            <ComboBoxItem Content="Закрытый"/>
-                        </ComboBox>
-                    </Grid>
-                </Grid>
-                <StackPanel Grid.Row="4" Margin="0,0,0,10">
-                    <Label Content="Участники проекта"
-                           FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Наименование*" VerticalAlignment="Center" FontFamily="Verdana" FontSize="12"/>
+                    <TextBox x:Name="txtProjectName" Grid.Row="0" Grid.Column="1" Height="25" Margin="0,0,0,10"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Описание" VerticalAlignment="Center" FontFamily="Verdana" FontSize="12"/>
+                    <TextBox x:Name="txtProjectDescription" Grid.Row="1" Grid.Column="1" Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Публичность*" VerticalAlignment="Center" FontFamily="Verdana" FontSize="12"/>
+                    <ComboBox x:Name="cmbPublicity" Grid.Row="2" Grid.Column="1" Height="25" Margin="0,0,0,10">
+                        <ComboBoxItem Content="Открытый"/>
+                        <ComboBoxItem Content="Закрытый"/>
+                    </ComboBox>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Участники проекта" FontFamily="Verdana" Margin="0,10,0,0"/>
+
+                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,10,19,10">
                         <ComboBox x:Name="cmbParticipants" Width="200" Margin="0,0,10,0"/>
                         <StackPanel Orientation="Horizontal">
                             <RadioButton x:Name="rbAdmin" Content="Администратор" Margin="0,0,10,0" GroupName="Role"/>
                             <RadioButton x:Name="rbUser" Content="Пользователь" Margin="0,0,10,0" GroupName="Role" IsChecked="True"/>
                         </StackPanel>
-                        <Button x:Name="btAddUser" Content="Добавить участника" Width="150" Margin="10,0,0,0"
-                                HorizontalAlignment="Left" Background="#FF0F0FE3" Foreground="White" Click="Bt_AddUsers"/>
+                        <Button x:Name="btAddUser" Content="Добавить участника" Width="140" Margin="10,0,0,0" Background="#FF000083" Foreground="White" Click="Bt_AddUsers" FontFamily="Verdana" BorderBrush="#FF000083" Height="30"/>
                     </StackPanel>
 
-                    <ListView x:Name="listViewParticipants">
+                    <ListView x:Name="listViewParticipants" Grid.Row="5" Grid.Column="1" Margin="0,10,0,10">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
@@ -85,24 +65,23 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Content="{Binding Name}" />
-                                    <Label Grid.Column="1" Content="{Binding Role}" />
+                                    <TextBlock Text="{Binding Name}" FontFamily="Verdana" FontSize="12"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Role}" FontFamily="Verdana" FontSize="12" Margin="10,0,0,0"/>
                                     <Button x:Name="btRemoveUser" Grid.Column="2" Content="✕" Foreground="Red" Background="Transparent"
-                                            BorderThickness="0" FontWeight="Bold"
-                                            Click="RemoveParticipant_Click"/>
+                                            BorderThickness="0" FontWeight="Bold" Click="RemoveParticipant_Click" ToolTip="Удалить участника"/>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
-                <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button x:Name="btCancel" Content="Отмена" Width="100" Height="30" Margin="0,0,10,0"
-                            Click="Bt4_Cancel"/>
-                    <Button x:Name="btSave" Content="Сохранить" Width="100" Height="30"
-                            Background="#FF0F0FE3" Foreground="White"
-                            Click="Bt4_Save"/>
-                </StackPanel>
-            </Grid>
+
+                    <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="btCancel" Content="Отмена" Width="100" Height="30" Margin="0,0,10,0"
+                                Background="#FFDDDDDD" Foreground="Black" Click="Bt4_Cancel" FontFamily="Verdana" BorderBrush="#FFDDDDDD"/>
+                        <Button x:Name="btSave" Content="Сохранить" Width="100" Height="30"
+                                Background="#FF000083" Foreground="White" Click="Bt4_Save" FontFamily="Verdana" BorderBrush="#FF000083"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </Grid>
     </ScrollViewer>
 </Page>

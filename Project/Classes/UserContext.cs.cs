@@ -2,8 +2,8 @@
 using Project.Classes.Common;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel; // Для INotifyPropertyChanged
-using System.Runtime.CompilerServices; // Для CallerMemberName
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Project.Classes
 {
