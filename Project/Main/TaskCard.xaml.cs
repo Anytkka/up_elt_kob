@@ -1,13 +1,13 @@
-﻿using System.Windows;
+﻿using System;
+using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System;
-using Project.Pages;
 using System.Windows.Navigation;
-using Project.Classes;
-using System.Linq;
 using MySql.Data.MySqlClient;
+using Project.Classes;
 using Project.Classes.Common;
+using Project.Pages;
 
 namespace Project.Main
 {
@@ -32,6 +32,9 @@ namespace Project.Main
 
         public static readonly DependencyProperty ProjectNameProperty =
             DependencyProperty.Register("ProjectName", typeof(string), typeof(TaskCard), new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty UserRoleProperty =
+            DependencyProperty.Register("UserRole", typeof(string), typeof(TaskCard), new PropertyMetadata(string.Empty));
 
         public int TaskNumber
         {
@@ -63,40 +66,39 @@ namespace Project.Main
             set { SetValue(ProjectNameProperty, value); }
         }
 
+        public string UserRole
+        {
+            get { return (string)GetValue(UserRoleProperty); }
+            set { SetValue(UserRoleProperty, value); }
+        }
+
         private bool _isDragging;
         private Point _startPoint;
-        private string _currentUserRole;
 
         public TaskCard()
         {
             InitializeComponent();
-            LoadUserRole();
+            Console.WriteLine($"UserRole: {UserRole}");
             InitializeButtonVisibility();
         }
 
-        private void LoadUserRole()
-        {
-            if (App.CurrentUser == null) return;
-
-            using (var connection = Connection.OpenConnection())
-            {
-                string query = @"SELECT role FROM project_user 
-                           WHERE project = @projectId AND user = @userId";
-                using (var cmd = new MySqlCommand(query, connection))
-                {
-                    cmd.Parameters.AddWithValue("@projectId", int.Parse(ProjectCode));
-                    cmd.Parameters.AddWithValue("@userId", App.CurrentUser.Id);
-                    _currentUserRole = cmd.ExecuteScalar()?.ToString() ?? "Не в проекте";
-                }
-            }
-        }
         private void InitializeButtonVisibility()
         {
-            if (_currentUserRole == "Создатель" || _currentUserRole == "Администратор") return;
-
-            EditButton.Visibility = Visibility.Collapsed;
-            DeleteButton.Visibility = Visibility.Collapsed;
+            Console.WriteLine($"UserRole: {UserRole}");
+            if (UserRole == "Создатель" || UserRole == "Администратор")
+            {
+                Console.WriteLine("Setting EditButton and DeleteButton visibility to Visible");
+                EditButton.Visibility = Visibility.Visible;
+                DeleteButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Console.WriteLine("Setting EditButton and DeleteButton visibility to Collapsed");
+                EditButton.Visibility = Visibility.Collapsed;
+                DeleteButton.Visibility = Visibility.Collapsed;
+            }
         }
+
         private void TaskButton_Click(object sender, RoutedEventArgs e)
         {
             // Переход на Kanban доску подзадач

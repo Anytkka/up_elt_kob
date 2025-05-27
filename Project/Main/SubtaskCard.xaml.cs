@@ -95,10 +95,18 @@ namespace Project.Main
             }
         }
 
-        private void DetailsTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+      
+           private void DetailsTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            DetailsButtonClicked?.Invoke(this, SubtaskNumber);
+            var subtaskDetailsPage = new SubtaskDetailsPage(SubtaskNumber);
+            var navigationService = NavigationService.GetNavigationService(this);
+            if (navigationService != null)
+            {
+                navigationService.Navigate(subtaskDetailsPage);
+            }
         }
+
+        
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {

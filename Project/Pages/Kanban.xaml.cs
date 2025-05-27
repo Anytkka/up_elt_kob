@@ -108,7 +108,9 @@ namespace Project.Pages
                     cmd.Parameters.AddWithValue("@projectId", projectId);
                     cmd.Parameters.AddWithValue("@userId", userId);
                     var result = cmd.ExecuteScalar();
-                    return result?.ToString() ?? "Не в проекте";
+                    string userRole = result?.ToString() ?? "Не в проекте";
+                    Console.WriteLine($"User role for projectId: {projectId}, userId: {userId} is {userRole}");
+                    return userRole;
                 }
             }
         }
@@ -210,6 +212,7 @@ namespace Project.Pages
                         Responsible = responsibleNames,
                         ProjectCode = task.ProjectCode,
                         ProjectName = task.ProjectName,
+                        UserRole = userRole, // Передаем роль пользователя в TaskCard
                         Margin = new Thickness(0, 5, 0, 0)
                     };
                     columnStack.Children.Add(taskCard);
