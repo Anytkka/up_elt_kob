@@ -224,29 +224,13 @@ namespace Project.Pages
                 var addColumnButton = new Button
                 {
                     Content = "Добавить столбец",
-                    Width = 150,
-                    Height = 40,
+                    Width = 250,
                     Margin = new Thickness(5),
-                    Background = System.Windows.Media.Brushes.LightBlue,
+                    Background = System.Windows.Media.Brushes.DarkGray,
                     Foreground = System.Windows.Media.Brushes.Black
                 };
                 addColumnButton.Click += Bt_AddColumn;
                 kanbanPanel.Children.Add(addColumnButton);
-            }
-
-            if (userRole == "Создатель")
-            {
-                var deleteProjectButton = new Button
-                {
-                    Content = "Удалить проект",
-                    Width = 150,
-                    Height = 40,
-                    Margin = new Thickness(5),
-                    Background = System.Windows.Media.Brushes.Red,
-                    Foreground = System.Windows.Media.Brushes.White
-                };
-                deleteProjectButton.Click += DeleteProject_Click;
-                kanbanPanel.Children.Add(deleteProjectButton);
             }
         }
 

@@ -76,5 +76,10 @@ namespace Project.Main
         {
             DetailsButtonClicked?.Invoke(this, ProjectNumber);
         }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

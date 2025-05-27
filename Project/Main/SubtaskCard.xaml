@@ -39,7 +39,7 @@
                            Foreground="Blue"
                            TextDecorations="Underline"
                            Cursor="Hand"
-                           Margin="0,5,0,0" FontSize="10"/>
+                           Margin="0,5,0,0" FontFamily="Verdana" FontSize="8"/>
             </StackPanel>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button x:Name="EditButton" Width="17" Margin="0,0,5,72" Background="Transparent" BorderThickness="0" Padding="0" Click="EditButton_Click" ToolTip="Редактировать подзадачу">
@@ -48,7 +48,7 @@
                     </Button.Content>
                 </Button>
                 <Button x:Name="DeleteButton" Width="11" Margin="0,0,0,69" Background="Transparent" BorderThickness="0" Padding="0" Click="DeleteButton_Click" ToolTip="Удалить подзадачу" RenderTransformOrigin="0.488,-1.243">
-                    <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="#FF898989" Stretch="Uniform" Height="8.626" Width="8.328"/>
+                    <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="#FF9B0000" Stretch="Uniform" Height="8.626" Width="8.328"/>
                 </Button>
             </StackPanel>
         </Grid>

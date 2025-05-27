@@ -36,6 +36,9 @@
                               Fill="#FF898989" Stretch="Uniform" Height="14" Width="14"/>
                     </Button.Content>
                 </Button>
+                <Button x:Name="DeleteButton" Width="17" Background="Transparent" BorderThickness="0" Padding="0" Click="DeleteButton_Click" ToolTip="Удалить подзадачу" RenderTransformOrigin="0.488,-1.243">
+                    <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="#FF9B0000" Stretch="Uniform" Height="14" Width="14"/>
+                </Button>
             </StackPanel>
 
             <TextBlock Grid.Row="2" Text="{Binding CreatorName, ElementName=root, StringFormat=Создатель: {0}}"

@@ -17,7 +17,7 @@ namespace Project.Pages
 
         private void RefreshUserData()
         {
-            this.DataContext = App.CurrentUser ?? new object(); // Защита от null
+            this.DataContext = App.CurrentUser ?? new object();
             LoadProfileImage();
         }
 
