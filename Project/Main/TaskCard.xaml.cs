@@ -4,6 +4,10 @@ using System.Windows.Input;
 using System;
 using Project.Pages;
 using System.Windows.Navigation;
+using Project.Classes;
+using System.Linq;
+using MySql.Data.MySqlClient;
+using Project.Classes.Common;
 
 namespace Project.Main
 {
@@ -61,12 +65,38 @@ namespace Project.Main
 
         private bool _isDragging;
         private Point _startPoint;
+        private string _currentUserRole;
 
         public TaskCard()
         {
             InitializeComponent();
+            LoadUserRole();
+            InitializeButtonVisibility();
         }
 
+        private void LoadUserRole()
+        {
+            if (App.CurrentUser == null) return;
+
+            using (var connection = Connection.OpenConnection())
+            {
+                string query = @"SELECT role FROM project_user 
+                           WHERE project = @projectId AND user = @userId";
+                using (var cmd = new MySqlCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@projectId", int.Parse(ProjectCode));
+                    cmd.Parameters.AddWithValue("@userId", App.CurrentUser.Id);
+                    _currentUserRole = cmd.ExecuteScalar()?.ToString() ?? "Не в проекте";
+                }
+            }
+        }
+        private void InitializeButtonVisibility()
+        {
+            if (_currentUserRole == "Создатель" || _currentUserRole == "Администратор") return;
+
+            EditButton.Visibility = Visibility.Collapsed;
+            DeleteButton.Visibility = Visibility.Collapsed;
+        }
         private void TaskButton_Click(object sender, RoutedEventArgs e)
         {
             // Переход на Kanban доску подзадач
@@ -103,17 +133,63 @@ namespace Project.Main
 
         private void DetailsTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            DetailsButtonClicked?.Invoke(this, TaskNumber);
+            var taskDetailsPage = new TaskDetailsPage(TaskNumber);
+            var navigationService = NavigationService.GetNavigationService(this);
+            if (navigationService != null)
+            {
+                navigationService.Navigate(taskDetailsPage);
+            }
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            EditButtonClicked?.Invoke(this, TaskNumber);
+            var editPage = new TaskEditPage(TaskNumber);
+            var navigationService = NavigationService.GetNavigationService(this);
+            if (navigationService != null)
+            {
+                navigationService.Navigate(editPage);
+            }
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            DeleteButtonClicked?.Invoke(this, TaskNumber);
+            var result = MessageBox.Show(
+                "Вы уверены, что хотите удалить эту задачу?",
+                "Подтверждение удаления",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    var task = TaskContext.GetById(TaskNumber);
+                    if (task != null)
+                    {
+                        // Удаляем все связи с пользователями
+                        var taskUsers = TaskUserContext.Get()
+                            .Where(tu => tu.TaskId == TaskNumber)
+                            .ToList();
+
+                        foreach (var taskUser in taskUsers)
+                        {
+                            taskUser.Delete();
+                        }
+
+                        // Удаляем саму задачу
+                        task.Delete();
+
+                        DeleteButtonClicked?.Invoke(this, TaskNumber);
+                        MessageBox.Show("Задача успешно удалена", "Успех",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
     }
 }

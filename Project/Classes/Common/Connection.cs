@@ -5,7 +5,7 @@ namespace Project.Classes.Common
 {
     public class Connection
     {
-        public static readonly string config = "server=127.0.0.1; port = 3306; uid=root;pwd=;database=project;";
+        public static readonly string config = "server=127.0.0.1; port = 3315; uid=root;pwd=;database=project;";
 
         public static MySqlConnection OpenConnection()
         {
