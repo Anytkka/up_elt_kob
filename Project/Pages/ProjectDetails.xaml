@@ -1,0 +1,82 @@
+﻿<Page x:Class="Project.Pages.ProjectDetails"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:Project.Pages"
+      mc:Ignorable="d"
+      d:DesignHeight="600" d:DesignWidth="800"
+      Title="Подробности проекта">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Background="#FFE5E5E5" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Подробности проекта"
+                   FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="18"/>
+
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Наименование:" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="txtProjectName" Grid.Column="1" Text="" FontFamily="Verdana" FontSize="14"/>
+                </Grid>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Описание:" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="txtProjectDescription" Grid.Column="1" Text="" FontFamily="Verdana" FontSize="14" TextWrapping="Wrap"/>
+                </Grid>
+            </Grid>
+
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Публичность:" VerticalAlignment="Center"/>
+                <TextBlock x:Name="txtPublicity" Grid.Column="1" Text="" FontFamily="Verdana" FontSize="14"/>
+            </Grid>
+
+            <StackPanel Grid.Row="6" Margin="0,0,0,10">
+                <Label Content="Участники проекта"
+                       FontFamily="Malgun Gothic" FontWeight="Bold" FontSize="14"/>
+                <ListView x:Name="listViewParticipants" Margin="0,10,0,0">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="{Binding Name}" FontFamily="Verdana"/>
+                                <Label Grid.Column="1" Content="{Binding Role}" FontFamily="Verdana" Margin="10,0,0,0"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+
+            <Button Grid.Row="6" Content="Назад" Height="30"
+                    Click="BackButton_Click" Margin="600,338,10,0" VerticalAlignment="Top" Background="#FF000083" BorderBrush="#FF000083" Foreground="White" FontFamily="Verdana"/>
+        </Grid>
+    </ScrollViewer>
+</Page>

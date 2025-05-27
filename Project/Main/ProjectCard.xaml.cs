@@ -79,7 +79,7 @@ namespace Project.Main
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-
+            DeleteProjectClicked?.Invoke(this, ProjectNumber);
         }
     }
 }

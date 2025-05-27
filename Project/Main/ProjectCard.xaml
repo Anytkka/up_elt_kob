@@ -31,12 +31,33 @@
                 <Button x:Name="EditProjectButton" Width="24" Height="24" Margin="5,0,0,0"
                         Background="Transparent" BorderThickness="0" Padding="0"
                         Click="EditProjectButton_Click" ToolTip="Редактировать проект">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding UserRole, ElementName=root}" Value="Создатель">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <Button.Content>
                         <Path Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"
                               Fill="#FF898989" Stretch="Uniform" Height="14" Width="14"/>
                     </Button.Content>
                 </Button>
-                <Button x:Name="DeleteButton" Width="17" Background="Transparent" BorderThickness="0" Padding="0" Click="DeleteButton_Click" ToolTip="Удалить подзадачу" RenderTransformOrigin="0.488,-1.243">
+                <Button x:Name="DeleteButton" Width="17" Background="Transparent" BorderThickness="0" Padding="0"
+                        Click="DeleteProjectButton_Click" ToolTip="Удалить проект">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding UserRole, ElementName=root}" Value="Создатель">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="#FF9B0000" Stretch="Uniform" Height="14" Width="14"/>
                 </Button>
             </StackPanel>
