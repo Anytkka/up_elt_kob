@@ -118,22 +118,29 @@ namespace Project.Pages
                     NavigationService?.Navigate(new Kanban(projectId));
                 };
 
-                if (userRole == "Создатель")
+                projectCard.EditProjectClicked += (sender, projectId) =>
                 {
-                    projectCard.DeleteProjectClicked += (sender, projectId) =>
+                    NavigationService?.Navigate(new EditProject(projectId));
+                };
+
+                projectCard.DeleteProjectClicked += (sender, projectId) =>
+                {
+                    if (MessageBox.Show("Вы уверены, что хотите удалить проект?", "Подтверждение",
+                        MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
-                        if (MessageBox.Show("Вы уверены, что хотите удалить проект?", "Подтверждение",
-                            MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                        var projectToDelete = allProjects.FirstOrDefault(p => p.Id == projectId);
+                        if (projectToDelete != null)
                         {
-                            var projectToDelete = allProjects.FirstOrDefault(p => p.Id == projectId);
-                            if (projectToDelete != null)
-                            {
-                                projectToDelete.Delete();
-                                LoadProjects();
-                            }
+                            projectToDelete.Delete();
+                            LoadProjects();
                         }
-                    };
-                }
+                    }
+                };
+
+                projectCard.DetailsButtonClicked += (sender, projectId) =>
+                {
+                    NavigationService?.Navigate(new ProjectDetails(projectId));
+                };
 
                 ProjectsPanel.Children.Add(projectCard);
             }
