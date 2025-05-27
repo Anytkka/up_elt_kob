@@ -7,8 +7,8 @@ namespace Project.Classes
 {
     public class TaskContext : Task
     {
-        public string ProjectCode { get; set; } // Код проекта из kanbanColumn
-        public string ProjectName { get; set; } // Название проекта из Project
+        public string ProjectCode { get; set; }
+        public string ProjectName { get; set; }
 
         public TaskContext(int id, string name, string description, DateTime dueDate, int status, string projectCode, string projectName)
             : base(id, name, description, dueDate, status)
@@ -35,7 +35,6 @@ namespace Project.Classes
                     {
                         while (data.Read())
                         {
-                            // Получаем projectCode как Int32 и преобразуем в строку
                             string projectCodeValue = data.IsDBNull(data.GetOrdinal("projectCode"))
                                 ? ""
                                 : data.GetInt32("projectCode").ToString();
@@ -76,7 +75,6 @@ namespace Project.Classes
                     {
                         if (data.Read())
                         {
-                            // Получаем projectCode как Int32 и преобразуем в строку
                             string projectCodeValue = data.IsDBNull(data.GetOrdinal("projectCode"))
                                 ? ""
                                 : data.GetInt32("projectCode").ToString();

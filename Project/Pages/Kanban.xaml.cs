@@ -20,6 +20,7 @@ namespace Project.Pages
         private List<TaskContext> _tasks;
         private List<TaskUserContext> _taskUsers;
         private List<UserContext> _users;
+        private string _userRole;
 
         public Kanban(int projectId)
         {
@@ -91,6 +92,7 @@ namespace Project.Pages
                     nameLabel.Content = project.Name;
                 }
             }
+            _userRole = GetUserRole(_currentProjectId, App.CurrentUser?.Id ?? 0);
             Console.WriteLine($"Загружено задач: {_tasks.Count}");
             foreach (var task in _tasks)
             {
@@ -108,9 +110,7 @@ namespace Project.Pages
                     cmd.Parameters.AddWithValue("@projectId", projectId);
                     cmd.Parameters.AddWithValue("@userId", userId);
                     var result = cmd.ExecuteScalar();
-                    string userRole = result?.ToString() ?? "Не в проекте";
-                    Console.WriteLine($"User role for projectId: {projectId}, userId: {userId} is {userRole}");
-                    return userRole;
+                    return result?.ToString() ?? "Не в проекте";
                 }
             }
         }
@@ -119,8 +119,7 @@ namespace Project.Pages
         {
             if (App.CurrentUser == null) return;
 
-            string userRole = GetUserRole(_currentProjectId, App.CurrentUser.Id);
-            AddTaskButton.Visibility = (userRole == "Создатель" || userRole == "Администратор")
+            AddTaskButton.Visibility = (_userRole == "Создатель" || _userRole == "Администратор")
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
@@ -135,8 +134,6 @@ namespace Project.Pages
 
             LoadData();
 
-            string userRole = GetUserRole(_currentProjectId, App.CurrentUser.Id);
-
             foreach (var column in _kanbanColumns.OrderBy(c => c.Id))
             {
                 var columnBorder = new Border
@@ -146,13 +143,13 @@ namespace Project.Pages
                     Background = System.Windows.Media.Brushes.White,
                     CornerRadius = new CornerRadius(5),
                     Padding = new Thickness(5),
-                    AllowDrop = userRole != "Не в проекте",
+                    AllowDrop = _userRole != "Не в проекте",
                     Tag = column.Id
                 };
 
                 columnBorder.DragEnter += (s, e) =>
                 {
-                    if (e.Data.GetDataPresent("TaskCard") && userRole != "Не в проекте")
+                    if (e.Data.GetDataPresent("TaskCard") && _userRole != "Не в проекте")
                     {
                         columnBorder.Background = System.Windows.Media.Brushes.LightBlue;
                     }
@@ -164,7 +161,7 @@ namespace Project.Pages
 
                 columnBorder.Drop += (s, e) =>
                 {
-                    if (e.Data.GetDataPresent("TaskCard") && userRole != "Не в проекте")
+                    if (e.Data.GetDataPresent("TaskCard") && _userRole != "Не в проекте")
                     {
                         int taskId = (int)e.Data.GetData("TaskCard");
                         int newColumnId = (int)((Border)s).Tag;
@@ -212,9 +209,42 @@ namespace Project.Pages
                         Responsible = responsibleNames,
                         ProjectCode = task.ProjectCode,
                         ProjectName = task.ProjectName,
-                        UserRole = userRole, // Передаем роль пользователя в TaskCard
+                        UserRole = _userRole,
                         Margin = new Thickness(0, 5, 0, 0)
                     };
+
+                    taskCard.TaskButtonClicked += (sender, taskId) =>
+                    {
+                        NavigationService?.Navigate(new SubtaskKanban(taskId));
+                    };
+
+                    taskCard.DetailsButtonClicked += (sender, taskId) =>
+                    {
+                        NavigationService?.Navigate(new TaskDetails(taskId));
+                    };
+
+                    taskCard.EditButtonClicked += (sender, taskId) =>
+                    {
+                        if (_userRole == "Создатель" || _userRole == "Администратор")
+                        {
+                            NavigationService?.Navigate(new TaskEdit(taskId));
+                        }
+                    };
+
+                    taskCard.DeleteButtonClicked += (sender, taskId) =>
+                    {
+                        if (_userRole == "Создатель")
+                        {
+                            if (MessageBox.Show("Вы уверены, что хотите удалить задачу?", "Подтверждение",
+                                MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                            {
+                                DeleteTask(taskId);
+                                LoadData();
+                                InitializeKanbanBoard();
+                            }
+                        }
+                    };
+
                     columnStack.Children.Add(taskCard);
                 }
 
@@ -222,7 +252,7 @@ namespace Project.Pages
                 kanbanPanel.Children.Add(columnBorder);
             }
 
-            if (userRole == "Создатель" || userRole == "Администратор")
+            if (_userRole == "Создатель" || _userRole == "Администратор")
             {
                 var addColumnButton = new Button
                 {
@@ -230,10 +260,45 @@ namespace Project.Pages
                     Width = 250,
                     Margin = new Thickness(5),
                     Background = System.Windows.Media.Brushes.DarkGray,
-                    Foreground = System.Windows.Media.Brushes.Black
+                    Foreground = System.Windows.Media.Brushes.Black,
+                    FontWeight = FontWeights.Bold
                 };
                 addColumnButton.Click += Bt_AddColumn;
                 kanbanPanel.Children.Add(addColumnButton);
+            }
+        }
+
+        private void DeleteTask(int taskId)
+        {
+            try
+            {
+                using (var connection = Connection.OpenConnection())
+                {
+                    string deleteTaskUserQuery = "DELETE FROM task_user WHERE task = @taskId";
+                    using (var cmd = new MySqlCommand(deleteTaskUserQuery, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@taskId", taskId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    string deleteSubtasksQuery = "DELETE FROM subtask WHERE task = @taskId";
+                    using (var cmd = new MySqlCommand(deleteSubtasksQuery, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@taskId", taskId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    string deleteTaskQuery = "DELETE FROM task WHERE id = @taskId";
+                    using (var cmd = new MySqlCommand(deleteTaskQuery, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@taskId", taskId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении задачи: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -307,9 +372,7 @@ namespace Project.Pages
             var currentUser = App.CurrentUser;
             if (currentUser == null) return;
 
-            string userRole = GetUserRole(_currentProjectId, currentUser.Id);
-
-            if (userRole == "Создатель" || userRole == "Администратор")
+            if (_userRole == "Создатель" || _userRole == "Администратор")
             {
                 var createTaskPage = new CreateTask(_currentProjectId);
                 createTaskPage.TaskCreated += (taskId) =>
@@ -337,7 +400,7 @@ namespace Project.Pages
         private void DeleteProject_Click(object sender, RoutedEventArgs e)
         {
             if (MessageBox.Show("Вы уверены, что хотите удалить проект? Все связанные данные (задачи, подзадачи, столбцы) будут удалены.",
-         "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
             {
                 return;
             }

@@ -216,15 +216,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\TaskDetailsPage.xaml">
+    <Page Include="Pages\TaskDetails.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\TaskEditPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\ViewProject.xaml">
+    <Page Include="Pages\TaskEdit.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -281,14 +277,11 @@
     <Compile Include="Pages\SubtaskKanban.xaml.cs">
       <DependentUpon>SubtaskKanban.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\TaskDetailsPage.xaml.cs">
-      <DependentUpon>TaskDetailsPage.xaml</DependentUpon>
+    <Compile Include="Pages\TaskDetails.xaml.cs">
+      <DependentUpon>TaskDetails.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\TaskEditPage.xaml.cs">
-      <DependentUpon>TaskEditPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\ViewProject.xaml.cs">
-      <DependentUpon>ViewProject.xaml</DependentUpon>
+    <Compile Include="Pages\TaskEdit.xaml.cs">
+      <DependentUpon>TaskEdit.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
