@@ -208,6 +208,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\SubtaskEdit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\SubtaskKanban.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -266,6 +270,9 @@
     </Compile>
     <Compile Include="Pages\SubtaskDetailsPage.xaml.cs">
       <DependentUpon>SubtaskDetailsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SubtaskEdit.xaml.cs">
+      <DependentUpon>SubtaskEdit.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\SubtaskKanban.xaml.cs">
       <DependentUpon>SubtaskKanban.xaml</DependentUpon>

@@ -51,7 +51,7 @@ namespace Project.Classes
                     if (data.Read())
                     {
                         var subtask = new SubtaskContext(
-                            data.GetInt32(0), 
+                            data.GetInt32(0),
                             data.GetString(1),
                             data.GetString(2),
                             data.GetDateTime(3),
@@ -73,27 +73,28 @@ namespace Project.Classes
         {
             List<SubtaskContext> subtasks = new List<SubtaskContext>();
             string SQL = "SELECT * FROM `Subtask` WHERE `task`=@taskId";
-            MySqlConnection connection = Connection.OpenConnection();
-            using (var cmd = new MySqlCommand(SQL, connection))
+            using (MySqlConnection connection = Connection.OpenConnection())
             {
-                cmd.Parameters.AddWithValue("@taskId", taskId);
-                using (MySqlDataReader data = cmd.ExecuteReader())
+                using (var cmd = new MySqlCommand(SQL, connection))
                 {
-                    while (data.Read())
+                    cmd.Parameters.AddWithValue("@taskId", taskId);
+                    using (MySqlDataReader data = cmd.ExecuteReader())
                     {
-                        subtasks.Add(new SubtaskContext(
-                            data.GetInt32(0),  
-                            data.GetString(1),  
-                            data.GetString(2), 
-                            data.GetDateTime(3), 
-                            data.GetInt32(4),
-                            data.GetInt32(5), 
-                            data.GetInt32(6) 
-                        ));
+                        while (data.Read())
+                        {
+                            subtasks.Add(new SubtaskContext(
+                                data.GetInt32(0),
+                                data.GetString(1),
+                                data.GetString(2),
+                                data.GetDateTime(3),
+                                data.GetInt32(4),
+                                data.GetInt32(5),
+                                data.GetInt32(6)
+                            ));
+                        }
                     }
                 }
-            }
-            Connection.CloseConnection(connection);
+            } // Connection автоматически закрывается благодаря using
             return subtasks;
         }
 
@@ -147,14 +148,15 @@ namespace Project.Classes
         // Удаляет подзадачу
         public void Delete()
         {
-            string SQL = "DELETE FROM `Subtask` WHERE `id`=@id";
-            MySqlConnection connection = Connection.OpenConnection();
-            using (var cmd = new MySqlCommand(SQL, connection))
+            using (var connection = Connection.OpenConnection())
             {
-                cmd.Parameters.AddWithValue("@id", this.Id);
-                cmd.ExecuteNonQuery();
+                const string SQL = "DELETE FROM Subtask WHERE id = @id";
+                using (var cmd = new MySqlCommand(SQL, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", this.Id);
+                    cmd.ExecuteNonQuery();
+                }
             }
-            Connection.CloseConnection(connection);
         }
     }
 }

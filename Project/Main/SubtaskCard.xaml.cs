@@ -2,37 +2,43 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Navigation;
 using Project.Pages;
+using Project.Classes;
+using System.Windows.Navigation;
 
 namespace Project.Main
 {
     public partial class SubtaskCard : UserControl
     {
-        public event EventHandler<int> SubtaskButtonClicked;
-        public event EventHandler<int> DetailsButtonClicked;
-        public event EventHandler<int> EditButtonClicked;
-        public event EventHandler<int> DeleteButtonClicked;
-
         public static readonly DependencyProperty SubtaskNumberProperty =
             DependencyProperty.Register("SubtaskNumber", typeof(int), typeof(SubtaskCard),
                 new PropertyMetadata(0));
 
         public static readonly DependencyProperty SubtaskNameProperty =
             DependencyProperty.Register("SubtaskName", typeof(string), typeof(SubtaskCard),
-                new PropertyMetadata(""));
+                new PropertyMetadata(string.Empty));
 
         public static readonly DependencyProperty ResponsibleProperty =
             DependencyProperty.Register("Responsible", typeof(string), typeof(SubtaskCard),
-                new PropertyMetadata(""));
+                new PropertyMetadata(string.Empty));
 
         public static readonly DependencyProperty TaskCodeProperty =
             DependencyProperty.Register("TaskCode", typeof(string), typeof(SubtaskCard),
-                new PropertyMetadata(""));
+                new PropertyMetadata(string.Empty));
 
         public static readonly DependencyProperty TaskNameProperty =
             DependencyProperty.Register("TaskName", typeof(string), typeof(SubtaskCard),
-                new PropertyMetadata(""));
+                new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty UserRoleProperty =
+            DependencyProperty.Register("UserRole", typeof(string), typeof(SubtaskCard),
+                new PropertyMetadata(string.Empty));
+       
+
+       
+
+        public event EventHandler<int> EditButtonClicked;
+        public event EventHandler<int> DeleteButtonClicked;
 
         public int SubtaskNumber
         {
@@ -64,19 +70,16 @@ namespace Project.Main
             set => SetValue(TaskNameProperty, value);
         }
 
+        public string UserRole
+        {
+            get => (string)GetValue(UserRoleProperty);
+            set => SetValue(UserRoleProperty, value);
+        }
+
         public SubtaskCard()
         {
             InitializeComponent();
             DataContext = this;
-        }
-
-        private void SubtaskButton_Click(object sender, RoutedEventArgs e)
-        {
-            var subtaskId = SubtaskNumber;
-            var subtaskDetailsPage = new SubtaskDetails(subtaskId);
-
-            var navigationService = NavigationService.GetNavigationService(this);
-            navigationService?.Navigate(subtaskDetailsPage);
         }
 
         private void Border_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -95,18 +98,12 @@ namespace Project.Main
             }
         }
 
-      
-           private void DetailsTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void DetailsTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var subtaskDetailsPage = new SubtaskDetailsPage(SubtaskNumber);
             var navigationService = NavigationService.GetNavigationService(this);
-            if (navigationService != null)
-            {
-                navigationService.Navigate(subtaskDetailsPage);
-            }
+            navigationService?.Navigate(subtaskDetailsPage);
         }
-
-        
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
@@ -118,4 +115,4 @@ namespace Project.Main
             DeleteButtonClicked?.Invoke(this, SubtaskNumber);
         }
     }
-}
+    }
