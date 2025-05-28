@@ -6,7 +6,6 @@ using Project.Pages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -95,6 +94,8 @@ namespace Project.Pages
                 .ToList();
 
             _subtasks = SubtaskContext.GetByTaskId(_currentTaskId);
+            System.Diagnostics.Debug.WriteLine($"Loaded {_subtasks.Count} subtasks for task ID {_currentTaskId}");
+
             _users = UserContext.Get();
 
             if (FindName("Name_task") is Label nameLabel)
@@ -164,7 +165,7 @@ namespace Project.Pages
 
         private Border CreateColumnBorder(bool allowDrop, int columnId)
         {
-            return new Border
+            var columnBorder = new Border
             {
                 Width = 250,
                 Margin = new Thickness(5),
@@ -174,6 +175,27 @@ namespace Project.Pages
                 AllowDrop = allowDrop,
                 Tag = columnId
             };
+
+            columnBorder.DragEnter += (s, e) =>
+            {
+                if (e.Data.GetDataPresent("SubtaskCard") && _userRole != "Не в проекте")
+                {
+                    columnBorder.Background = Brushes.LightBlue;
+                }
+            };
+
+            columnBorder.DragLeave += (s, e) =>
+            {
+                columnBorder.Background = Brushes.White;
+            };
+
+            columnBorder.Drop += (s, e) =>
+            {
+                HandleSubtaskDrop(e, (int)((Border)s).Tag);
+                columnBorder.Background = Brushes.White;
+            };
+
+            return columnBorder;
         }
 
         private StackPanel CreateColumnHeader(KanbanColumnContext column)
@@ -230,6 +252,10 @@ namespace Project.Pages
                     if (_userRole == "Создатель" || _userRole == "Администратор")
                     {
                         var page = new SubtaskEdit(taskId);
+                        page.SubtaskUpdated += (s, updatedSubtaskId) =>
+                        {
+                            RefreshKanbanBoard();
+                        };
                         NavigationService.GetNavigationService(this)?.Navigate(page);
                     }
                 };
@@ -289,33 +315,6 @@ namespace Project.Pages
             };
             addColumnButton.Click += Bt_AddColumn;
             parentPanel.Children.Add(addColumnButton);
-        }
-
-        private Button CreateActionButton(string text, RoutedEventHandler handler)
-        {
-            return new Button
-            {
-                Content = text,
-                Width = 150,
-                Height = 40,
-                Margin = new Thickness(5),
-                Background = Brushes.LightBlue,
-                Foreground = Brushes.Black,
-                FontWeight = FontWeights.Bold,
-                Cursor = Cursors.Hand
-            };
-        }
-
-        private void DeleteSubtask(int subtaskId)
-        {
-            if (_userRole != "Создатель" && _userRole != "Администратор") return;
-
-            if (MessageBox.Show("Удалить подзадачу?", "Подтверждение",
-                MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
-
-            var subtask = _subtasks.FirstOrDefault(s => s.Id == subtaskId);
-            subtask?.Delete();
-            RefreshKanbanBoard();
         }
 
         private void Bt_AddColumn(object sender, RoutedEventArgs e)

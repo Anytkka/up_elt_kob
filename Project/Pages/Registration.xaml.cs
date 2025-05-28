@@ -34,7 +34,7 @@ namespace Project.Pages
 
             if (!IsValidFullName(fullName))
             {
-                MessageBox.Show("ФИО содержит только буквы латинского алфавита");
+                MessageBox.Show("ФИО должно содержать только буквы латинского алфавита и пробелы");
                 FOI.Focus();
                 return;
             }
@@ -82,7 +82,7 @@ namespace Project.Pages
 
         private bool IsValidFullName(string fullName)
         {
-            Regex regex = new Regex(@"^[\p{IsCyrillic}\s]+$");
+            Regex regex = new Regex(@"^[a-zA-Z\s]+$");
             return regex.IsMatch(fullName);
         }
 
@@ -101,7 +101,7 @@ namespace Project.Pages
 
         private void RegisterUser(string fullName, string email, string password)
         {
-            var newUser = new UserContext(0, email, password, fullName, "");
+            var newUser = new UserContext(0, email, password, fullName, "", "");
 
             newUser.Add();
         }

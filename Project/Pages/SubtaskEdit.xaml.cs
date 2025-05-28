@@ -6,7 +6,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using MySql.Data.MySqlClient;
-using System.Data.SqlClient;
 
 namespace Project.Pages
 {
@@ -18,6 +17,8 @@ namespace Project.Pages
         private List<Participant> _responsiblePersons = new List<Participant>();
         private SubtaskContext _subtask;
         private List<UserContext> _users = new List<UserContext>();
+
+        public event EventHandler<int> SubtaskUpdated;
 
         public int SubtaskNumber => _subtask?.Id ?? 0;
         public string SubtaskName { get; set; }
@@ -100,8 +101,7 @@ namespace Project.Pages
                     string query = @"SELECT u.id, u.fullName 
                                   FROM user u
                                   INNER JOIN project_user pu ON u.id = pu.user
-                                  WHERE pu.project = @projectId"
-                    ;
+                                  WHERE pu.project = @projectId";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -164,6 +164,8 @@ namespace Project.Pages
 
                 _subtask.Update();
 
+                SubtaskUpdated?.Invoke(this, _subtaskId);
+
                 MessageBox.Show("Изменения сохранены!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 NavigationService?.GoBack();
             }
@@ -172,8 +174,6 @@ namespace Project.Pages
                 MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-
         private void BtCancel_Click(object sender, RoutedEventArgs e)
         {
             NavigationService?.GoBack();

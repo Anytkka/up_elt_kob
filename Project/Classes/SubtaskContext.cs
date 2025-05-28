@@ -15,8 +15,6 @@ namespace Project.Classes
             : base(id, name, description, dueDate, taskId, userId, statusId)
         {
         }
-
-        // Получает все подзадачи
         public static List<SubtaskContext> Get()
         {
             List<SubtaskContext> allSubtasks = new List<SubtaskContext>();
@@ -35,10 +33,10 @@ namespace Project.Classes
                                     data.GetInt32("id"),
                                     data.GetString("name"),
                                     data.GetString("description"),
-                                    data.GetDateTime("due_date"),
-                                    data.GetInt32("task_id"),
-                                    data.GetInt32("user_id"),
-                                    data.GetInt32("status_id")
+                                    data.GetDateTime("dueDate"),
+                                    data.GetInt32("task"),
+                                    data.GetInt32("user"),
+                                    data.GetInt32("status")
                                 ));
                             }
                         }
@@ -72,10 +70,10 @@ namespace Project.Classes
                                     data.GetInt32("id"),
                                     data.GetString("name"),
                                     data.GetString("description"),
-                                    data.GetDateTime("due_date"),
-                                    data.GetInt32("task_id"),
-                                    data.GetInt32("user_id"),
-                                    data.GetInt32("status_id")
+                                    data.GetDateTime("dueDate"),
+                                    data.GetInt32("task"),
+                                    data.GetInt32("user"),
+                                    data.GetInt32("status")
                                 );
                                 return subtask;
                             }
@@ -95,7 +93,7 @@ namespace Project.Classes
         public static List<SubtaskContext> GetByTaskId(int taskId)
         {
             List<SubtaskContext> subtasks = new List<SubtaskContext>();
-            string SQL = "SELECT * FROM `Subtask` WHERE `task_id`=@taskId";
+            string SQL = "SELECT * FROM `Subtask` WHERE `task`=@taskId";
             using (var connection = Connection.OpenConnection())
             {
                 try
@@ -111,10 +109,10 @@ namespace Project.Classes
                                     reader.GetInt32("id"),
                                     reader.GetString("name"),
                                     reader.GetString("description"),
-                                    reader.GetDateTime("due_date"),
-                                    reader.GetInt32("task_id"),
-                                    reader.GetInt32("user_id"),
-                                    reader.GetInt32("status_id")
+                                    reader.GetDateTime("dueDate"),
+                                    reader.GetInt32("task"),
+                                    reader.GetInt32("user"),
+                                    reader.GetInt32("status")
                                 ));
                             }
                         }
@@ -133,7 +131,7 @@ namespace Project.Classes
         // Добавляет новую подзадачу
         public void Add()
         {
-            string SQL = "INSERT INTO `Subtask` (`name`, `description`, `due_date`, `task_id`, `user_id`, `status_id`) " +
+            string SQL = "INSERT INTO `Subtask` (`name`, `description`, `dueDate`, `task`, `user`, `status`) " +
                          "VALUES (@name, @description, @dueDate, @taskId, @userId, @statusId); SELECT LAST_INSERT_ID();";
 
             using (var connection = Connection.OpenConnection())
@@ -166,10 +164,10 @@ namespace Project.Classes
             string SQL = "UPDATE `Subtask` SET " +
                          "`name`=@name, " +
                          "`description`=@description, " +
-                         "`due_date`=@dueDate, " +
-                         "`task_id`=@taskId, " +
-                         "`user_id`=@userId, " +
-                         "`status_id`=@statusId " +
+                         "`dueDate`=@dueDate, " +
+                         "`task`=@taskId, " +
+                         "`user`=@userId, " +
+                         "`status`=@statusId " +
                          "WHERE `id`=@id";
 
             using (var connection = Connection.OpenConnection())
