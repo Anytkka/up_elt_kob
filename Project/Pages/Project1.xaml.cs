@@ -148,21 +148,6 @@ namespace Project.Pages
 
         private void Bt_CreateProject(object sender, RoutedEventArgs e)
         {
-            var currentUser = App.CurrentUser;
-            if (currentUser == null) return;
-
-            var userProjects = ProjUserContext.GetByUserId(currentUser.Id);
-            bool isCreator = userProjects.Any(upr => upr.Role == "Создатель");
-
-            if (!isCreator)
-            {
-                MessageBox.Show("Только пользователь с ролью 'Создатель' может создавать проекты.",
-                                "Ошибка доступа",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Warning);
-                return;
-            }
-
             NavigationService?.Navigate(new creatProject());
         }
 

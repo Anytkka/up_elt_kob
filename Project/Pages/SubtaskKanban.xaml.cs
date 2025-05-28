@@ -64,7 +64,6 @@ namespace Project.Pages
             {
                 if (leftProfileImage == null) return;
 
-                // Временная замена ImageLoader
                 if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath))
                 {
                     var bitmap = new BitmapImage();
@@ -337,31 +336,16 @@ namespace Project.Pages
 
         private void AddManagementButtons(Panel parentPanel)
         {
-            var addSubtaskButton = new Button
-            {
-                Content = "Добавить подзадачу",
-                Width = 150,
-                Height = 40,
-                Margin = new Thickness(5),
-                Background = Brushes.LightBlue,
-                Foreground = Brushes.Black,
-                FontWeight = FontWeights.Bold
-            };
-            addSubtaskButton.Click += Bt7_AddSubtask;
-
             var addColumnButton = new Button
             {
                 Content = "Добавить столбец",
-                Width = 150,
-                Height = 40,
+                Width = 250,
                 Margin = new Thickness(5),
                 Background = Brushes.LightBlue,
                 Foreground = Brushes.Black,
                 FontWeight = FontWeights.Bold
             };
             addColumnButton.Click += Bt_AddColumn;
-
-            parentPanel.Children.Add(addSubtaskButton);
             parentPanel.Children.Add(addColumnButton);
         }
 
