@@ -9,10 +9,12 @@ namespace Project.Main
 {
     public partial class TaskCard : UserControl
     {
+#pragma warning disable CS0067 // Событие используется в Kanban.xaml.cs
         public event EventHandler<int> TaskButtonClicked;
         public event EventHandler<int> DetailsButtonClicked;
         public event EventHandler<int> EditButtonClicked;
         public event EventHandler<int> DeleteButtonClicked;
+#pragma warning restore CS0067
 
         public static readonly DependencyProperty TaskNumberProperty =
             DependencyProperty.Register("TaskNumber", typeof(int), typeof(TaskCard), new PropertyMetadata(0));
@@ -73,41 +75,16 @@ namespace Project.Main
 
         public TaskCard()
         {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine($"Инициализация TaskCard для TaskNumber {TaskNumber}");
-                InitializeComponent();
-                System.Diagnostics.Debug.WriteLine("InitializeComponent для TaskCard завершен");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ошибка при инициализации TaskCard: {ex.Message}\nStackTrace: {ex.StackTrace}");
-                throw;
-            }
+            InitializeComponent();
         }
 
         private void TaskButton_Click(object sender, RoutedEventArgs e)
         {
-            try
+            var subtaskKanbanPage = new SubtaskKanban(TaskNumber);
+            var navigationService = NavigationService.GetNavigationService(this);
+            if (navigationService != null)
             {
-                System.Diagnostics.Debug.WriteLine($"TaskButton_Click вызван для TaskNumber {TaskNumber}");
-                var subtaskKanbanPage = new SubtaskKanban(TaskNumber);
-                var navigationService = NavigationService.GetNavigationService(this);
-                if (navigationService != null)
-                {
-                    navigationService.Navigate(subtaskKanbanPage);
-                    System.Diagnostics.Debug.WriteLine($"Переход к SubtaskKanban для TaskNumber {TaskNumber} выполнен");
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("NavigationService is null");
-                    MessageBox.Show("Не удалось выполнить навигацию.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ошибка в TaskButton_Click: {ex.Message}\nStackTrace: {ex.StackTrace}");
-                MessageBox.Show($"Ошибка при переходе к подзадачам: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                navigationService.Navigate(subtaskKanbanPage);
             }
         }
 

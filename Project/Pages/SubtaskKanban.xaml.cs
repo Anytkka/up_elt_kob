@@ -5,7 +5,6 @@ using Project.Main;
 using Project.Pages;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 
 namespace Project.Pages
 {
@@ -23,26 +23,16 @@ namespace Project.Pages
         private List<SubtaskContext> _subtasks;
         private List<UserContext> _users;
         private string _userRole;
-        private object navigationService;
 
         public SubtaskKanban(int taskId)
         {
             InitializeComponent();
             _currentTaskId = taskId;
-
-            try
-            {
-                LoadData();
-                InitializeUserRole();
-                InitializeKanbanBoard();
-                InitializeAddSubtaskButtonVisibility();
-                LoadProfileImage();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка инициализации: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
+            LoadData();
+            InitializeUserRole();
+            InitializeKanbanBoard();
+            InitializeAddSubtaskButtonVisibility();
+            LoadProfileImage();
             DataContext = App.CurrentUser;
         }
 
@@ -50,7 +40,6 @@ namespace Project.Pages
         {
             if (App.CurrentUser == null)
             {
-                System.Diagnostics.Debug.WriteLine("App.CurrentUser is null. Cannot initialize user role.");
                 _userRole = "Не в проекте";
                 return;
             }
@@ -58,76 +47,64 @@ namespace Project.Pages
             var task = TaskContext.GetById(_currentTaskId);
             if (task == null)
             {
-                System.Diagnostics.Debug.WriteLine($"Task with ID {_currentTaskId} not found.");
                 _userRole = "Не в проекте";
                 return;
             }
 
-            int projectId = int.Parse(task.ProjectCode);
-            _userRole = GetUserRoleWithLogging(projectId, App.CurrentUser.Id);
-            System.Diagnostics.Debug.WriteLine($"Текущая роль пользователя: {_userRole}");
+            int projectId;
+            try
+            {
+                projectId = int.Parse(task.ProjectCode);
+            }
+            catch (FormatException)
+            {
+                _userRole = "Не в проекте";
+                return;
+            }
+
+            _userRole = GetUserRole(projectId, App.CurrentUser.Id);
         }
 
         private void LoadProfileImage()
         {
-            try
-            {
-                if (leftProfileImage == null) return;
+            if (leftProfileImage == null) return;
 
-                if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath))
-                {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(App.CurrentUser.ProfileImagePath, UriKind.Absolute);
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
-                    leftProfileImage.Source = bitmap;
-                }
-                else
-                {
-                    leftProfileImage.Source = new BitmapImage(
-                        new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
-                }
-            }
-            catch (Exception ex)
+            if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath))
             {
-                Console.WriteLine($"Ошибка загрузки изображения: {ex.Message}");
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(App.CurrentUser.ProfileImagePath, UriKind.Absolute);
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                leftProfileImage.Source = bitmap;
+            }
+            else
+            {
+                leftProfileImage.Source = new BitmapImage(
+                    new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
             }
         }
 
         public void LoadData()
         {
-            try
+            var task = TaskContext.GetById(_currentTaskId) ?? throw new Exception("Задача не найдена");
+            int projectId = int.Parse(task.ProjectCode);
+
+            _kanbanColumns = KanbanColumnContext.Get()
+                .Where(k => k.ProjectId == projectId)
+                .ToList();
+
+            _subtasks = SubtaskContext.GetByTaskId(_currentTaskId);
+            _users = UserContext.Get();
+
+            if (FindName("Name_task") is Label nameLabel)
             {
-                var task = TaskContext.GetById(_currentTaskId) ?? throw new Exception("Задача не найдена");
-                int projectId = int.Parse(task.ProjectCode);
-
-                _kanbanColumns = KanbanColumnContext.Get()
-                    .Where(k => k.ProjectId == projectId)
-                    .ToList();
-
-                _subtasks = SubtaskContext.GetByTaskId(_currentTaskId);
-                _users = UserContext.Get();
-
-                if (FindName("Name_task") is Label nameLabel)
-                {
-                    nameLabel.Content = task.Name;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                throw;
+                nameLabel.Content = task.Name;
             }
         }
+
         private string GetUserRole(int projectId, int userId)
         {
-            return GetUserRoleWithLogging(projectId, userId);
-        }
-        private string GetUserRoleWithLogging(int projectId, int userId)
-        {
-            Console.WriteLine($"Запрос роли для проекта {projectId}, пользователь {userId}");
-
             using (var connection = Connection.OpenConnection())
             {
                 const string query = @"SELECT role FROM project_user 
@@ -140,8 +117,6 @@ namespace Project.Pages
                     cmd.Parameters.AddWithValue("@userId", userId);
 
                     var result = cmd.ExecuteScalar()?.ToString() ?? "Не в проекте";
-                    Console.WriteLine($"Результат запроса роли: {result}");
-
                     return result;
                 }
             }
@@ -158,39 +133,32 @@ namespace Project.Pages
 
         public void InitializeKanbanBoard()
         {
-            try
+            if (!(FindName("parent") is StackPanel kanbanPanel)) return;
+
+            kanbanPanel.Children.Clear();
+            kanbanPanel.Orientation = Orientation.Horizontal;
+
+            var task = TaskContext.GetById(_currentTaskId) ?? throw new Exception("Задача не найдена");
+            int projectId = int.Parse(task.ProjectCode);
+
+            bool canEditColumns = _userRole == "Создатель" || _userRole == "Администратор";
+            bool canMoveSubtasks = _userRole != "Не в проекте";
+
+            foreach (var column in _kanbanColumns.OrderBy(c => c.Id))
             {
-                if (!(FindName("parent") is StackPanel kanbanPanel)) return;
+                var columnBorder = CreateColumnBorder(canMoveSubtasks, column.Id);
+                var columnStack = new StackPanel();
 
-                kanbanPanel.Children.Clear();
-                kanbanPanel.Orientation = Orientation.Horizontal;
+                columnStack.Children.Add(CreateColumnHeader(column));
+                columnStack.Children.Add(CreateSubtasksPanel(column, task));
 
-                var task = TaskContext.GetById(_currentTaskId) ?? throw new Exception("Задача не найдена");
-                int projectId = int.Parse(task.ProjectCode);
-
-                bool canEditColumns = _userRole == "Создатель" || _userRole == "Администратор";
-                bool canMoveSubtasks = _userRole != "Не в проекте";
-
-                foreach (var column in _kanbanColumns.OrderBy(c => c.Id))
-                {
-                    var columnBorder = CreateColumnBorder(canMoveSubtasks, column.Id);
-                    var columnStack = new StackPanel();
-
-                    columnStack.Children.Add(CreateColumnHeader(column));
-                    columnStack.Children.Add(CreateSubtasksPanel(column, task));
-
-                    columnBorder.Child = columnStack;
-                    kanbanPanel.Children.Add(columnBorder);
-                }
-
-                if (canEditColumns)
-                {
-                    AddManagementButtons(kanbanPanel);
-                }
+                columnBorder.Child = columnStack;
+                kanbanPanel.Children.Add(columnBorder);
             }
-            catch (Exception ex)
+
+            if (canEditColumns)
             {
-                MessageBox.Show($"Ошибка инициализации доски: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                AddManagementButtons(kanbanPanel);
             }
         }
 
@@ -257,49 +225,30 @@ namespace Project.Pages
                     Margin = new Thickness(0, 5, 0, 0)
                 };
 
-                System.Diagnostics.Debug.WriteLine($"Creating SubtaskCard with ID: {subtask.Id}, UserRole: {_userRole}");
-
                 subtaskCard.EditButtonClicked += (senderObj, taskId) =>
                 {
-                    System.Diagnostics.Debug.WriteLine($"EditButtonClicked for Subtask ID: {taskId}");
                     if (_userRole == "Создатель" || _userRole == "Администратор")
                     {
                         var page = new SubtaskEdit(taskId);
-                        this.NavigationService?.Navigate(page);
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine("User does not have permission to edit subtask.");
+                        NavigationService.GetNavigationService(this)?.Navigate(page);
                     }
                 };
 
                 subtaskCard.DeleteButtonClicked += (senderObj, taskId) =>
                 {
-                    System.Diagnostics.Debug.WriteLine($"DeleteButtonClicked for Subtask ID: {taskId}");
                     if (_userRole == "Создатель" || _userRole == "Администратор")
                     {
                         if (MessageBox.Show("Удалить подзадачу?", "Подтверждение",
                             MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                         {
-                            try
+                            var subtaskToDelete = _subtasks.FirstOrDefault(s => s.Id == taskId);
+                            if (subtaskToDelete != null)
                             {
-                                var subtaskToDelete = _subtasks.FirstOrDefault(s => s.Id == taskId);
-                                if (subtaskToDelete != null)
-                                {
-                                    subtaskToDelete.Delete();
-                                    _subtasks.Remove(subtaskToDelete);
-                                    InitializeKanbanBoard();
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Ошибка удаления: {ex.Message}");
+                                subtaskToDelete.Delete();
+                                _subtasks.Remove(subtaskToDelete);
+                                InitializeKanbanBoard();
                             }
                         }
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine("User does not have permission to delete subtask.");
                     }
                 };
 
@@ -308,27 +257,7 @@ namespace Project.Pages
 
             return panel;
         }
-        private void DeleteTask(int id)
-        {
-            try
-            {
-                using (var connection = Connection.OpenConnection())
-                {
-                    
 
-                    string deleteTaskQuery = "DELETE FROM Subtask WHERE id = @id";
-                    using (var cmd = new MySqlCommand(deleteTaskQuery, connection))
-                    {
-                        cmd.Parameters.AddWithValue("@id", id);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при удалении задачи: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
         private void HandleSubtaskDrop(DragEventArgs e, int newStatusId)
         {
             if (!(e.Data.GetData("SubtaskCard") is int subtaskId)) return;
@@ -336,16 +265,9 @@ namespace Project.Pages
             var subtask = _subtasks.FirstOrDefault(t => t.Id == subtaskId);
             if (subtask?.StatusId == newStatusId) return;
 
-            try
-            {
-                subtask.StatusId = newStatusId;
-                subtask.Update();
-                RefreshKanbanBoard();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка перемещения подзадачи: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            subtask.StatusId = newStatusId;
+            subtask.Update();
+            RefreshKanbanBoard();
         }
 
         private void RefreshKanbanBoard()
@@ -391,16 +313,9 @@ namespace Project.Pages
             if (MessageBox.Show("Удалить подзадачу?", "Подтверждение",
                 MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
 
-            try
-            {
-                var subtask = _subtasks.FirstOrDefault(s => s.Id == subtaskId);
-                subtask?.Delete();
-                RefreshKanbanBoard();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            var subtask = _subtasks.FirstOrDefault(s => s.Id == subtaskId);
+            subtask?.Delete();
+            RefreshKanbanBoard();
         }
 
         private void Bt_AddColumn(object sender, RoutedEventArgs e)
@@ -408,34 +323,26 @@ namespace Project.Pages
             string columnName = ShowInputDialog("Введите название нового столбца", "Добавить столбец", "Новый столбец");
             if (!string.IsNullOrWhiteSpace(columnName))
             {
-                try
+                var task = TaskContext.GetById(_currentTaskId);
+                if (task == null)
                 {
-                    var task = TaskContext.GetById(_currentTaskId);
-                    if (task == null)
-                    {
-                        MessageBox.Show("Задача не найдена", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    int projectId = int.Parse(task.ProjectCode);
-
-                    using (var connection = Connection.OpenConnection())
-                    {
-                        string query = "INSERT INTO kanbanColumn (title_status, project) VALUES (@title, @projectId); SELECT LAST_INSERT_ID();";
-                        using (var cmd = new MySqlCommand(query, connection))
-                        {
-                            cmd.Parameters.AddWithValue("@title", columnName);
-                            cmd.Parameters.AddWithValue("@projectId", projectId);
-                            int newColumnId = Convert.ToInt32(cmd.ExecuteScalar());
-                            Console.WriteLine($"Добавлен новый столбец: ID = {newColumnId}, Название = {columnName}");
-
-                            LoadData();
-                            InitializeKanbanBoard();
-                        }
-                    }
+                    MessageBox.Show("Задача не найдена", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-                catch (Exception ex)
+                int projectId = int.Parse(task.ProjectCode);
+
+                using (var connection = Connection.OpenConnection())
                 {
-                    MessageBox.Show($"Ошибка при добавлении столбца: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    string query = "INSERT INTO kanbanColumn (title_status, project) VALUES (@title, @projectId); SELECT LAST_INSERT_ID();";
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@title", columnName);
+                        cmd.Parameters.AddWithValue("@projectId", projectId);
+                        int newColumnId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        LoadData();
+                        InitializeKanbanBoard();
+                    }
                 }
             }
         }
@@ -488,7 +395,7 @@ namespace Project.Pages
             {
                 var addSubtaskPage = new AddSubtask(_currentTaskId, null, projectId);
                 addSubtaskPage.CreatedSubtask += OnSubtaskCreated;
-                NavigationService?.Navigate(addSubtaskPage);
+                System.Windows.Navigation.NavigationService.GetNavigationService(this)?.Navigate(addSubtaskPage);
             }
             else
             {
@@ -523,19 +430,18 @@ namespace Project.Pages
             if (task != null)
             {
                 int projectId = int.Parse(task.ProjectCode);
-                NavigationService?.Navigate(new Kanban(projectId));
+                System.Windows.Navigation.NavigationService.GetNavigationService(this)?.Navigate(new Kanban(projectId));
             }
             else
             {
                 MessageBox.Show("Задача не найдена, возвращение на страницу проектов.");
-                NavigationService?.Navigate(new Project1());
+                System.Windows.Navigation.NavigationService.GetNavigationService(this)?.Navigate(new Project1());
             }
         }
 
         private void PAText_MouseDown(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new PersonalAccount());
+            System.Windows.Navigation.NavigationService.GetNavigationService(this)?.Navigate(new PersonalAccount());
         }
-       
     }
 }
