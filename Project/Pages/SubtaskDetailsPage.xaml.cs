@@ -4,6 +4,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Project.Classes;
+using MySql.Data.MySqlClient;
+using Project.Classes.Common;
 
 namespace Project.Pages
 {
@@ -11,6 +13,7 @@ namespace Project.Pages
     {
         private SubtaskContext _subtask;
         private List<UserContext> _responsibleUsers;
+        private int _projectId;
 
         public int SubtaskNumber => _subtask?.Id ?? 0;
         public string SubtaskName => _subtask?.Name ?? "Не указано";
@@ -18,7 +21,6 @@ namespace Project.Pages
         public DateTime DueDate => _subtask?.DueDate ?? DateTime.MinValue;
         public string StatusName => GetStatusName(_subtask?.StatusId ?? 0);
         public string TaskName => GetTaskName(_subtask?.TaskId ?? 0);
-        
         public List<UserContext> ResponsibleUsers => _responsibleUsers;
 
         public SubtaskDetailsPage(int subtaskId)
@@ -30,59 +32,69 @@ namespace Project.Pages
 
         private void LoadSubtaskData(int subtaskId)
         {
-            // Загрузка данных подзадачи
-            _subtask = SubtaskContext.GetById(subtaskId);
-
-            // Загрузка ответственных пользователей
-            _responsibleUsers = new List<UserContext>();
-            var taskUsers = TaskUserContext.Get().Where(tu => tu.TaskId == _subtask.TaskId).ToList();
-            var allUsers = UserContext.Get();
-
-            foreach (var taskUser in taskUsers)
+            try
             {
-                var user = allUsers.FirstOrDefault(u => u.Id == taskUser.UserId);
-                if (user != null)
+                _subtask = SubtaskContext.GetById(subtaskId);
+                if (_subtask == null)
                 {
-                    _responsibleUsers.Add(user);
+                    MessageBox.Show("Подзадача не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    NavigationService?.GoBack();
+                    return;
                 }
+                _responsibleUsers = new List<UserContext>();
+                var taskUsers = TaskUserContext.Get().Where(tu => tu.TaskId == _subtask.TaskId).ToList();
+                var allUsers = UserContext.Get();
+
+                foreach (var taskUser in taskUsers)
+                {
+                    var user = allUsers.FirstOrDefault(u => u.Id == taskUser.UserId);
+                    if (user != null)
+                    {
+                        _responsibleUsers.Add(user);
+                    }
+                }
+
+                listViewResponsible.ItemsSource = _responsibleUsers;
+
+                // Определение projectId через задачу
+                var task = TaskContext.GetById(_subtask.TaskId);
+                if (task != null && int.TryParse(task.ProjectCode, out int projectId))
+                {
+                    _projectId = projectId;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке данных подзадачи: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private string GetStatusName(int statusId)
         {
-            // Логика получения имени статуса
-            return $"Статус {statusId}";
+            try
+            {
+                using (var connection = Connection.OpenConnection())
+                {
+                    string query = "SELECT title_status FROM kanbanColumn WHERE id = @statusId";
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@statusId", statusId);
+                        var result = cmd.ExecuteScalar();
+                        return result?.ToString() ?? $"Статус {statusId}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error fetching status name for ID {statusId}: {ex.Message}");
+                return $"Статус {statusId}";
+            }
         }
 
         private string GetTaskName(int taskId)
         {
-            // Логика получения имени задачи
             var task = TaskContext.GetById(taskId);
             return task?.Name ?? "Не указан";
-        }
-
-       
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
-        {
-            var result = MessageBox.Show(
-                "Вы уверены, что хотите удалить эту подзадачу?",
-                "Подтверждение удаления",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.Yes && _subtask != null)
-            {
-                try
-                {
-                    _subtask.Delete();
-                    MessageBox.Show("Подзадача успешно удалена");
-                    NavigationService.GoBack();
-                }
-                catch (System.Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при удалении: {ex.Message}");
-                }
-            }
         }
 
         private void Bt8_Cancel(object sender, RoutedEventArgs e)

@@ -48,14 +48,24 @@ namespace Project.Pages
 
         private void InitializeUserRole()
         {
-            if (App.CurrentUser == null) return;
+            if (App.CurrentUser == null)
+            {
+                System.Diagnostics.Debug.WriteLine("App.CurrentUser is null. Cannot initialize user role.");
+                _userRole = "Не в проекте";
+                return;
+            }
 
             var task = TaskContext.GetById(_currentTaskId);
-            if (task == null) return;
+            if (task == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"Task with ID {_currentTaskId} not found.");
+                _userRole = "Не в проекте";
+                return;
+            }
 
             int projectId = int.Parse(task.ProjectCode);
             _userRole = GetUserRoleWithLogging(projectId, App.CurrentUser.Id);
-            Console.WriteLine($"Текущая роль пользователя: {_userRole}");
+            System.Diagnostics.Debug.WriteLine($"Текущая роль пользователя: {_userRole}");
         }
 
         private void LoadProfileImage()
@@ -247,18 +257,25 @@ namespace Project.Pages
                     Margin = new Thickness(0, 5, 0, 0)
                 };
 
+                System.Diagnostics.Debug.WriteLine($"Creating SubtaskCard with ID: {subtask.Id}, UserRole: {_userRole}");
+
                 subtaskCard.EditButtonClicked += (senderObj, taskId) =>
                 {
+                    System.Diagnostics.Debug.WriteLine($"EditButtonClicked for Subtask ID: {taskId}");
                     if (_userRole == "Создатель" || _userRole == "Администратор")
                     {
                         var page = new SubtaskEdit(taskId);
                         this.NavigationService?.Navigate(page);
                     }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("User does not have permission to edit subtask.");
+                    }
                 };
 
-                // Исправленный обработчик удаления
                 subtaskCard.DeleteButtonClicked += (senderObj, taskId) =>
                 {
+                    System.Diagnostics.Debug.WriteLine($"DeleteButtonClicked for Subtask ID: {taskId}");
                     if (_userRole == "Создатель" || _userRole == "Администратор")
                     {
                         if (MessageBox.Show("Удалить подзадачу?", "Подтверждение",
@@ -280,8 +297,11 @@ namespace Project.Pages
                             }
                         }
                     }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("User does not have permission to delete subtask.");
+                    }
                 };
-
 
                 panel.Children.Add(subtaskCard);
             }

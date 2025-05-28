@@ -33,9 +33,6 @@ namespace Project.Main
         public static readonly DependencyProperty UserRoleProperty =
             DependencyProperty.Register("UserRole", typeof(string), typeof(SubtaskCard),
                 new PropertyMetadata(string.Empty));
-       
-
-       
 
         public event EventHandler<int> EditButtonClicked;
         public event EventHandler<int> DeleteButtonClicked;
@@ -100,6 +97,7 @@ namespace Project.Main
 
         private void DetailsTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"Navigating to SubtaskDetailsPage for Subtask ID: {SubtaskNumber}");
             var subtaskDetailsPage = new SubtaskDetailsPage(SubtaskNumber);
             var navigationService = NavigationService.GetNavigationService(this);
             navigationService?.Navigate(subtaskDetailsPage);
@@ -107,12 +105,14 @@ namespace Project.Main
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"Edit button clicked for Subtask ID: {SubtaskNumber}");
             EditButtonClicked?.Invoke(this, SubtaskNumber);
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"Delete button clicked for Subtask ID: {SubtaskNumber}");
             DeleteButtonClicked?.Invoke(this, SubtaskNumber);
         }
     }
-    }
+}

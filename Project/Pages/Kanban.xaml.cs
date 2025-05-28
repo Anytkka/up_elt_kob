@@ -10,6 +10,7 @@ using Project.Classes.Common;
 using System.Windows.Input;
 using System.IO;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 
 namespace Project.Pages
 {
@@ -24,13 +25,29 @@ namespace Project.Pages
 
         public Kanban(int projectId)
         {
-            InitializeComponent();
-            _currentProjectId = projectId;
-            LoadData();
-            InitializeKanbanBoard();
-            this.DataContext = App.CurrentUser;
-            InitializeAddTaskButtonVisibility();
-            LoadProfileImage();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"Инициализация Kanban для projectId {projectId}");
+                InitializeComponent();
+                System.Diagnostics.Debug.WriteLine("InitializeComponent завершен");
+                _currentProjectId = projectId;
+                LoadData();
+                System.Diagnostics.Debug.WriteLine("LoadData завершен");
+                InitializeKanbanBoard();
+                System.Diagnostics.Debug.WriteLine("InitializeKanbanBoard завершен");
+                this.DataContext = App.CurrentUser;
+                InitializeAddTaskButtonVisibility();
+                System.Diagnostics.Debug.WriteLine("InitializeAddTaskButtonVisibility завершен");
+                LoadProfileImage();
+                System.Diagnostics.Debug.WriteLine("LoadProfileImage завершен");
+                System.Diagnostics.Debug.WriteLine("Инициализация Kanban завершена успешно");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при инициализации Kanban: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                MessageBox.Show($"Ошибка при загрузке страницы Kanban: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                NavigationService?.Navigate(new Project1());
+            }
         }
 
         private void LoadProfileImage()
@@ -38,19 +55,20 @@ namespace Project.Pages
             var leftProfileImageControl = this.leftProfileImage;
             if (leftProfileImageControl == null)
             {
+                System.Diagnostics.Debug.WriteLine("Элемент leftProfileImage не найден в XAML");
                 MessageBox.Show("Элемент изображения 'leftProfileImage' не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             try
             {
-                Console.WriteLine($"App.CurrentUser: {(App.CurrentUser != null ? "Не null" : "Null")}");
+                System.Diagnostics.Debug.WriteLine($"App.CurrentUser: {(App.CurrentUser != null ? "Не null" : "Null")}");
                 if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.ProfileImagePath?.Trim()))
                 {
-                    Console.WriteLine($"Проверка существования файла: {App.CurrentUser.ProfileImagePath}");
+                    System.Diagnostics.Debug.WriteLine($"Проверка существования файла: {App.CurrentUser.ProfileImagePath}");
                     if (File.Exists(App.CurrentUser.ProfileImagePath))
                     {
-                        Console.WriteLine("Файл существует, загружаем...");
+                        System.Diagnostics.Debug.WriteLine("Файл существует, загружаем...");
                         var bitmap = new BitmapImage();
                         bitmap.BeginInit();
                         bitmap.UriSource = new Uri(App.CurrentUser.ProfileImagePath, UriKind.Absolute);
@@ -60,211 +78,296 @@ namespace Project.Pages
                     }
                     else
                     {
-                        Console.WriteLine($"Файл не найден по пути: {App.CurrentUser.ProfileImagePath}");
+                        System.Diagnostics.Debug.WriteLine($"Файл не найден по пути: {App.CurrentUser.ProfileImagePath}");
                         leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
                     }
                 }
                 else
                 {
-                    Console.WriteLine("ProfileImagePath пустой или null, загружаем изображение по умолчанию.");
+                    System.Diagnostics.Debug.WriteLine("ProfileImagePath пустой или null, загружаем изображение по умолчанию.");
                     leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка загрузки изображения: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки изображения: {ex.Message}");
                 leftProfileImageControl.Source = new BitmapImage(new Uri("pack://application:,,,/Image/avata.jpg", UriKind.Absolute));
             }
         }
 
         private void LoadData()
         {
-            _kanbanColumns = KanbanColumnContext.Get().Where(k => k.ProjectId == _currentProjectId).ToList();
-            _tasks = TaskContext.Get().Where(t => int.TryParse(t.ProjectCode, out int projectId) && projectId == _currentProjectId).ToList();
-            _taskUsers = TaskUserContext.Get();
-            _users = UserContext.Get();
-            var project = ProjectContext.Get().FirstOrDefault(p => p.Id == _currentProjectId);
-            if (project != null)
+            try
             {
-                var nameLabel = FindName("Name_project") as Label;
-                if (nameLabel != null)
+                System.Diagnostics.Debug.WriteLine("Загрузка данных для Kanban...");
+                _kanbanColumns = KanbanColumnContext.Get().Where(k => k.ProjectId == _currentProjectId).ToList();
+                System.Diagnostics.Debug.WriteLine($"Загружено столбцов: {_kanbanColumns.Count}");
+
+                var allTasks = TaskContext.Get();
+                _tasks = allTasks.Where(t =>
                 {
-                    nameLabel.Content = project.Name;
+                    if (string.IsNullOrWhiteSpace(t.ProjectCode))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Задача с ID {t.Id} имеет пустой ProjectCode");
+                        return false;
+                    }
+                    return int.TryParse(t.ProjectCode, out int projectId) && projectId == _currentProjectId;
+                }).ToList();
+                System.Diagnostics.Debug.WriteLine($"Загружено задач: {_tasks.Count}");
+
+                _taskUsers = TaskUserContext.Get();
+                System.Diagnostics.Debug.WriteLine($"Загружено связей task_user: {_taskUsers.Count}");
+
+                _users = UserContext.Get();
+                System.Diagnostics.Debug.WriteLine($"Загружено пользователей: {_users.Count}");
+
+                var project = ProjectContext.Get().FirstOrDefault(p => p.Id == _currentProjectId);
+                if (project != null)
+                {
+                    var nameLabel = FindName("Name_project") as Label;
+                    if (nameLabel != null)
+                    {
+                        nameLabel.Content = project.Name;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("Элемент Name_project не найден в XAML");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Проект с ID {_currentProjectId} не найден");
+                }
+
+                _userRole = GetUserRole(_currentProjectId, App.CurrentUser?.Id ?? 0);
+                System.Diagnostics.Debug.WriteLine($"Роль пользователя: {_userRole}");
+
+                foreach (var task in _tasks)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Задача: {task.Id} - {task.Name} (Статус: {task.Status})");
                 }
             }
-            _userRole = GetUserRole(_currentProjectId, App.CurrentUser?.Id ?? 0);
-            Console.WriteLine($"Загружено задач: {_tasks.Count}");
-            foreach (var task in _tasks)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Задача: {task.Id} - {task.Name} (Статус: {task.Status})");
+                System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке данных: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                throw new Exception($"Не удалось загрузить данные: {ex.Message}", ex);
             }
         }
 
         private string GetUserRole(int projectId, int userId)
         {
-            using (var connection = Connection.OpenConnection())
+            try
             {
-                string query = "SELECT role FROM project_user WHERE project = @projectId AND user = @userId";
-                using (var cmd = new MySqlCommand(query, connection))
+                System.Diagnostics.Debug.WriteLine($"Получение роли для projectId {projectId}, userId {userId}");
+                using (var connection = Connection.OpenConnection())
                 {
-                    cmd.Parameters.AddWithValue("@projectId", projectId);
-                    cmd.Parameters.AddWithValue("@userId", userId);
-                    var result = cmd.ExecuteScalar();
-                    return result?.ToString() ?? "Не в проекте";
+                    if (connection == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Не удалось открыть соединение с базой данных");
+                        return "Не в проекте";
+                    }
+
+                    string query = "SELECT role FROM project_user WHERE project = @projectId AND user = @userId";
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@projectId", projectId);
+                        cmd.Parameters.AddWithValue("@userId", userId);
+                        var result = cmd.ExecuteScalar();
+                        var role = result?.ToString() ?? "Не в проекте";
+                        System.Diagnostics.Debug.WriteLine($"Получена роль: {role}");
+                        return role;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при получении роли: {ex.Message}");
+                return "Не в проекте";
             }
         }
 
         private void InitializeAddTaskButtonVisibility()
         {
-            if (App.CurrentUser == null) return;
+            if (App.CurrentUser == null)
+            {
+                System.Diagnostics.Debug.WriteLine("App.CurrentUser is null");
+                return;
+            }
 
             AddTaskButton.Visibility = (_userRole == "Создатель" || _userRole == "Администратор")
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+            System.Diagnostics.Debug.WriteLine($"AddTaskButton Visibility: {AddTaskButton.Visibility}");
         }
 
         private void InitializeKanbanBoard()
         {
-            var kanbanPanel = FindName("parent") as StackPanel;
-            if (kanbanPanel == null) return;
-
-            kanbanPanel.Children.Clear();
-            kanbanPanel.Orientation = Orientation.Horizontal;
-
-            LoadData();
-
-            foreach (var column in _kanbanColumns.OrderBy(c => c.Id))
+            try
             {
-                var columnBorder = new Border
+                System.Diagnostics.Debug.WriteLine("Инициализация Kanban Board...");
+                var kanbanPanel = FindName("parent") as StackPanel;
+                if (kanbanPanel == null)
                 {
-                    Width = 250,
-                    Margin = new Thickness(5),
-                    Background = System.Windows.Media.Brushes.White,
-                    CornerRadius = new CornerRadius(5),
-                    Padding = new Thickness(5),
-                    AllowDrop = _userRole != "Не в проекте",
-                    Tag = column.Id
-                };
-
-                columnBorder.DragEnter += (s, e) =>
-                {
-                    if (e.Data.GetDataPresent("TaskCard") && _userRole != "Не в проекте")
-                    {
-                        columnBorder.Background = System.Windows.Media.Brushes.LightBlue;
-                    }
-                };
-                columnBorder.DragLeave += (s, e) =>
-                {
-                    columnBorder.Background = System.Windows.Media.Brushes.White;
-                };
-
-                columnBorder.Drop += (s, e) =>
-                {
-                    if (e.Data.GetDataPresent("TaskCard") && _userRole != "Не в проекте")
-                    {
-                        int taskId = (int)e.Data.GetData("TaskCard");
-                        int newColumnId = (int)((Border)s).Tag;
-
-                        var task = _tasks.FirstOrDefault(t => t.Id == taskId);
-                        if (task != null)
-                        {
-                            task.Status = newColumnId;
-                            task.Update();
-                            Console.WriteLine($"Task {taskId} moved to column {newColumnId}");
-                        }
-
-                        LoadData();
-                        InitializeKanbanBoard();
-                    }
-                    columnBorder.Background = System.Windows.Media.Brushes.White;
-                };
-
-                var columnStack = new StackPanel();
-
-                var headerStack = new StackPanel { Orientation = Orientation.Horizontal };
-                var titleLabel = new Label
-                {
-                    Content = column.TitleStatus,
-                    FontWeight = FontWeights.Bold,
-                    HorizontalAlignment = HorizontalAlignment.Center
-                };
-
-                headerStack.Children.Add(titleLabel);
-                columnStack.Children.Add(headerStack);
-
-                var columnTasks = _tasks.Where(t => t.Status == column.Id).ToList();
-                foreach (var task in columnTasks)
-                {
-                    var responsibleUsers = _taskUsers
-                        .Where(tu => tu.TaskId == task.Id)
-                        .Join(_users, tu => tu.UserId, u => u.Id, (tu, u) => u)
-                        .ToList();
-                    var responsibleNames = string.Join(", ", responsibleUsers.Select(u => u.FullName));
-
-                    var taskCard = new TaskCard
-                    {
-                        TaskNumber = task.Id,
-                        TaskName = task.Name,
-                        Responsible = responsibleNames,
-                        ProjectCode = task.ProjectCode,
-                        ProjectName = task.ProjectName,
-                        UserRole = _userRole,
-                        Margin = new Thickness(0, 5, 0, 0)
-                    };
-
-                    taskCard.TaskButtonClicked += (sender, taskId) =>
-                    {
-                        NavigationService?.Navigate(new SubtaskKanban(taskId));
-                    };
-
-                    taskCard.DetailsButtonClicked += (sender, taskId) =>
-                    {
-                        NavigationService?.Navigate(new TaskDetails(taskId));
-                    };
-
-                    taskCard.EditButtonClicked += (sender, taskId) =>
-                    {
-                        if (_userRole == "Создатель" || _userRole == "Администратор")
-                        {
-                            NavigationService?.Navigate(new TaskEdit(taskId));
-                        }
-                    };
-
-                    taskCard.DeleteButtonClicked += (sender, taskId) =>
-                    {
-                        if (_userRole == "Создатель")
-                        {
-                            if (MessageBox.Show("Вы уверены, что хотите удалить задачу?", "Подтверждение",
-                                MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-                            {
-                                DeleteTask(taskId);
-                                LoadData();
-                                InitializeKanbanBoard();
-                            }
-                        }
-                    };
-
-                    columnStack.Children.Add(taskCard);
+                    System.Diagnostics.Debug.WriteLine("Элемент parent не найден в XAML");
+                    return;
                 }
 
-                columnBorder.Child = columnStack;
-                kanbanPanel.Children.Add(columnBorder);
-            }
+                kanbanPanel.Children.Clear();
+                kanbanPanel.Orientation = Orientation.Horizontal;
 
-            if (_userRole == "Создатель" || _userRole == "Администратор")
-            {
-                var addColumnButton = new Button
+                LoadData();
+
+                foreach (var column in _kanbanColumns.OrderBy(c => c.Id))
                 {
-                    Content = "Добавить столбец",
-                    Width = 250,
-                    Margin = new Thickness(5),
-                    Background = System.Windows.Media.Brushes.DarkGray,
-                    Foreground = System.Windows.Media.Brushes.Black,
-                    FontWeight = FontWeights.Bold
-                };
-                addColumnButton.Click += Bt_AddColumn;
-                kanbanPanel.Children.Add(addColumnButton);
+                    System.Diagnostics.Debug.WriteLine($"Создание столбца: {column.TitleStatus} (ID: {column.Id})");
+                    var columnBorder = new Border
+                    {
+                        Width = 250,
+                        Margin = new Thickness(5),
+                        Background = System.Windows.Media.Brushes.White,
+                        CornerRadius = new CornerRadius(5),
+                        Padding = new Thickness(5),
+                        AllowDrop = _userRole != "Не в проекте",
+                        Tag = column.Id
+                    };
+
+                    columnBorder.DragEnter += (s, e) =>
+                    {
+                        if (e.Data.GetDataPresent("TaskCard") && _userRole != "Не в проекте")
+                        {
+                            columnBorder.Background = System.Windows.Media.Brushes.LightBlue;
+                        }
+                    };
+                    columnBorder.DragLeave += (s, e) =>
+                    {
+                        columnBorder.Background = System.Windows.Media.Brushes.White;
+                    };
+
+                    columnBorder.Drop += (s, e) =>
+                    {
+                        if (e.Data.GetDataPresent("TaskCard") && _userRole != "Не в проекте")
+                        {
+                            int taskId = (int)e.Data.GetData("TaskCard");
+                            int newColumnId = (int)((Border)s).Tag;
+
+                            var task = _tasks.FirstOrDefault(t => t.Id == taskId);
+                            if (task != null)
+                            {
+                                task.Status = newColumnId;
+                                task.Update();
+                                System.Diagnostics.Debug.WriteLine($"Task {taskId} moved to column {newColumnId}");
+                            }
+
+                            LoadData();
+                            InitializeKanbanBoard();
+                        }
+                        columnBorder.Background = System.Windows.Media.Brushes.White;
+                    };
+
+                    var columnStack = new StackPanel();
+
+                    var headerStack = new StackPanel { Orientation = Orientation.Horizontal };
+                    var titleLabel = new Label
+                    {
+                        Content = column.TitleStatus,
+                        FontWeight = FontWeights.Bold,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    };
+
+                    headerStack.Children.Add(titleLabel);
+                    columnStack.Children.Add(headerStack);
+
+                    var columnTasks = _tasks.Where(t => t.Status == column.Id).ToList();
+                    System.Diagnostics.Debug.WriteLine($"Задач в столбце {column.TitleStatus}: {columnTasks.Count}");
+                    foreach (var task in columnTasks)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Создание TaskCard для задачи {task.Id}: {task.Name}");
+                        var responsibleUsers = _taskUsers
+                            .Where(tu => tu.TaskId == task.Id)
+                            .Join(_users, tu => tu.UserId, u => u.Id, (tu, u) => u)
+                            .ToList();
+                        var responsibleNames = string.Join(", ", responsibleUsers.Select(u => u.FullName));
+
+                        TaskCard taskCard = null;
+                        try
+                        {
+                            taskCard = new TaskCard
+                            {
+                                TaskNumber = task.Id,
+                                TaskName = task.Name,
+                                Responsible = responsibleNames,
+                                ProjectCode = task.ProjectCode,
+                                ProjectName = task.ProjectName,
+                                UserRole = _userRole,
+                                Margin = new Thickness(0, 5, 0, 0)
+                            };
+                            System.Diagnostics.Debug.WriteLine($"TaskCard для задачи {task.Id} создан успешно");
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Ошибка при создании TaskCard для задачи {task.Id}: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                            throw;
+                        }
+
+                        taskCard.TaskButtonClicked += (sender, taskId) =>
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Переход к подзадачам для задачи {taskId}");
+                            NavigationService?.Navigate(new SubtaskKanban(taskId));
+                        };
+
+                        taskCard.DetailsButtonClicked += (sender, taskId) =>
+                        {
+                            NavigationService?.Navigate(new TaskDetails(taskId));
+                        };
+
+                        taskCard.EditButtonClicked += (sender, taskId) =>
+                        {
+                            if (_userRole == "Создатель" || _userRole == "Администратор")
+                            {
+                                NavigationService?.Navigate(new TaskEdit(taskId));
+                            }
+                        };
+
+                        taskCard.DeleteButtonClicked += (sender, taskId) =>
+                        {
+                            if (_userRole == "Создатель")
+                            {
+                                if (MessageBox.Show("Вы уверены, что хотите удалить задачу?", "Подтверждение",
+                                    MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                                {
+                                    DeleteTask(taskId);
+                                    LoadData();
+                                    InitializeKanbanBoard();
+                                }
+                            }
+                        };
+
+                        columnStack.Children.Add(taskCard);
+                    }
+
+                    columnBorder.Child = columnStack;
+                    kanbanPanel.Children.Add(columnBorder);
+                }
+
+                if (_userRole == "Создатель" || _userRole == "Администратор")
+                {
+                    var addColumnButton = new Button
+                    {
+                        Content = "Добавить столбец",
+                        Width = 250,
+                        Margin = new Thickness(5),
+                        Background = System.Windows.Media.Brushes.DarkGray,
+                        Foreground = System.Windows.Media.Brushes.Black,
+                        FontWeight = FontWeights.Bold
+                    };
+                    addColumnButton.Click += Bt_AddColumn;
+                    kanbanPanel.Children.Add(addColumnButton);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при инициализации Kanban Board: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                throw new Exception($"Не удалось инициализировать доску Kanban: {ex.Message}", ex);
             }
         }
 

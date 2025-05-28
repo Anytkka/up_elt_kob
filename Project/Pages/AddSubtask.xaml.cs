@@ -16,9 +16,11 @@ namespace Project.Pages
         private int _projectId;
         private SubtaskContext _editingSubtask;
         private List<UserContext> _responsiblePersons;
+        private string _userRole;
 
         public event Action<SubtaskContext> CreatedSubtask;
         public string ButtonText => _editingSubtask == null ? "Добавить" : "Обновить";
+        public bool CanEdit => _userRole == "Создатель" || _userRole == "Администратор";
 
         public AddSubtask(int taskId, SubtaskContext subtask = null, int projectId = 0)
         {
@@ -27,14 +29,13 @@ namespace Project.Pages
             _projectId = projectId;
             _editingSubtask = subtask;
 
-            // Если projectId не передан и taskId не временный (не -1), извлекаем его из TaskContext
             if (_projectId == 0 && _taskId != -1)
             {
                 var task = TaskContext.GetById(_taskId);
                 if (task != null && int.TryParse(task.ProjectCode, out int extractedProjectId))
                 {
                     _projectId = extractedProjectId;
-                    Console.WriteLine($"Извлечён projectId: {_projectId} из задачи {_taskId}.");
+                    System.Diagnostics.Debug.WriteLine($"Извлечён projectId: {_projectId} из задачи {_taskId}.");
                 }
                 else
                 {
@@ -45,9 +46,50 @@ namespace Project.Pages
                 }
             }
 
-            DataContext = this;
+            LoadUserRole();
             LoadResponsiblePersons();
             InitializeFields();
+            DataContext = this;
+        }
+
+        private void LoadUserRole()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"Загрузка роли пользователя. ProjectId: {_projectId}, UserId: {App.CurrentUser?.Id}");
+                if (App.CurrentUser == null || App.CurrentUser.Id == 0)
+                {
+                    MessageBox.Show("Текущий пользователь не определён. Проверьте авторизацию.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _userRole = "Пользователь";
+                    return;
+                }
+
+                using (var connection = Connection.OpenConnection())
+                {
+                    if (connection == null)
+                    {
+                        MessageBox.Show("Не удалось подключиться к базе данных.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        _userRole = "Пользователь";
+                        return;
+                    }
+
+                    string roleQuery = "SELECT role FROM project_user WHERE project = @projectId AND user = @userId";
+                    using (var cmd = new MySqlCommand(roleQuery, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@projectId", _projectId);
+                        cmd.Parameters.AddWithValue("@userId", App.CurrentUser.Id);
+                        var result = cmd.ExecuteScalar();
+                        _userRole = result?.ToString() ?? "Пользователь";
+                        System.Diagnostics.Debug.WriteLine($"Роль пользователя: {_userRole}, CanEdit: {CanEdit}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке роли пользователя: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                _userRole = "Пользователь";
+                System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке роли: {ex.Message}");
+            }
         }
 
         private void LoadResponsiblePersons()
@@ -87,7 +129,7 @@ namespace Project.Pages
                                 int userId = Convert.ToInt32(reader["id"]);
                                 var user = new UserContext(userId, "", "", fullName, null, null);
                                 _responsiblePersons.Add(user);
-                                Console.WriteLine($"Загружен пользователь: ID = {userId}, FullName = {user.FullName}");
+                                System.Diagnostics.Debug.WriteLine($"Загружен пользователь: ID = {userId}, FullName = {user.FullName}");
                             }
                         }
                     }
@@ -99,19 +141,7 @@ namespace Project.Pages
                                     "Проверьте таблицу project_user и убедитесь, что для этого проекта есть пользователи.",
                                     "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-                else
-                {
-                    foreach (var user in _responsiblePersons)
-                    {
-                        if (string.IsNullOrEmpty(user.FullName))
-                        {
-                            Console.WriteLine($"Предупреждение: FullName пуст для пользователя ID = {user.Id}");
-                            user.FullName = "Не указано";
-                        }
-                    }
-                }
 
-                Responsible.ItemsSource = null;
                 Responsible.ItemsSource = _responsiblePersons;
                 Responsible.DisplayMemberPath = "FullName";
                 Responsible.SelectedValuePath = "Id";
@@ -119,14 +149,8 @@ namespace Project.Pages
                 if (_responsiblePersons.Count > 0)
                 {
                     Responsible.SelectedIndex = 0;
-                    Console.WriteLine($"Выбран первый пользователь: {_responsiblePersons[0].FullName}");
+                    System.Diagnostics.Debug.WriteLine($"Выбран первый пользователь: {_responsiblePersons[0].FullName}");
                 }
-                else
-                {
-                    Console.WriteLine("Список пользователей пуст.");
-                }
-
-                Responsible.Items.Refresh();
             }
             catch (MySqlException ex)
             {
@@ -134,7 +158,7 @@ namespace Project.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка");
             }
         }
 
@@ -149,12 +173,12 @@ namespace Project.Pages
                 if (responsible != null)
                 {
                     Responsible.SelectedItem = responsible;
-                    Console.WriteLine($"Установлен ответственный: {responsible.FullName}");
+                    System.Diagnostics.Debug.WriteLine($"Установлен ответственный: {responsible.FullName}");
                 }
                 else if (_responsiblePersons.Count > 0)
                 {
                     Responsible.SelectedIndex = 0;
-                    Console.WriteLine($"Ответственный не найден, выбран первый: {_responsiblePersons[0].FullName}");
+                    System.Diagnostics.Debug.WriteLine($"Ответственный не найден, выбранный первый: {_responsiblePersons[0].FullName}");
                 }
             }
             else
@@ -171,10 +195,15 @@ namespace Project.Pages
 
         private void Bt_AddS(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Только Создатель или Администратор могут создавать подзадачи.", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(name.Text))
             {
-                MessageBox.Show("Введите наименование подзадачи.", "Ошибка",
-                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Введите наименование подзадачи.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -183,26 +212,24 @@ namespace Project.Pages
                 var selectedUser = Responsible.SelectedItem as UserContext;
                 if (selectedUser == null)
                 {
-                    MessageBox.Show("Выберите ответственного.", "Ошибка",
-                                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Выберите ответственного.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // Создаем подзадачу без сохранения в базе, если задача еще не создана (_taskId = 0 или -1)
                 SubtaskContext subtask;
                 if (_editingSubtask == null)
                 {
-                    subtask = new SubtaskContext(
-                        0, // Временный ID, будет обновлен при сохранении основной задачи
-                        name.Text,
-                        description.Text == "Опишите подробности" ? "" : description.Text,
-                        DateTime.Now.AddDays(7),
-                        _taskId, // Передаем _taskId как есть, даже если 0 или -1
-                        selectedUser.Id,
-                        GetNewColumnId()
-                    );
-
-                    // Не вызываем subtask.Add() здесь, так как сохранение произойдет после создания задачи
+                    subtask = new SubtaskContext
+                    {
+                        Name = name.Text,
+                        Description = description.Text == "Опишите подробности" ? "" : description.Text,
+                        DueDate = DateTime.Now.AddDays(7),
+                        TaskId = _taskId,
+                        UserId = selectedUser.Id,
+                        StatusId = GetNewColumnId()
+                    };
+                    subtask.Add(); // Используем Add() вместо Save()
+                    System.Diagnostics.Debug.WriteLine($"Новая подзадача добавлена: ID={subtask.Id}, Name={subtask.Name}");
                 }
                 else
                 {
@@ -210,16 +237,17 @@ namespace Project.Pages
                     subtask.Name = name.Text;
                     subtask.Description = description.Text == "Опишите подробности" ? "" : description.Text;
                     subtask.UserId = selectedUser.Id;
-                    subtask.Update(); // Обновляем в базе данных, если редактируем
+                    subtask.Update(); // Используем Update() вместо Save()
+                    System.Diagnostics.Debug.WriteLine($"Подзадача обновлена: ID={subtask.Id}, Name={subtask.Name}");
                 }
 
                 CreatedSubtask?.Invoke(subtask);
+                MessageBox.Show("Подзадача успешно добавлена/обновлена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 NavigationService?.GoBack();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при подготовке подзадачи: {ex.Message}",
-                                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка при подготовке подзадачи: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -234,7 +262,7 @@ namespace Project.Pages
                         .FirstOrDefault(c => c.ProjectId == projectId && c.TitleStatus == "Новые")?.Id ?? 1;
                 }
             }
-            return 1; // По умолчанию возвращаем 1, если задача еще не создана
+            return 1;
         }
     }
 }

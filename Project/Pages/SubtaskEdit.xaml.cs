@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using MySql.Data.MySqlClient;
+using System.Data.SqlClient;
 
 namespace Project.Pages
 {
@@ -24,6 +25,7 @@ namespace Project.Pages
         public DateTime DueDate { get; set; }
         public bool CanEdit => _userRole == "Создатель" || _userRole == "Администратор";
         public bool CanDelete => _userRole == "Создатель" || _userRole == "Администратор";
+        public bool IsReadOnly => !CanEdit;
 
         public SubtaskEdit(int subtaskId)
         {
@@ -38,36 +40,54 @@ namespace Project.Pages
             try
             {
                 _subtask = SubtaskContext.GetById(_subtaskId);
-                if (_subtask == null) return;
+                if (_subtask == null)
+                {
+                    MessageBox.Show("Подзадача не найдена.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    NavigationService?.GoBack();
+                    return;
+                }
 
                 SubtaskName = _subtask.Name;
                 Description = _subtask.Description;
                 DueDate = _subtask.DueDate;
 
                 var task = TaskContext.GetById(_subtask.TaskId);
-                _projectId = int.Parse(task.ProjectCode);
+                if (task != null && int.TryParse(task.ProjectCode, out int projectId))
+                {
+                    _projectId = projectId;
+                }
 
                 LoadUserRole();
                 LoadResponsiblePersons();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки: {ex.Message}");
+                MessageBox.Show($"Ошибка загрузки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void LoadUserRole()
         {
-            using (var connection = Connection.OpenConnection())
+            try
             {
-                string query = @"SELECT role FROM project_user 
-                                WHERE project = @projectId AND user = @userId";
-                using (var cmd = new MySqlCommand(query, connection))
+                using (var connection = Connection.OpenConnection())
                 {
-                    cmd.Parameters.AddWithValue("@projectId", _projectId);
-                    cmd.Parameters.AddWithValue("@userId", App.CurrentUser?.Id ?? 0);
-                    _userRole = cmd.ExecuteScalar()?.ToString() ?? "Пользователь";
+                    string query = @"SELECT role FROM project_user 
+                                    WHERE project = @projectId AND user = @userId";
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@projectId", _projectId);
+                        cmd.Parameters.AddWithValue("@userId", App.CurrentUser?.Id ?? 0);
+                        var result = cmd.ExecuteScalar();
+                        _userRole = result?.ToString() ?? "Пользователь";
+                        System.Diagnostics.Debug.WriteLine($"User role loaded: {_userRole}");
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки роли: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                _userRole = "Пользователь";
             }
         }
 
@@ -80,7 +100,8 @@ namespace Project.Pages
                     string query = @"SELECT u.id, u.fullName 
                                   FROM user u
                                   INNER JOIN project_user pu ON u.id = pu.user
-                                  WHERE pu.project = @projectId";
+                                  WHERE pu.project = @projectId"
+                    ;
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -90,19 +111,21 @@ namespace Project.Pages
                             cmbResponsible.Items.Clear();
                             while (reader.Read())
                             {
-                                cmbResponsible.Items.Add(new Participant
+                                var participant = new Participant
                                 {
                                     Id = reader.GetInt32("id"),
                                     Name = reader.GetString("fullName")
-                                });
+                                };
+                                cmbResponsible.Items.Add(participant);
                             }
                         }
                     }
 
                     // Текущий ответственный
-                    var currentUser = _users.FirstOrDefault(u => u.Id == _subtask.UserId);
+                    var currentUser = UserContext.Get().FirstOrDefault(u => u.Id == _subtask.UserId);
                     if (currentUser != null)
                     {
+                        _responsiblePersons.Clear();
                         _responsiblePersons.Add(new Participant
                         {
                             Id = currentUser.Id,
@@ -114,66 +137,46 @@ namespace Project.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки ответственных: {ex.Message}");
+                MessageBox.Show($"Ошибка загрузки ответственных: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void BtSave_Click(object sender, RoutedEventArgs e)
         {
-            if (!CanEdit) return;
+            if (!CanEdit)
+            {
+                MessageBox.Show("Только Создатель или Администратор могут редактировать подзадачу.", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtSubtaskName.Text))
+            {
+                MessageBox.Show("Введите наименование подзадачи.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             try
             {
-                _subtask.Name = SubtaskName;
-                _subtask.Description = Description;
-                _subtask.DueDate = DueDate;
+                _subtask.Name = txtSubtaskName.Text;
+                _subtask.Description = txtSubtaskDescription.Text;
+                _subtask.DueDate = dpDueDate.SelectedDate ?? DateTime.Now.AddDays(7);
                 _subtask.UserId = _responsiblePersons.FirstOrDefault()?.Id ?? 0;
 
                 _subtask.Update();
 
-                MessageBox.Show("Изменения сохранены!");
-                NavigationService.GoBack();
+                MessageBox.Show("Изменения сохранены!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                NavigationService?.GoBack();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка сохранения: {ex.Message}");
+                MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!CanDelete) return;
-
-            if (MessageBox.Show("Удалить подзадачу?", "Подтверждение",
-                MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    _subtask.Delete();
-                    MessageBox.Show("Подзадача удалена!");
-                    NavigationService.GoBack();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка удаления: {ex.Message}");
-                }
-            }
-        }
 
         private void BtCancel_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.GoBack();
-        }
-
-        public class Participant
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
-
-        private void cmbResponsible_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
+            NavigationService?.GoBack();
         }
 
         private void BtAddResponsible_Click(object sender, RoutedEventArgs e)
@@ -182,9 +185,16 @@ namespace Project.Pages
             {
                 _responsiblePersons.Clear(); // Для подзадачи только один ответственный
                 _responsiblePersons.Add(selected);
+                listViewResponsible.ItemsSource = _responsiblePersons;
                 listViewResponsible.Items.Refresh();
+                System.Diagnostics.Debug.WriteLine($"Responsible user set: {selected.Name}");
             }
+        }
+
+        public class Participant
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
     }
 }
-           

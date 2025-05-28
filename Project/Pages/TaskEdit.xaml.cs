@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using MySql.Data.MySqlClient;
+using Project.Main;
 
 namespace Project.Pages
 {
@@ -229,7 +230,7 @@ namespace Project.Pages
 
         private void BtAddSubtask_Click(object sender, RoutedEventArgs e)
         {
-            var addSubtaskPage = new AddSubtask(0, null, _projectId);
+            var addSubtaskPage = new AddSubtask(_taskId, null, _projectId);
             addSubtaskPage.CreatedSubtask += OnSubtaskCreated;
             NavigationService?.Navigate(addSubtaskPage);
         }
@@ -239,7 +240,7 @@ namespace Project.Pages
             if (subtask != null)
             {
                 Subtasks.Add(new SubtaskContext(
-                    0,
+                    0, // Временный ID, будет обновлен при сохранении
                     subtask.Name,
                     subtask.Description ?? "",
                     subtask.DueDate,
@@ -251,19 +252,56 @@ namespace Project.Pages
             }
         }
 
-        private void RemoveSubtask_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.DataContext is SubtaskContext subtask)
-            {
-                Subtasks.Remove(subtask);
-                UpdateSubtasksList();
-            }
-        }
-
         private void UpdateSubtasksList()
         {
             listViewSubtasks.ItemsSource = null;
-            listViewSubtasks.ItemsSource = Subtasks;
+            listViewSubtasks.ItemsSource = Subtasks.Select(s => new SubtaskCard
+            {
+                SubtaskNumber = s.Id,
+                SubtaskName = s.Name,
+                Responsible = UserContext.Get().FirstOrDefault(u => u.Id == s.UserId)?.FullName ?? "Не указан",
+                TaskCode = _taskId.ToString(),
+                TaskName = TaskName,
+                UserRole = _userRole // Передаем роль пользователя
+            }).ToList();
+
+            // Подписываемся на события для каждого SubtaskCard
+            foreach (SubtaskCard card in listViewSubtasks.Items)
+            {
+                card.EditButtonClicked += SubtaskCard_EditButtonClicked;
+                card.DeleteButtonClicked += SubtaskCard_DeleteButtonClicked;
+            }
+        }
+
+        private void SubtaskCard_EditButtonClicked(object sender, int subtaskId)
+        {
+            System.Diagnostics.Debug.WriteLine($"Navigating to SubtaskEdit for Subtask ID: {subtaskId}");
+            NavigationService?.Navigate(new SubtaskEdit(subtaskId));
+        }
+
+        private void SubtaskCard_DeleteButtonClicked(object sender, int subtaskId)
+        {
+            var result = MessageBox.Show("Вы уверены, что хотите удалить эту подзадачу?", "Подтверждение удаления",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    var subtaskToRemove = Subtasks.FirstOrDefault(s => s.Id == subtaskId);
+                    if (subtaskToRemove != null)
+                    {
+                        subtaskToRemove.Delete();
+                        Subtasks.Remove(subtaskToRemove);
+                        UpdateSubtasksList();
+                        MessageBox.Show("Подзадача удалена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void BtCancel_Click(object sender, RoutedEventArgs e)
